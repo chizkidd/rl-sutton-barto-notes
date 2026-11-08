@@ -29,6 +29,14 @@ jobs:
       - name: Render Book
         run: quarto render
 
+      - name: Ensure GitHub Pages 404 page exists
+        run: |
+          cp 404.html _site/404.html
+          test -s _site/index.html
+          test -s _site/404.html
+          echo "Verified Pages artifact:"
+          ls -lh _site/index.html _site/404.html
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

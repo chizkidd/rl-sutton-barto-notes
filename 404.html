@@ -1,16 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page Not Found</title>
   <script>
-    // Intercepts mixed-case 404 errors and forces a redirect to the standard lowercase URL
-    const currentURL = window.location.href;
-    const lowerCaseURL = currentURL.toLowerCase();
-    if (currentURL !== lowerCaseURL) {
-      window.location.replace(lowerCaseURL);
+    const url = new URL(window.location.href);
+
+    // Normalize only the GitHub Pages repository path.
+    url.pathname = url.pathname.replace(
+      /^\/RL-Sutton-Barto-notes(?=\/|$)/i,
+      "/rl-sutton-barto-notes"
+    );
+
+    if (url.pathname !== window.location.pathname) {
+      window.location.replace(url.toString());
     }
   </script>
 </head>
 <body>
-  <p>Redirecting to the correct page...</p>
+  <h1>Page not found</h1>
+  <p>The requested page does not exist.</p>
+  <p><a href="/rl-sutton-barto-notes/">Return to the book homepage</a></p>
 </body>
 </html>

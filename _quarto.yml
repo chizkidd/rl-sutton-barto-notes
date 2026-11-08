@@ -1,8 +1,6 @@
 project:
   type: book
   output-dir: _site
-  resources:
-    - 404.html
 
 book:
   title: "Reinforcement Learning: An Introduction (2nd Edition)"
