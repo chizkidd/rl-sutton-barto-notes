@@ -60,11 +60,11 @@ $$\boxed{\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - 
 - In the average-reward setting, the quality of a policy $\pi$ is defined as the average rate of reward, or simply **average reward**, while following that policy, denoted as $r(\pi)$:
 
 $$
-\begin{align*}
+\begin{aligned}
 r(\pi) &\doteq \lim_{h \to \infty} \frac{1}{h} \sum_{t=1}^{h} \mathbb{E}\!\left[R_t \mid S_0, A_{0:t-1} \sim \pi\right] \\
 &= \lim_{t \to \infty} \mathbb{E}\!\left[R_t \mid S_0, A_{0:t-1} \sim \pi\right] \\
 &= \sum_s \mu_\pi(s) \sum_a \pi(a \vert s) \sum_{s', r} p(s', r \vert s, a)\, r
-\end{align*}
+\end{aligned}
 $$
 
 - The expectations in the above equations are conditioned on the initial state $S_0$, and on the subsequent actions $A_0, A_1, \ldots, A_{t-1}$, being taken according to $\pi$.
@@ -135,7 +135,7 @@ $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{q}(S_t, A
   - Let's choose an objective that saves discounting by summing discounted values over the distribution with which states occur under the policy (where $v^\gamma_\pi \equiv$ discounted value function):
 
     $$
-    \begin{align*}
+    \begin{aligned}
     J(\pi) &= \sum_s \mu_\pi(s)\, v^\gamma_\pi(s) \\
     &= \sum_s \mu_\pi(s) \sum_a \pi(a \vert s) \sum_{s'} \sum_r p(s', r \vert s, a)\!\left[r + \gamma v^\gamma_\pi(s')\right] \\
     &= r(\pi) + \sum_s \mu_\pi(s) \sum_a \pi(a \vert s) \sum_{s'} \sum_r p(s', r \vert s, a)\, \gamma v^\gamma_\pi(s') \\
@@ -146,7 +146,7 @@ $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{q}(S_t, A
     &= r(\pi) + \gamma r(\pi) + \gamma^2 J(\pi) \\
     &= r(\pi) + \gamma r(\pi) + \gamma^2 r(\pi) + \gamma^3 r(\pi) + \gamma^4 r(\pi) + \ldots \\
     &= r(\pi)\!\left[1 + \gamma + \gamma^2 + \gamma^3 + \ldots\right]
-    \end{align*}
+    \end{aligned}
     $$
 
     $$\hspace{-6cm} \boxed{J(\pi) = \left(\frac{1}{1-\gamma}\right) r(\pi)}$$

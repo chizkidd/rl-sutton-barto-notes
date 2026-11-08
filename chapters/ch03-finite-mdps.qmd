@@ -114,11 +114,11 @@ $$\boxed{G_t \doteq R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \ldots = \sum_
 ### Recursive form of Expected return
 
 $$
-\begin{align*}
+\begin{aligned}
 G_t &= R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \gamma^3 R_{t+4} + \ldots \\
 &= R_{t+1} + \gamma\left(R_{t+2} + \gamma R_{t+3} + \gamma^2 R_{t+4} + \ldots\right) \\
 &= R_{t+1} + \gamma G_{t+1}
-\end{align*}
+\end{aligned}
 $$
 
 - From $G_t = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}$, the expected return is finite if $R \neq 0 \text{ and constant, if } \gamma < 1$. For example, if $R = \text{a constant } + 1$ at each timestep, then the discounted return is:
@@ -168,12 +168,12 @@ $$q_\pi(s,a) \doteq \mathbb{E}_\pi\left[G_t \mid S_t = s,\, A_t = a\right] = \ma
 - Recursive self-consistency conditions that must be satisfied by value functions for any policy and state in reinforcement learning and dynamic programming (DP) are called **Bellman equations.**
 
 $$
-\begin{align*}
+\begin{aligned}
 v_\pi(s) &\doteq \mathbb{E}_\pi\left[G_t \mid S_t = s\right] \\
 &= \mathbb{E}_\pi\left[R_{t+1} + \gamma G_{t+1} \mid S_t = s\right] \\
 &= \sum_a \pi(a \vert s) \sum_{s'} \sum_r p(s', r \vert s, a)\left[r + \gamma\, \mathbb{E}_\pi\left[G_{t+1} \mid S_{t+1} = s'\right]\right] \\
 &= \sum_a \pi(a \vert s) \sum_{s', r} p(s', r \vert s, a)\left[r + \gamma v_\pi(s')\right], \quad \forall\, s \in S
-\end{align*}
+\end{aligned}
 $$
 
 - This is the **Bellman Equation for $v_\pi$**. It expresses the relationship between the value of a state and the value of its successor states.
@@ -195,13 +195,13 @@ Backup Diagram for $v_\pi$
 
 - A state-value is an expectation over the available action-values under a policy:
 
-$$\begin{equation} 
+$$ 
 \begin{split}
 v_{\pi}(s) & \doteq \mathbb{E}_{\pi,p} [G_t\ |\ S_t{=}s]\\
 & = \mathbb{E}_{\pi,p} [q_{\pi}(s,A_t)\ |\ S_t{=}s], \quad \text{(cf. [*])}\\
 & = \displaystyle \sum_{a} \pi(a|s) q_{\pi}(s,a)\\
 \end{split}
-\end{equation}$$
+$$
 
 [*] Given a state-action pair, the return $G_t$ is an action-value. 
 
@@ -210,7 +210,7 @@ v_{\pi}(s) & \doteq \mathbb{E}_{\pi,p} [G_t\ |\ S_t{=}s]\\
 - The following recursive relationship satisfied by $v_{\pi}(s)$ is called the _Bellman equation for state-values_. The value function $v_{\pi}(s)$ is the _unique solution_ to its Bellman equation.
 
 $$
-\begin{align*}
+\begin{aligned}
 v_{\pi}(s) & \doteq \mathbb{E}_{\pi,p} [G_t\ |\ S_t{=}s]\\
 & = \mathbb{E}_{\pi,p} [R_{t+1} + \gamma G_{t+1}\ |\ S_t{=}s]\\
 & = \displaystyle \sum_{a} \pi(a|s) \mathbb{E}_{p,\pi} [R_{t+1} + \gamma G_{t+1}\ |\ S_t{=}s, A_t{=}a ]\\
@@ -218,7 +218,7 @@ v_{\pi}(s) & \doteq \mathbb{E}_{\pi,p} [G_t\ |\ S_t{=}s]\\
 & = \displaystyle \sum_{a} \pi(a|s) \sum_{s',r} p(s',r|s,a) \mathbb{E}_{\pi,p} [r + \gamma G_{t+1}\ |\ S_{t+1}{=}s' ] \;\; \text{(by the Markov property)}\\
 & = \displaystyle \sum_{a} \pi(a|s) \sum_{s',r} p(s',r|s,a) \Big[r + \gamma \mathbb{E}_{\pi,p} [G_{t+1}\ |\ S_{t+1}{=}s'] \Big]\\
 & = \displaystyle \sum_{a} \pi(a|s) \sum_{s',r} p(s',r|s,a) \Big[r + \gamma v_{\pi}(s') \Big]\\
-\end{align*}
+\end{aligned}
 $$
 
 - Final form: 
@@ -233,12 +233,12 @@ v_{\pi}(s) &=& \displaystyle\sum_{a} \pi(a \vert s)\, q_{\pi}(s,a)\\[1em]
 - An action-value is an expectation over the possible next state-values under the environment’s dynamics.
 
 $$
-\begin{align*}
+\begin{aligned}
 q_{\pi}(s,a) & \doteq \mathbb{E}_{p,\pi} [G_t\ |\ S_t{=}s, A_t{=}a]\\
 & = \mathbb{E}_{p,\pi} [R_{t+1} + \gamma G_{t+1}\ |\ S_t{=}s, A_t{=}a]\\
 & = \mathbb{E}_{p,\pi} [R_{t+1} + \gamma v_{\pi}(S_{t+1})\ |\ S_t{=}s, A_t{=}a], \quad \text{(cf. [*])}\\
 & = \displaystyle \sum_{s',r} p(s',r|s,a) \Big[r + \gamma v_{\pi}(s')\Big]\\
-\end{align*}
+\end{aligned}
 $$
 
 [*] Given only a state $s$, the return $G_t$ is a state-value. 
@@ -248,7 +248,7 @@ $$
 - The following recursive relationship satisfied by $q_{\pi}(s,a)$ is called the _Bellman equation for action-values_. The value function $q_{\pi}(s,a)$ is the _unique solution_ to its Bellman equation.
 
 $$
-\begin{align*}
+\begin{aligned}
 q_{\pi}(s,a) & \doteq \mathbb{E}_{p,\pi} [G_t\ |\ S_t{=}s, A_t{=}a]\\
 & = \mathbb{E}_{p,\pi} [R_{t+1} + \gamma G_{t+1}\ |\ S_t{=}s, A_t{=}a]\\
 & = \displaystyle \sum_{s',r} p(s',r|s,a) \mathbb{E}_{\pi,p} [r + \gamma G_{t+1}\ |\ S_t{=}s, A_t{=}a, S_{t+1}{=}s' ]\\
@@ -256,7 +256,7 @@ q_{\pi}(s,a) & \doteq \mathbb{E}_{p,\pi} [G_t\ |\ S_t{=}s, A_t{=}a]\\
 & = \displaystyle \sum_{s',r} p(s',r|s,a) \Big[r + \gamma \mathbb{E}_{\pi,p} [G_{t+1}\ |\ S_{t+1}{=}s'] \Big]\\
 & = \displaystyle \sum_{s',r} p(s',r|s,a) \Big[r + \gamma \sum_{a'} \pi(a'|s') \mathbb{E}_{p,\pi} [G_{t+1}\ |\ S_{t+1}{=}s', A_{t+1}{=}a'] \Big]\\
 & = \displaystyle \sum_{s',r} p(s',r|s,a) \Big[r + \gamma \sum_{a'} \pi(a'|s') q_{\pi}(s',a') \Big]\\
-\end{align*}
+\end{aligned}
 $$
 
 - Final form:
@@ -293,13 +293,13 @@ $$q_*(s,a) = \mathbb{E}\left[R_{t+1} + \gamma v_*(S_{t+1}) \mid S_t = s,\, A_t =
 #### Optimal state-value function, $v_{*}(s)$
 
 $$
-\begin{align*}
+\begin{aligned}
 v_{*}(s) &= \max_{a \in A(s)} q_{\pi_{*}}(s,a) \\
 &= \max_a\, \mathbb{E}_{\pi^*}\left[G_t \mid S_t = s,\, A_t = a\right] \\
 &= \max_a\, \mathbb{E}_{\pi^*}\left[R_{t+1} + \gamma G_{t+1} \mid S_t = s,\, A_t = a\right] \\
 &= \max_a\, \mathbb{E}\left[R_{t+1} + \gamma v_{*}(S_{t+1}) \mid S_t = s,\, A_t = a\right] \\
 &= \max_a \sum_{s', r} p(s', r \vert s, a)\left[r + \gamma v_{*}(s')\right]
-\end{align*}
+\end{aligned}
 $$
 
 $$\boxed{\begin{array}{rcl}
@@ -311,10 +311,10 @@ v_{*}(s) &=& \displaystyle \max_a \sum_{s', r} p(s', r \vert s, a)\left[r + \gam
 
 $$
 \boxed{
-\begin{align*}{rcl}
+\begin{aligned}{rcl}
 q_{*}(s,a) &= \mathbb{E}\left[R_{t+1} + \gamma \max_{a'} q_{*}(S_{t+1}, a') \mid S_t = s,\, A_t = a\right] \\
 &= \sum_{s', r} p(s', r \vert s, a)\left[r + \gamma \max_{a'} q_{*}(s', a')\right]
-\end{align*}
+\end{aligned}
 }
 $$
 

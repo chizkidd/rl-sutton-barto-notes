@@ -94,21 +94,21 @@ Simple Counterexample.
 - The TD error on a transition between the 2 states is:
 
 $$
-\begin{align*}
+\begin{aligned}
 \delta_t &= R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t) \\
 &= 0 + \gamma \cdot 2w_t - w_t \\
 &= (2\gamma - 1)\, w_t
-\end{align*}
+\end{aligned}
 $$
 
 - The off-policy, semi-gradient TD(0) update is:
 
 $$
-\begin{align*}
+\begin{aligned}
 w_{t+1} &= w_t + \alpha \rho_t\, \delta_t \nabla \hat{v}(S_t, w_t) \\
 &= w_t + (\alpha)(1)\!\left[(2\gamma - 1) w_t\right](1) \\
 &= w_t\!\left[1 + \alpha(2\gamma - 1)\right]
-\end{align*}
+\end{aligned}
 $$
 
 $$
@@ -172,11 +172,11 @@ Tsitsiklis & Van Roy's Counterexample.
 - Let's find $w_{k+1}$ at each step that minimizes the $\overline{\text{VE}}$ between the estimated value and the expected one-step return:
 
 $$
-\begin{align*}
+\begin{aligned}
 w_{k+1} &= \arg\min_{w \in \mathbb{R}} \sum_{s \in S} \left(\hat{v}(s, w) - \mathbb{E}_\pi\!\left[R_{t+1} + \gamma \hat{v}(S_{t+1}, w_k) \mid S_t = s\right]\right)^2 \\[6pt]
 &= \arg\min_{w \in \mathbb{R}} \left(w - \gamma \cdot 2w_k\right)^2 + \left(2w - (1 - \varepsilon)\gamma \cdot 2w_k\right)^2 \\[6pt]
 &= \left(\frac{6 - 4\varepsilon}{5}\right) \gamma w_k
-\end{align*}
+\end{aligned}
 $$
 
 - The sequence $\{w_k\}$ diverges when $\gamma > \dfrac{5}{6 - 4\varepsilon}$ and $w_0 \neq 0$.
@@ -232,12 +232,12 @@ The Geometry of Linear Value-Function Approximation.
 - For the projection operation, the distance between value functions using the norm is:
 
 $$
-\begin{align*}
+\begin{aligned}
 \lVert v \rVert_\mu^2 &\doteq \sum_{s \in S} \mu(s)\, v(s)^2 \\[6pt]
 \overline{\text{VE}}(\mathbf{w}) &= \lVert v_\mathbf{w} - v_\pi \rVert_\mu^2 \\[6pt]
 \Pi\, v &\doteq v_\mathbf{w} \quad \\[6pt]
 \text{where } \mathbf{w} = \arg\min_{\mathbf{w} \in \mathbb{R}^d} \lVert v - v_\mathbf{w} \rVert_\mu^2 &  \hspace{0.8em} \text{and} \hspace{0.5em}  \Pi \equiv \text{projection operator}
-\end{align*}
+\end{aligned}
 $$
 
 
@@ -263,10 +263,10 @@ $$
 - The **Bellman error** shows how far off $v_\mathbf{w}$ is from $v_\pi$. The Bellman error at state $s$ is:
 
 $$
-\begin{align*}
+\begin{aligned}
 \bar{\delta}_\mathbf{w}(s) &\doteq \left(\sum_a \pi(a \vert s) \sum_{s', r} p(s', r \vert s, a)\!\left[r + \gamma v_\mathbf{w}(s')\right]\right) - v_\mathbf{w}(s) \\
 &= \mathbb{E}_\pi\!\left[R_{t+1} + \gamma v_\mathbf{w}(S_{t+1}) - v_\mathbf{w}(S_t) \mid S_t = s, A_t \sim \pi\right]
-\end{align*}
+\end{aligned}
 $$
 
 - The Bellman error is the expectation of the TD error.
@@ -278,11 +278,11 @@ $$\overline{\text{BE}}(\mathbf{w}) = \lVert \bar{\delta}_\mathbf{w} \rVert_\mu^2
 - The **Bellman operator** $B_\pi : \mathbb{R}^{\vert S \vert} \to \mathbb{R}^{\vert S \vert}$ is defined by:
 
 $$
-\begin{align*}
+\begin{aligned}
 (B_\pi v)(s) &\doteq \sum_a \pi(a \vert s) \sum_{s', r} p(s', r \vert s, a)\!\left[r + \gamma v(s')\right], \quad \forall s \in S \text{ and } v : S \to \mathbb{R} \\[6pt]
 \bar{\delta}_\mathbf{w} &= B_\pi v_\mathbf{w} - v_\mathbf{w} \\[6pt]
 v_\pi &= B_\pi v_\pi
-\end{align*}
+\end{aligned}
 $$
 
 - The projection of the Bellman error vector back into the representable space creates the **Projected Bellman Error $(\text{PBE})$** vector:
@@ -311,21 +311,21 @@ $$\delta_t = R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mat
 - Using the TD error, we can find the Mean Squared TD error, the objective function $\overline{\text{TDE}}$:
 
 $$
-\begin{align*}
+\begin{aligned}
 \overline{\text{TDE}}(\mathbf{w}) &= \sum_{s \in S} \mu(s)\, \mathbb{E}\!\left[\delta_t^2 \mid S_t = s, A_t \sim \pi\right] \\
 &= \sum_{s \in S} \mu(s)\, \mathbb{E}\!\left[\rho_t\, \delta_t^2 \mid S_t = s, A_t \sim b\right] \\
 &= \mathbb{E}_b\!\left[\rho_t\, \delta_t^2\right]
-\end{align*}
+\end{aligned}
 $$
 
 - Following the standard SGD approach, the per-step update based on a sample of this expected value:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{w}_{t+1} &= \mathbf{w}_t - \tfrac{1}{2}\alpha \nabla\!\left(\rho_t\, \delta_t^2\right) \\
 &= \mathbf{w}_t - \alpha \rho_t\, \delta_t \nabla \delta_t \\
 &= \mathbf{w}_t + \alpha \rho_t\, \delta_t\!\left(\nabla \hat{v}(S_t, \mathbf{w}_t) - \gamma \nabla \hat{v}(S_{t+1}, \mathbf{w}_t)\right)
-\end{align*}
+\end{aligned}
 $$
 
 - This is the same as the semi-gradient TD algorithm except for the additional final term.
@@ -337,13 +337,13 @@ $$
 - This yields the **residual gradient algorithm**:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{w}_{t+1} &= \mathbf{w}_t - \tfrac{1}{2}\alpha \nabla\!\left(\mathbb{E}_\pi\!\left[\delta_t\right]^2\right) \\
 &= \mathbf{w}_t - \tfrac{1}{2}\alpha \nabla\!\left(\mathbb{E}_b\!\left[\rho_t\, \delta_t\right]^2\right) \\
 &= \mathbf{w}_t - \alpha\, \mathbb{E}_b\!\left[\rho_t\, \delta_t\right] \nabla \mathbb{E}_b\!\left[\rho_t\, \delta_t\right] \\
 &= \mathbf{w}_t - \alpha\, \mathbb{E}_b\!\left[\rho_t\!\left(R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}) - \hat{v}(S_t, \mathbf{w})\right)\right] \mathbb{E}_b\!\left[\rho_t \nabla \delta_t\right] \\
 &= \mathbf{w}_t + \alpha\!\left[\mathbb{E}_b\!\left[\rho_t\!\left(R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w})\right)\right] - \hat{v}(S_t, \mathbf{w})\right]\!\left[\nabla \hat{v}(S_t, \mathbf{w}) - \gamma\, \mathbb{E}_b\!\left[\rho_t \nabla \hat{v}(S_{t+1}, \mathbf{w})\right]\right]
-\end{align*}
+\end{aligned}
 $$
 
 - Two ways to make the residual-gradient algorithm work:
@@ -386,10 +386,10 @@ $$\overline{\text{VE}}(\mathbf{w}) \doteq \sum_{s \in S} \mu(s)\!\left[v_\pi(s) 
 - $\overline{\text{RE}}$ in the on-policy case is:
 
 $$
-\begin{align*}
+\begin{aligned}
 \overline{\text{RE}}(\mathbf{w}) &= \mathbb{E}\!\left[\left(G_t - \hat{v}(S_t, \mathbf{w})\right)^2\right] \\
 &= \overline{\text{VE}}(\mathbf{w}) + \mathbb{E}\!\left[\left(G_t - v_\pi(S_t)\right)^2\right]
-\end{align*}
+\end{aligned}
 $$
 
 - The $\overline{\text{BE}}$ can be computed from knowledge of the MDP but is not learnable from data, and its minimum solution is not learnable.
@@ -428,13 +428,13 @@ Causal Relationships among the data distribution, MDPs & various objectives
 - Let's derive an SGD method for the $\overline{\text{PBE}}$ assuming linear function approximation:
 
   $$
-  \begin{align*}
+  \begin{aligned}
   \overline{\text{PBE}}(\mathbf{w}) &= \lVert \Pi\, \bar{\delta}_\mathbf{w} \rVert_\mu^2 \\
   &= \left(\Pi\, \bar{\delta}_\mathbf{w}\right)^T \mathbf{D}\, \Pi\, \bar{\delta}_\mathbf{w} \\
   &= \bar{\delta}_\mathbf{w}^T \Pi^T \mathbf{D}\, \Pi\, \bar{\delta}_\mathbf{w} \\
   &= \bar{\delta}_\mathbf{w}^T \mathbf{D} \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w} \\
   &= \left(\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right)^T \!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \!\left(\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right)
-  \end{align*}
+  \end{aligned}
   $$
 
    $\quad \left(\text{using } \Pi = \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D} \text{ and the identity } \Pi^T \mathbf{D} \Pi = \mathbf{D} \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}\right)$
@@ -488,13 +488,13 @@ $$
 - With $\mathbf{v}_t$, we can update $\mathbf{w}_t$ using SGD:
 
   $$
-  \begin{align*}
+  \begin{aligned}
   \mathbf{w}_{t+1} &= \mathbf{w}_t - \tfrac{1}{2}\alpha \nabla \overline{\text{PBE}}(\mathbf{w}_t) \\
   &= \mathbf{w}_t - \tfrac{1}{2}\alpha\!\left(2\, \mathbb{E}\!\left[\rho_t\!\left(\gamma \mathbf{x}_{t+1} - \mathbf{x}_t\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]\right) \\
   &= \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
   &\approx \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbf{v}_t \\
   &\approx \mathbf{w}_t + \alpha \rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T \mathbf{v}_t
-  \end{align*}
+  \end{aligned}
   $$
 
   where $O(d)$ per-step computational complexity of $(\mathbf{x}_t^T \mathbf{v}_t)$ is done first.
@@ -504,14 +504,14 @@ $$
 - Let's look at another analytical algorithm called TD(0) with gradient correction, **TDC**:
 
   $$
-  \begin{align*}
+  \begin{aligned}
   \mathbf{w}_{t+1} &= \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
   &= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\rho_t\, \mathbf{x}_t\, \mathbf{x}_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right]\right) \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
   &= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right]\right) \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
   &= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \rho_t\, \delta_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]\right) \\
   &\approx \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \rho_t\, \delta_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right] \mathbf{v}_t\right) \\
   &\approx \mathbf{w}_t + \alpha \rho_t\!\left(\delta_t\, \mathbf{x}_t - \gamma \mathbf{x}_{t+1}\, \mathbf{x}_t^T \mathbf{v}_t\right)
-  \end{align*}
+  \end{aligned}
   $$
 
   with $O(d)$ complexity if the final product $(\mathbf{x}_t^T \mathbf{v}_t)$ is done first.
