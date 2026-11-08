@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    // Intercepts mixed-case 404 errors and forces a redirect to the standard lowercase URL
+    const currentURL = window.location.href;
+    const lowerCaseURL = currentURL.toLowerCase();
+    if (currentURL !== lowerCaseURL) {
+      window.location.replace(lowerCaseURL);
+    }
+  </script>
+</head>
+<body>
+  <p>Redirecting to the correct page...</p>
+</body>
+</html>
