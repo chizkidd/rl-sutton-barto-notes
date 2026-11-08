@@ -8,8 +8,8 @@ book:
   author: "Chizoba Obasi"
   date: last-modified
   date-format: "MMMM YYYY"
-  site-url: "https://chizkidd.github.io/RL-Sutton-Barto-notes"
-  repo-url: https://github.com/chizkidd/RL-Sutton-Barto-notes
+  site-url: "https://chizkidd.github.io/rl-sutton-barto-notes"
+  repo-url: https://github.com/chizkidd/rl-sutton-barto-notes
   repo-actions: [issue]
   # downloads: [pdf, epub]
   search: true
