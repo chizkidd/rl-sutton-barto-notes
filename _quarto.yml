@@ -1,3 +1,4 @@
+
 project:
   type: book
   output-dir: _site
@@ -8,10 +9,11 @@ book:
   author: "Chizoba Obasi"
   date: last-modified
   date-format: "MMMM YYYY"
+  output-file: "rl-notes"
   site-url: "https://chizkidd.github.io/rl-sutton-barto-notes"
   repo-url: https://github.com/chizkidd/rl-sutton-barto-notes
   repo-actions: [issue]
-  # downloads: [pdf, epub]
+  downloads: [pdf]
   search: true
   page-navigation: true
   google-analytics: "G-F6HCEEPQLV"
@@ -20,7 +22,7 @@ book:
     background: light
   chapters:
     - index.qmd
-    - text: "---"  # Add a separator
+    - text: "---"
     - part: "Part I — Tabular Solution Methods"
       chapters:
         - chapters/ch01-introduction.qmd
@@ -49,7 +51,6 @@ format:
     toc-title: "On this page"
     number-depth: 2
     number-sections: true
-    # number-offset: [-1]
     code-fold: false
     highlight-style: github
     mainfont: "Georgia, serif"
@@ -60,5 +61,19 @@ format:
     include-after-body: sidebar-toggle.html
     fig-align: center
     html-math-method: katex
+
+  pdf:
+    documentclass: scrbook
+    papersize: letter
+    fontsize: 11pt
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    geometry:
+      - top=1in
+      - bottom=1in
+      - left=1in
+      - right=1in
 
 bibliography: references.bib
