@@ -25,7 +25,14 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[R_{t+1} + \gamma \
 - This method is called **episodic semi-gradient one-step Sarsa**. For a constant policy, this method converges in the same way that TD(0) does with the same kind of error bound.
 - **Control** = action-value prediction + policy improvement & action selection:
 
-$$\boxed{a, S_{t+1} \longrightarrow \hat{q}(S_{t+1}, a, \mathbf{w}_t) \longrightarrow A^*_{t+1} = \arg\max_a \hat{q}(S_{t+1}, a, \mathbf{w}_t) \longrightarrow \varepsilon\text{-greedy policy improvement} \longrightarrow \varepsilon\text{-greedy action selection}}$$
+$$
+\boxed{
+\begin{aligned}
+a, S_{t+1} &\longrightarrow \hat{q}(S_{t+1}, a, \mathbf{w}_t) \longrightarrow A^*_{t+1} = \arg\max_a \hat{q}(S_{t+1}, a, \mathbf{w}_t) \\
+&\longrightarrow \varepsilon\text{-greedy policy improvement} \longrightarrow \varepsilon\text{-greedy action selection}
+\end{aligned}
+}
+$$
 
 - Linear function approximation for the action-value function is:
 
