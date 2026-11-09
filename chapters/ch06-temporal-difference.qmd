@@ -7,8 +7,6 @@ number-sections: true
 - TD is **model-free** (no model of the environment's dynamics).
 - TD methods update estimates based on other learned estimates; in other words TD learns from **incomplete** episodes. This is called **bootstrapping**.
 
----
-
 ## TD Prediction {#sec-ch06-6-1}
 
 **Goal**: Learn/estimate $V_\pi$ from experience under policy $\pi$.
@@ -96,8 +94,6 @@ G_t - V(S_t) &= R_{t+1} + \gamma G_{t+1} - V(S_t) + \gamma V(S_{t+1}) - \gamma V
 
 $$\boxed{G_t - V(S_t) = \sum_{k=t}^{T-1} \gamma^{k-t}\, \delta_k}$$
 
----
-
 ## Advantages of TD Prediction Methods {#sec-ch06-6-2}
 
 - TD methods are model-free, unlike DP methods.
@@ -109,8 +105,6 @@ $$\boxed{G_t - V(S_t) = \sum_{k=t}^{T-1} \gamma^{k-t}\, \delta_k}$$
 - TD methods are usually **more efficient** than MC methods (constant $\alpha$) on stochastic tasks; they converge faster.
 - TD methods have **low variance**, while MC methods have **high variance**.
 
----
-
 ## Optimality of TD(0) {#sec-ch06-6-3}
 
 - For a finite number of episodes, we can run our methods repeatedly with the same data (finite episodes) until convergence as we continually update the value function by the sum of each of the increments at the end of each batch.
@@ -120,8 +114,6 @@ $$\boxed{G_t - V(S_t) = \sum_{k=t}^{T-1} \gamma^{k-t}\, \delta_k}$$
   - Given this model, we can compute the estimate of the value function that would be exactly correct if the model were exactly correct.
   - This is called the **certainty-equivalence estimate** because it is equivalent to assuming that the estimate of the underlying process was known with certainty rather than being approximated.
   - In general, **batch TD(0) converges to the certainty-equivalence estimate.**
-
----
 
 ## Sarsa: On-policy TD Control {#sec-ch06-6-4}
 
@@ -185,8 +177,6 @@ $$
 }
 $$
 
----
-
 ## Q-learning: Off-Policy TD Control {#sec-ch06-6-5}
 
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a')}_{\text{Q-learning target}} - Q(S_t, A_t)\Big]}$$
@@ -248,8 +238,6 @@ $$
 }
 $$
 
----
-
 ## Expected Sarsa {#sec-ch06-6-6}
 
 - Instead of updating $Q(S,A)$ with the value maximising action at $S_{t+1}$, $\max_a Q(S_{t+1}, a)$ as used in Q-learning, or the $\varepsilon$-greedy exploratory action as in SARSA, we can use the **expected value** of $Q$ at $S_{t+1}$, taking into account how likely each action is under the current policy. The update rule is:
@@ -265,8 +253,6 @@ Q(S_t, A_t) &\leftarrow Q(S_t, A_t) + \alpha\left[R_{t+1} + \gamma \sum_a \pi(a 
 - Expected SARSA is an on-policy learning method, but if we change our target policy such that $\pi$ is the greedy policy while our behavior is more exploratory, then it becomes an off-policy algorithm.
   - Expected SARSA becomes Q-learning if $\pi$ is the greedy policy and our behavior policy ($\mu$) is more exploratory ($\varepsilon$-greedy).
 - Essentially, it is a generalization of Q-learning that has a reliable improvement over SARSA.
-
----
 
 ## Maximization Bias & Double Learning {#sec-ch06-6-7}
 
@@ -315,8 +301,6 @@ $$
 
 $$\boxed{Q_1(S_t, A_t) \leftarrow Q_1(S_t, A_t) + \alpha\left[R_{t+1} + \gamma\, Q_2\!\left(S_{t+1},\, \arg\max_a Q_1(S_{t+1}, a)\right) - Q_1(S_t, A_t)\right]}$$
 
----
-
 ## Games, Afterstates & Other Special Cases {#sec-ch06-6-8}
 
 - Our general approach so far revolves around learning an action-value function, where the value of an action in a given state is quantified/evaluated **before** the action is taken.
@@ -327,8 +311,6 @@ $$\boxed{Q_1(S_t, A_t) \leftarrow Q_1(S_t, A_t) + \alpha\left[R_{t+1} + \gamma\,
 - It is also useful where many different actions may lead to the same state afterward.
 - Afterstate methods are aptly described in terms of GPI, with a policy and afterstate value function interacting in essentially the same way.
   - Still have to decide between on or off policy for managing the need for persistent exploration.
-
----
 
 ## Summary {#sec-ch06-6-9}
 

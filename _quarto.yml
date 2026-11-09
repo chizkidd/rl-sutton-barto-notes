@@ -40,6 +40,8 @@ book:
         - chapters/ch11-off-policy-methods-approximation.qmd
         - chapters/ch12-eligibility-traces.qmd
         - chapters/ch13-policy-gradient-methods.qmd
+  appendices:
+    - gallery.qmd
 
 format:
   html:
@@ -49,7 +51,7 @@ format:
     toc: true
     toc-depth: 3
     toc-title: "On this page"
-    number-depth: 2
+    number-depth: 3
     number-sections: true
     code-fold: false
     highlight-style: github
@@ -64,16 +66,37 @@ format:
 
   pdf:
     documentclass: scrbook
+    classoption: [oneside, openany]
     papersize: letter
-    fontsize: 11pt
+    fontsize: 10pt
+    linestretch: 1.02
     toc: true
     toc-depth: 2
     number-sections: true
     colorlinks: true
+    fig-pos: "htbp"
+    fig-align: center
     geometry:
-      - top=1in
-      - bottom=1in
-      - left=1in
-      - right=1in
+      - top=0.7in
+      - bottom=0.75in
+      - left=0.8in
+      - right=0.8in
+    include-in-header:
+      text: |
+        \usepackage{microtype}
+        \usepackage{amssymb}
+        \usepackage{newunicodechar}
+        \newunicodechar{✓}{\checkmark}
+        \usepackage{enumitem}
+        \setlist{nosep,leftmargin=1.2em}
+        \setlength{\parskip}{0.35em}
+        \setlength{\parindent}{0pt}
+        \raggedbottom
+        \setlength{\abovedisplayskip}{5pt}
+        \setlength{\belowdisplayskip}{5pt}
+        \setlength{\abovedisplayshortskip}{2pt}
+        \setlength{\belowdisplayshortskip}{3pt}
+        \setlength{\columnsep}{18pt}
+        \setcounter{secnumdepth}{2}
 
 bibliography: references.bib

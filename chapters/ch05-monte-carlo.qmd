@@ -11,8 +11,6 @@ number-sections: true
 - We use Generalized Policy Iteration (**GPI**), developed in Ch. 4, to handle the nonstationarity.
 - First consider the prediction problem (computation of $V_\pi$ & $q_\pi$ for a fixed arbitrary policy $\pi$), then policy improvement, and finally the control problem and its solution by GPI.
 
----
-
 ## Monte Carlo Prediction {#sec-ch05-5-1}
 
 Recall that the value of a state is the **expected cumulative future discounted reward** (expected return). An obvious way of estimating that value from experience is to simply average the returns observed after visits to that state. As more returns are observed, the average should converge to the expected value. This idea underlies all Monte Carlo methods.
@@ -41,8 +39,6 @@ Recall that the value of a state is the **expected cumulative future discounted 
 
 $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\left[G_t - V(S_t)\right]}$$
 
----
-
 ### First-Visit or Every-Visit Monte Carlo Policy Evaluation
 
 - To evaluate state $s$
@@ -51,8 +47,6 @@ $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\left[G_t - V(S_t)\right]}$$
 - Increment total return: $S(s) \leftarrow S(s) + G_t$
 - Value is estimated by **mean return**: $V(s) = S(s) / N(s)$
 - By law of large numbers, $V(s) \to V_\pi(s)$ as $N(s) \to \infty$
-
----
 
 ## Monte Carlo Estimation of Action Values {#sec-ch05-5-2}
 
@@ -66,8 +60,6 @@ $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\left[G_t - V(S_t)\right]}$$
   - This is called the assumption of **exploring starts**.
   - Exploring starts fails when learning directly from actual interaction with an environment.
   - A common alternative approach is to consider only policies that are **stochastic with a nonzero probability of selecting all actions in each state.**
-
----
 
 ## Monte Carlo Control {#sec-ch05-5-3}
 
@@ -110,8 +102,6 @@ q_{\pi_k}(s, \pi_{k+1}(s)) &= q_{\pi_k}\!\left(s, \arg\max_a\, q_{\pi_k}(s,a)\ri
 - For a deterministic policy for control, it's essential we use exploring starts to ensure sufficient exploration. This creates the **Monte Carlo ES Algorithm**.
   - This is **inefficient** because, for each state-action pair, it maintains a list of **all** returns & repeatedly calculates their mean.
   - More **efficient** would be to maintain just the mean & count for each state-action pair and update them **incrementally**.
-
----
 
 ## Monte Carlo Control Without Exploring Starts {#sec-ch05-5-4}
 
@@ -161,8 +151,6 @@ v_{\pi}(s) &= (1-\varepsilon) \max_a q_{\pi}(s,a) + \frac{\varepsilon}{\vert A(s
 \end{aligned}$$
 
 - Because $\tilde{v}_*$ is the unique solution, it must be that $v_\pi = \tilde{v}_*$.
-
----
 
 ## Off-Policy Prediction via Importance Sampling {#sec-ch05-5-5}
 
@@ -230,9 +218,6 @@ $$\boxed{V(s) \doteq \frac{\sum_{t \in \mathcal{T}(s)} \rho_{t:T(t)-1}\, G_t}{|\
 **Weighted importance sampling** (biased):
 $$\boxed{V(s) \doteq \frac{\sum_{t \in \mathcal{T}(s)} \rho_{t:T(t)-1}\, G_t}{\sum_{t \in \mathcal{T}(s)} \rho_{t:T(t)-1}}}$$
 
-
----
-
 ## Incremental Implementation {#sec-ch05-5-6}
 
 - Monte Carlo prediction methods can be implemented incrementally, on an episode-by-episode basis like the way we did in Chapter 2 ([Section 2.4](ch02-multi-armed-bandits.qmd#sec-ch02-2-4)).
@@ -258,8 +243,6 @@ $$\begin{aligned}
 \text{where } C_0 \doteq 0 \text{ and } V_1 \to \text{arbitrary.}
 \end{aligned}$$
 
----
-
 ## Off-Policy Monte Carlo Control {#sec-ch05-5-7}
 
 - Using incremental implementation and importance sampling, we can now discuss off-policy Monte Carlo control (follows the behavior policy while learning about and improving the target policy).
@@ -268,8 +251,6 @@ $$\begin{aligned}
   - The target policy $\pi \approx \pi_*$ is the greedy policy w.r.t. $Q$, which is an estimate of $q_\pi$
   - The behavior policy $b$ can be anything, but in order to assure convergence of $\pi$ to $\pi_*$, an infinite number of returns must be obtained for each state-action pair.
       - This can be assured by choosing $b$ to be an $\varepsilon$-soft policy.
-
----
 
 ## Discounting-aware Importance Sampling {#sec-ch05-5-8}
 
@@ -308,8 +289,6 @@ $$\boxed{V(s) \doteq \frac{\sum_{t \in \mathcal{T}(s)} \left[(1-\gamma)\sum_{h=t
 
 - Both estimators are called **"discounting-aware"** importance sampling estimators.
 
----
-
 ## Per-decision Importance Sampling {#sec-ch05-5-9}
 
 - Another way to account for the structure of the return as a sum of rewards in off-policy importance sampling that may be able to reduce variance even in the absence of discounting (i.e., even if $\gamma = 1$):
@@ -329,8 +308,6 @@ $$\text{where: } \quad \tilde{G}_t = \rho_{t:t}\, R_{t+1} + \gamma\, \rho_{t:t+1
 **Ordinary importance-sampling estimator using $\tilde{G}_t$ (lower variance expectation):**
 
 $$\boxed{V(s) \doteq \frac{\sum_{t \in \mathcal{T}(s)} \tilde{G}_t}{|\mathcal{T}(s)|}}$$
-
----
 
 ## Summary {#sec-ch05-5-10}
 

@@ -8,8 +8,6 @@ number-sections: true
 - We'll look at this extension in both the episodic and continuing case.
 - We'll look at $n$-step linear Sarsa.
 
----
-
 ## Episodic Semi-gradient Control {#sec-ch10-10-1}
 
 - The extension of the semi-gradient prediction methods of Chapter 9 to action values is straightforward.
@@ -33,8 +31,6 @@ $$\boxed{a, S_{t+1} \longrightarrow \hat{q}(S_{t+1}, a, \mathbf{w}_t) \longright
 
 $$\hat{q}(s, a, \mathbf{w}) \doteq \mathbf{w}^T \mathbf{x}(s, a) = \sum_{i=1}^{d} w_i \cdot x_i(s, a)$$
 
----
-
 ## Semi-gradient $n$-step Sarsa {#sec-ch10-10-2}
 
 - We use an $n$-step return as the update target for episodic semi-gradient $n$-step Sarsa. The $n$-step return generalizes from its tabular form to a function approximation form:
@@ -48,8 +44,6 @@ $$\text{with } G_{t:t+n} \doteq G_t \text{ if } t+n \geq T$$
 $$\boxed{\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T}$$
 
 - Performance is best if an intermediate level of bootstrapping is used ($n > 1$).
-
----
 
 ## Average Reward: A New Problem Setting for Continuing Tasks {#sec-ch10-10-3}
 
@@ -123,8 +117,6 @@ $$
 
 $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{q}(S_t, A_t, \mathbf{w}_t)$$
 
----
-
 ## Deprecating the Discounted Setting {#sec-ch10-10-4}
 
 - For the tabular case, the continuing, discounted problem formulation is useful, but in the approximate case, is this problem formulation necessary?
@@ -157,8 +149,6 @@ $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{q}(S_t, A
 - The root cause of the difficulties with the discounted control setting is that with function approximation we have lost the policy improvement theorem.
 - Now if we change the policy to improve the discounted value of one state, we are no longer guaranteed to have improved the overall policy.
 
----
-
 ## Differential Semi-gradient $n$-step Sarsa {#sec-ch10-10-5}
 
 - We need an $n$-step version of the TD error in order to generalize to $n$-step bootstrapping.
@@ -176,8 +166,6 @@ $$
 - The $n$-step TD error is:
 
 $$\delta_t \doteq G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w})$$
-
----
 
 ## Summary {#sec-ch10-10-6}
 

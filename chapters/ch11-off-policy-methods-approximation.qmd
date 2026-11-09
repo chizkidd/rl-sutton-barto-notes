@@ -9,8 +9,6 @@ number-sections: true
   1. Finding the target of the update.
   2. The off-policy distribution of updates does not match that of the on-policy distribution.
 
----
-
 ## Semi-gradient Methods {#sec-ch11-11-1}
 
 - Let's discuss the extension of previous off-policy methods to function approximation as semi-gradient methods.
@@ -70,8 +68,6 @@ $$\boxed{\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - 
 $$G_{t:t+n} \doteq \hat{q}(S_t, A_t, \mathbf{w}_{t+n}) + \sum_{k=t}^{t+n-1} \delta_k \prod_{i=t+1}^{k} \gamma \pi(A_i \vert S_i)$$
 
 $$\text{where } \delta_t \text{ is the Expected Sarsa TD error defined earlier in this section.}$$
-
----
 
 ## Examples of Off-Policy Divergence {#sec-ch11-11-2}
 
@@ -191,8 +187,6 @@ $$
   3. Tile coding
   4. Artificial neural networks (ANNs)
 
----
-
 ## The Deadly Triad {#sec-ch11-11-3}
 
 - The danger of instability and divergence arises when we combine these 3 elements, which make up the **deadly triad**:
@@ -205,8 +199,6 @@ $$
   - Bootstrapping can be given up but at the cost of computational and data efficiency.
   - Off-policy can be given up (replace Q-learning with Sarsa).
   - There is no perfect solution as we still need off-policy for planning and parallel learning.
-
----
 
 ## Linear Value-Function Geometry {#sec-ch11-11-4}
 
@@ -239,7 +231,6 @@ $$
 \text{where } \mathbf{w} = \arg\min_{\mathbf{w} \in \mathbb{R}^d} \lVert v - v_\mathbf{w} \rVert_\mu^2 &  \hspace{0.8em} \text{and} \hspace{0.5em}  \Pi \equiv \text{projection operator}
 \end{aligned}
 $$
-
 
 - The representable value function that is closest to the true value function $V_\pi$ is its projection $\Pi V_\pi$ (MC method asymptotic solution).
 
@@ -291,12 +282,9 @@ $$\text{PBE} = \Pi\, \bar{\delta}_\mathbf{w}$$
 
 - The size of $\text{PBE}$, in the norm, is another measure of error in the approximate value function, called the **Mean Square Projected Bellman Error**, $\overline{\text{PBE}}$:
 
-
 $$\overline{\text{PBE}}(\mathbf{w}) = \lVert \Pi\, \bar{\delta}_\mathbf{w} \rVert_\mu^2$$
 
 - With linear function approximation, there always exists an approximate value function (within the subspace) with zero $\overline{\text{PBE}}$; this is the TD fixed point $\mathbf{w}_\text{TD}$.
-
----
 
 ## Gradient Descent in the Bellman Error {#sec-ch11-11-5}
 
@@ -356,8 +344,6 @@ $$
   - Converges to the wrong values.
   - A problem with the $\overline{\text{BE}}$ objective covered in the next section.
 
----
-
 ## The Bellman Error is Not Learnable {#sec-ch11-11-6}
 
 - The Bellman error is not learnable from the observed sequence of feature vectors, actions, and rewards.
@@ -416,8 +402,6 @@ Causal Relationships among the data distribution, MDPs & various objectives
 :::
 
 >**Causal Relationships among the data distribution, MDPs & various objectives:** Monte-Carlo & Bootstrapping objectives
-
----
 
 ## Gradient-TD Methods {#sec-ch11-11-7}
 
@@ -529,8 +513,6 @@ $$
   1. Midway between semi-gradient TD and gradient TD **[Hackman, 2012; White & White, 2016]**
   2. GTD + proximal methods & control variates **[Mahadevan et al., 2014; Du et al., 2017]**
 
----
-
 ## Emphatic-TD Methods {#sec-ch11-11-8}
 
 - Let's explore a major strategy for obtaining a cheap and efficient off-policy learning method with function approximation.
@@ -559,8 +541,6 @@ $$
 - Applying Emphatic TD to Baird's counterexample yields very high variance results (impossible to get consistent results in experiments).
 - We focus on how we reduce the variance in all these algorithms in the next section.
 
----
-
 ## Reducing Variance {#sec-ch11-11-9}
 
 - Off-policy learning is inherently of greater variance than on-policy learning.
@@ -585,8 +565,6 @@ $$
   - Weighted importance sampling, which is well-behaved with lower variance updates than ordinary importance sampling, but adapting it to function approximation is challenging **[Mahmood & Sutton, 2015]**
   - Tree backup algorithm (off-policy, without importance sampling)
   - Allow the target policy $\pi$ to be determined partly by the behavior policy $b$ to limit creating large importance sampling ratios
-
----
 
 ## Summary {#sec-ch11-11-10}
 

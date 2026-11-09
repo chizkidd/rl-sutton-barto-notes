@@ -13,8 +13,6 @@ $$\hat{v}(s, \mathbf{w}) \approx v_\pi(s)$$
 - Extending RL to function approximation makes it applicable to **partially observable problems**, in which the full state is unavailable to the agent.
 - Function approximation cannot augment the state representation with memories of past observations.
 
----
-
 ## Value-Function Approximation {#sec-ch09-9-1}
 
 - All the prediction methods covered so far involve an update to an estimated value function that shifts its value towards a "backed-up value" (update target, $u$). Let's denote an individual state update by $s \mapsto u$:
@@ -37,8 +35,6 @@ $$
   - We view each update as a conventional training example.
   - This allows us to use any of a wide range of existing function approximation methods for value prediction.
   - Whatever function approximation method is chosen needs to be able to perform **online learning**.
-
----
 
 ## The Prediction Objective ($\overline{\text{VE}}$) {#sec-ch09-9-2}
 
@@ -121,8 +117,6 @@ $$\mathbf{w}^* \hspace{.5em} \text{for which} \hspace{.75em} \overline{\text{VE}
 
 $$\mathbf{w}^* \hspace{.5em} \text{for which} \hspace{.75em} \overline{\text{VE}}(\mathbf{w}^*) \leq \overline{\text{VE}}(\mathbf{w}), \quad \forall \mathbf{w} \hspace{.5em} \text{in some neighborhood of} \hspace{.5em} \mathbf{w}^*$$
 
----
-
 ## Stochastic-Gradient & Semi-Gradient Methods {#sec-ch09-9-3}
 
 ### Stochastic Gradient Descent (SGD)
@@ -187,8 +181,6 @@ $$
 - A special SGD case in which:
 
 $$\nabla \hat{v}(S_t, \mathbf{w}_t) = \left\{ \begin{array}{ll} 1 & \text{for } S_t\text{'s group's component} \\ 0 & \text{for the other components} \end{array} \right\}$$
-
----
 
 ## Linear Methods {#sec-ch09-9-4}
 
@@ -272,8 +264,6 @@ $$\boxed{\overline{\text{VE}}(\mathbf{w}_\text{TD}) \leq \frac{1}{1-\gamma} \min
 - One-step **action-value** methods such as ***semi-gradient Sarsa(0)*** converge to an analogous fixed point and an analogous bound.
 - For **episodic** tasks, there exists a bound [Bertsekas & Tsitsiklis, 1996].
 
----
-
 ## Feature Construction for Linear Methods {#sec-ch09-9-5}
 
 - Let's discuss different ways of constructing features, which is important for function approximation in linear methods.
@@ -325,7 +315,6 @@ $$
 ### 9.5.3 Coarse Coding {#sec-ch09-9-5-3}
 
 - Mapping circles to the features of a state space for 2-dimension.
-
 
 ::: {#fig-91}
 ![](../figures/ch09-9-5-3-coarse-coding.png){fig-align="center"} 
@@ -399,8 +388,6 @@ $$\boxed{x_i(s) \doteq \exp\!\left(-\frac{\lVert s - c_i \rVert^2}{2\sigma_i^2}\
 - Some learning methods for RBF networks change the features' centers and widths, making them nonlinear function approximators.
 - Nonlinear methods are much more precise in fitting the target functions, but (nonlinear) RBF networks are ***much more computationally complex*** and require more manual tuning before learning.
 
----
-
 ## Selecting Step-Size Parameters Manually {#sec-ch09-9-6}
 
 - What is the best way to select $\alpha$ for function approximation?
@@ -422,8 +409,6 @@ $$
 $$
 
 - This rule of thumb works best if the feature vectors do not vary greatly in length; ideally $\mathbf{x}^T \mathbf{x}$ is a constant.
-
----
 
 ## Nonlinear Function Approximation: Artificial Neural Networks (ANNs) {#sec-ch09-9-7}
 
@@ -457,8 +442,6 @@ $$
 - **Deep Convolutional Networks** have proven to be very successful in impressive RL algorithms [LeCun, Bottou, Bengio & Haffner, 1998].
 - In summary, advances in the design and training of ANNs, of which we have only mentioned a few, all contribute to RL.
 - Although current RL theory is mostly limited to methods using tabular or linear function approximation methods, the impressive performances of notable RL applications owe much of their success to nonlinear function approximation by multi-layer ANNs.
-
----
 
 ## Least-Squares TD (LSTD) {#sec-ch09-9-8}
 
@@ -503,8 +486,6 @@ $$\boxed{\mathbf{\hat{A}_t^{-1}} = \mathbf{\hat{A}_{t-1}^{-1}} - \frac{\mathbf{\
 - LSTD does **not** require a step-size and as such means that it never forgets, which is sometimes desirable but often not in RL problems where both the policy and environment change with time.
 - However in control applications, LSTD typically has to be combined with some other mechanism to induce forgetting, negating its advantage of not requiring a step-size parameter.
 
----
-
 ## Memory-based Function Approximation {#sec-ch09-9-9}
 
 - So far we have been parametrising functions that approximate our value function, and these parameters are updated as we see more data. This is called the **parametric** approach.
@@ -528,8 +509,6 @@ $$\boxed{\mathbf{\hat{A}_t^{-1}} = \mathbf{\hat{A}_{t-1}^{-1}} - \frac{\mathbf{\
   - Handle/address the curse of dimensionality, which is a big problem for global approximation. For example, for a state space with $K$ dimensions, 
     - A **tabular method** storing a global approximation requires memory ***exponential in $K$,*** while
     - Storing examples in a **memory-based method** requires only memory ***proportional to $K$, or linear in the number of examples $n$.***
-
----
 
 ## Kernel-based Function Approximation {#sec-ch09-9-10}
 
@@ -565,8 +544,6 @@ $$k(s, s') = \mathbf{x}(s)^T \mathbf{x}(s')$$
 
 - Kernel methods allow evaluation in high-dimensional feature spaces, only using stored examples, and without the need for a complicated, parametric model. This is the so-called **kernel trick** that forms the basis for many machine learning methods.
 
----
-
 ## Looking Deeper at On-Policy Learning: Interest & Emphasis {#sec-ch09-9-11}
 
 - So far we have treated all encountered states with equal importance, however it seems more likely that we often have more interest in some states than others.
@@ -592,8 +569,6 @@ $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \g
 $$\boxed{M_t = \mathcal{I}_t + \gamma^n M_{t-n}, \quad 0 \leq t < T}$$
 
 $$M_t \doteq 0, \quad \forall t < 0$$
-
----
 
 ## Summary {#sec-ch09-9-12}
 

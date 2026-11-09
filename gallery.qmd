@@ -1,0 +1,259 @@
+---
+title: "Figure Gallery"
+number-sections: false
+toc: false
+---
+
+::: {.content-visible when-format="html"}
+
+Every diagram redrawn for these notes, grouped by chapter. Figure numbers follow the textbook, so Figure 3.1 is the first figure of Chapter 3.
+
+
+## Chapter 03 · Finite Markov Decision Processes {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch03-3-1.png" alt="Figure 3.1" loading="lazy">
+    <figcaption><span class="fignum">Figure 3.1</span></figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch03-3-5-v-pi.png" alt="Figure 3.5" loading="lazy">
+    <figcaption><span class="fignum">Figure 3.5</span> — V π</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch03-3-6-v-q-optimal.png" alt="Figure 3.6" loading="lazy">
+    <figcaption><span class="fignum">Figure 3.6</span> — V Q Optimal</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 04 · Dynamic Programming {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch04-4-6-GPI.png" alt="Figure 4.6" loading="lazy">
+    <figcaption><span class="fignum">Figure 4.6</span> — Gpi</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 05 · Monte Carlo Methods {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch05-5-3-q-gpi.png" alt="Figure 5.3" loading="lazy">
+    <figcaption><span class="fignum">Figure 5.3</span> — Q GPI</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 06 · Temporal-Difference Learning {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch06-6-1-td0.png" alt="Figure 6.1" loading="lazy">
+    <figcaption><span class="fignum">Figure 6.1</span> — Td0</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch06-6-4-episode.png" alt="Figure 6.4" loading="lazy">
+    <figcaption><span class="fignum">Figure 6.4</span> — Episode</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch06-6-4-sarsa.png" alt="Figure 6.4" loading="lazy">
+    <figcaption><span class="fignum">Figure 6.4</span> — SARSA</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch06-6-4-policy-iteration.png" alt="Figure 6.4" loading="lazy">
+    <figcaption><span class="fignum">Figure 6.4</span> — Policy Iteration</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch06-6-5-q-learning.png" alt="Figure 6.5" loading="lazy">
+    <figcaption><span class="fignum">Figure 6.5</span> — Q Learning</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 07 · n-step Bootstrapping {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch07-7-1-n-step-td.png" alt="Figure 7.1" loading="lazy">
+    <figcaption><span class="fignum">Figure 7.1</span> — n Step TD</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch07-7-2-n-step-sarsa.png" alt="Figure 7.2" loading="lazy">
+    <figcaption><span class="fignum">Figure 7.2</span> — n Step SARSA</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch07-7-5-n-step-tree.png" alt="Figure 7.5" loading="lazy">
+    <figcaption><span class="fignum">Figure 7.5</span> — n Step Tree</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch07-7-6-n-step-q.png" alt="Figure 7.6" loading="lazy">
+    <figcaption><span class="fignum">Figure 7.6</span> — n Step Q</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch07-7-7-n-step-td-q.png" alt="Figure 7.7" loading="lazy">
+    <figcaption><span class="fignum">Figure 7.7</span> — n Step TD Q</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 08 · Planning & Learning with Tabular Methods {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch08-8-2-title.png" alt="Figure 8.2" loading="lazy">
+    <figcaption><span class="fignum">Figure 8.2</span> — Title</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch08-8-5-one-step.png" alt="Figure 8.5" loading="lazy">
+    <figcaption><span class="fignum">Figure 8.5</span> — One Step</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch08-8-7-rtdp.png" alt="Figure 8.7" loading="lazy">
+    <figcaption><span class="fignum">Figure 8.7</span> — RTDP</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch08-8-9-heuristic-search.png" alt="Figure 8.9" loading="lazy">
+    <figcaption><span class="fignum">Figure 8.9</span> — Heuristic Search</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch08-8-11-mcts.png" alt="Figure 8.11" loading="lazy">
+    <figcaption><span class="fignum">Figure 8.11</span> — MCTS</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch08-8-13-summary-unified-rl.png" alt="Figure 8.13" loading="lazy">
+    <figcaption><span class="fignum">Figure 8.13</span> — Summary Unified Rl</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 09 · On-Policy Prediction with Approximation {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch09-9-5-3-coarse-coding.png" alt="Figure 9.5.3" loading="lazy">
+    <figcaption><span class="fignum">Figure 9.5.3</span> — Coarse Coding</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch09-9-5-4-hashing-border.png" alt="Figure 9.5.4" loading="lazy">
+    <figcaption><span class="fignum">Figure 9.5.4</span> — Hashing Border</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch09-9-5-5-1dim-rbf.png" alt="Figure 9.5.5" loading="lazy">
+    <figcaption><span class="fignum">Figure 9.5.5</span> — 1-dim RBF</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch09-9-7-ann.png" alt="Figure 9.7" loading="lazy">
+    <figcaption><span class="fignum">Figure 9.7</span> — ANN</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 11 · Off-Policy Methods with Approximation {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch11-11-2-example1.png" alt="Figure 11.2" loading="lazy">
+    <figcaption><span class="fignum">Figure 11.2</span> — Example1</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch11-11-2-bairds-counterexample.png" alt="Figure 11.2" loading="lazy">
+    <figcaption><span class="fignum">Figure 11.2</span> — Baird's Counterexample</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch11-11-2-tsitsiklis-van-roy-counterexample.png" alt="Figure 11.2" loading="lazy">
+    <figcaption><span class="fignum">Figure 11.2</span> — Tsitsiklis van Roy Counterexample</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch11-11-4-linear-value-func-approx-geometry.png" alt="Figure 11.4" loading="lazy">
+    <figcaption><span class="fignum">Figure 11.4</span> — Linear Value Func Approx Geometry</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch11-11-6-example1.png" alt="Figure 11.6" loading="lazy">
+    <figcaption><span class="fignum">Figure 11.6</span> — Example1</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch11-11-6-example2.png" alt="Figure 11.6" loading="lazy">
+    <figcaption><span class="fignum">Figure 11.6</span> — Example2</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch11-11-6-causal-relationships-mdps-datadistr-errors.png" alt="Figure 11.6" loading="lazy">
+    <figcaption><span class="fignum">Figure 11.6</span> — Causal Relationships MDPs Datadistr Errors</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 12 · Eligibility Traces {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch12-12-1-the-2-and-4-step-returns.png" alt="Figure 12.1" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.1</span> — The 2 And 4 Step Returns</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-1-td-lambda.png" alt="Figure 12.1" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.1</span> — TD λ</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-1-td-lambda-weighting-function.png" alt="Figure 12.1" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.1</span> — TD λ Weighting Function</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-1-forward-view-td-lambda.png" alt="Figure 12.1" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.1</span> — Forward View TD λ</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-2-backward-view-td-lambda.png" alt="Figure 12.2" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.2</span> — Backward View TD λ</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-3-truncated-td-lambda.png" alt="Figure 12.3" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.3</span> — Truncated TD λ</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-7-sarsa-lambda.png" alt="Figure 12.7" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.7</span> — SARSA λ</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-10-watkins-q-lambda.png" alt="Figure 12.10" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.10</span> — Watkins Q λ</figcaption>
+  </figure>
+  <figure>
+    <img src="figures/ch12-12-10-tree-backup-q-lambda.png" alt="Figure 12.10" loading="lazy">
+    <figcaption><span class="fignum">Figure 12.10</span> — Tree Backup Q λ</figcaption>
+  </figure>
+</div>
+
+
+## Chapter 13 · Policy Gradient Methods {.unnumbered}
+
+<div class="figure-gallery">
+  <figure>
+    <img src="figures/ch13-13-7-prob-density-function.png" alt="Figure 13.7" loading="lazy">
+    <figcaption><span class="fignum">Figure 13.7</span> — Prob Density Function</figcaption>
+  </figure>
+</div>
+
+:::
+
+::: {.content-visible when-format="pdf"}
+
+All 42 figures in these notes, listed by chapter.
+
+| Chapter | Figures |
+|:--:|:--|
+
+| 3 | Finite Markov Decision Processes: 3.1, 3.5, 3.6 |
+| 4 | Dynamic Programming: 4.6 |
+| 5 | Monte Carlo Methods: 5.3 |
+| 6 | Temporal-Difference Learning: 6.1, 6.4, 6.4, 6.4, 6.5 |
+| 7 | n-step Bootstrapping: 7.1, 7.2, 7.5, 7.6, 7.7 |
+| 8 | Planning & Learning with Tabular Methods: 8.2, 8.5, 8.7, 8.9, 8.11, 8.13 |
+| 9 | On-Policy Prediction with Approximation: 9.5.3, 9.5.4, 9.5.5, 9.7 |
+| 11 | Off-Policy Methods with Approximation: 11.2, 11.2, 11.2, 11.4, 11.6, 11.6, 11.6 |
+| 12 | Eligibility Traces: 12.1, 12.1, 12.1, 12.1, 12.2, 12.3, 12.7, 12.10, 12.10 |
+| 13 | Policy Gradient Methods: 13.7 |
+
+:::

@@ -27,7 +27,6 @@ A multi-armed bandit is a tuple $\langle A, R \rangle$
 where $A$ is a known set of $m$ actions or **"arms"** and 
 $R^a(r)$ is an unknown probability distribution over rewards.
 :::
----
 
 ## Action-value Methods {#sec-ch02-2-2}
 
@@ -62,14 +61,10 @@ $$A_t \doteq \arg\max_a Q_t(a)$$
 
 $$\pi(a|s) = \left\{ \begin{array}{ll} \varepsilon/m + 1 - \varepsilon & \text{if } a^* = \arg\max_{a \in A} Q(s,a) \\ \varepsilon/m & \text{otherwise} \end{array} \right\}$$
 
----
-
 ## The 10-armed Testbed {#sec-ch02-2-3}
 
 - Stationarity & determinism vs. nonstationarity & stochasticity
 - Compare the relative effectiveness of greedy & $\varepsilon$-greedy action-value methods
-
----
 
 ## Incremental Implementation {#sec-ch02-2-4}
 
@@ -81,7 +76,6 @@ $$Q_n \doteq \frac{R_1 + R_2 + \ldots + R_{n-1}}{n-1}$$
 - How can we compute $Q_t(a)$ estimates in a computationally and memory efficient manner?
 
 - Instead of storing all the $R$ values and recomputing the sum at every time step, we can derive an **incremental update rule:** $Q_n$ estimate can be updated efficiently without storing the full history.
-
 
 $$
 \begin{aligned}
@@ -100,8 +94,6 @@ $$\boxed{Q_{n+1} = Q_n + \frac{1}{n}\left[R_n - Q_n\right]}$$
 - In general:
 
 $$\text{NewEstimate} \leftarrow \text{OldEstimate} + \text{StepSize}\underbrace{\left[\text{Target} - \text{OldEstimate}\right]}_{\text{error}}$$
-
----
 
 ## Tracking a Nonstationary Problem {#sec-ch02-2-5}
 
@@ -169,8 +161,6 @@ $$
 - `(I)` & `(II)` are met for $\alpha_n(a) = \frac{1}{n}$ (sample-average method)
 - `(II)` is **not** met for $\alpha_n(a) = \alpha$ (constant method) 
 
----
-
 ## Optimistic Initial Values {#sec-ch02-2-6}
 
 - The methods discussed so far are dependent to some extent on the initial action-value estimates i.e. they are biased by their initial estimates.
@@ -178,7 +168,6 @@ $$
 - For example, in a 10-armed bandit testbed if we set $Q_{1}(a) = +5$ instead of $0$, we encourage exploration even in the greeedy case. 
   - The agent will almost always be disappointed with its current samples action-values because they are less than the initial action-value estimate of $+5$, therefore it will continue to explore until the action-values converge.
   - This technique for encouraging exploration is called **optimistic initial values** (focuses on initial conditions)
-
 
 ::: {.callout-note title="Optimistic Initialization"}
 _**Assume the best action-value initially, until proven otherwise.**_
@@ -189,8 +178,6 @@ early on but can still lock onto suboptimal action.
 ### Pros & Cons
 - (+) It is **effective on stationary problems,** but not a general approach
 - (-) It is **not good for nonstationary problems** because its drive for exploration is inherently temporary.
-
----
 
 ## Upper-Confidence-Bound (UCB) Action Selection {#sec-ch02-2-7}
 - $\varepsilon$-greedy action selection explores indiscriminately, giving equal probability to all non-greedy actions regardless of their potential. 
@@ -235,8 +222,6 @@ that action, because it could turn out to be the best action.**_
 
 :::
 
----
-
 ## Gradient Bandit Algorithms {#sec-ch02-2-8}
 
 - Another action selection method, which isn't based on action-value estimation, entails learning a numerical **preference** for each action $a$, which is denoted as $H_t(a)$.
@@ -277,8 +262,6 @@ $$
 - If $R_t > \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\downarrow \quad \forall a \neq A_t$
 - If $R_t < \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\uparrow \quad \forall a \neq A_t$
 
-
-
 ### Proof: The Bandit Gradient Algorithm as Stochastic Gradient Ascent
 
 #### Gradient ascent update:
@@ -306,15 +289,11 @@ $$
 
 $$q_*(A_t) = R_t \text{ because } \mathbb{E}[R_t|A_t] = q_*(A_t)$$
 
----
-
 **Aside:**
 
 $$\frac{\partial \pi_t(x)}{\partial H_t(a)} = \pi_t(x)\left[\mathbb{1}_{a=x} - \pi_t(a)\right]$$
 
 $$ \text{where } \mathbb{1}_{a=x} = \left\{ \begin{array}{ll} 1 & \text{if } a = x \\ 0 & \text{otherwise} \end{array} \right\}$$
-
----
 
 **Therefore:**
 
@@ -326,8 +305,6 @@ $$
 $$
 
 $$\Rightarrow \boxed{H_{t+1}(a) = H_t(a) + \alpha(R_t - \bar{R}_t)\left(\mathbb{1}_{a=A_t} - \pi_t(a)\right)} \quad \text{for all } a$$
-
----
 
 **Prove** $\dfrac{\partial \pi_t(x)}{\partial H_t(a)} = \pi_t(x)\left[\mathbb{1}_{a=x} - \pi_t(a)\right]$:
 
@@ -346,8 +323,6 @@ $$
 
 $$\boxed{\frac{\partial \pi_t(x)}{\partial H_t(a)} = \pi_t(x)\left[\mathbb{1}_{a=x} - \pi_t(a)\right]}$$
 
----
-
 ## Associative Search (Contextual Bandits) {#sec-ch02-2-9}
 - **Nonassociative tasks:** tasks where there is no need to associate different actions with different situations.
 - **Associative Search:** extend nonassociative tasks to the associative setting.
@@ -365,8 +340,6 @@ where $A$ is a known set of $m$ actions or **"arms"**,
 $S$ is an unknown probability distribution over states or **"contexts"**
 and $R^a(r)$ is an unknown probability distribution over rewards.
 :::
-
----
 
 ## Summary {#sec-ch02-2-10}
 - The value of an action can be defined as $Q_t(a)$, the sample average return of action $a$ taken prior to time $t$.

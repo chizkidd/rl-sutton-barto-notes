@@ -11,8 +11,6 @@ number-sections: true
 - Markov Decision Processes (MDPs) are a mathematical idealized form of the reinforcement learning problem. 
 - To build the full reinforcement learning (RL) problem's mathematical structure, key elements are introduced: **returns, value functions, & Bellman equations.**
 
----
-
 ## The Agent-Environment Interface {#sec-ch03-3-1}
 
 **Agent-Environment loop:**
@@ -69,8 +67,6 @@ $$r(s,a) \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a\right] = \su
 
 $$r(s,a,s') \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a,\, S_t = s'\right] = \sum_{r \in R} r\, \frac{p(s', r | s, a)}{p(s' | s, a)}$$
 
----
-
 ## Goals & Rewards {#sec-ch03-3-2}
 
 - At each time step, the reward is a simple number, $R_t \in \mathbb{R}$
@@ -84,8 +80,6 @@ All of what we mean by goals and purposes can be well thought of as the maximiza
 - The agent always learns to maximize its reward. If we want it to do something for us, we must provide rewards
 to it in such a way that in maximizing them the agent will also achieve our goals. 
 - The reward signal is our way of communicating to the agent what we want it to achieve, not how we want it achieved.
-
----
 
 ## Returns & Episodes {#sec-ch03-3-3}
 
@@ -125,8 +119,6 @@ $$
 
 $$G_t = \sum_{k=0}^{\infty} \gamma^k = \frac{1}{1-\gamma}$$
 
----
-
 ## Unified Notation for Episodic & Continuing Tasks {#sec-ch03-3-4}
 
 - We can unify the notations for expected return for episodic and continuing tasks into a single notation by considering episode termination to be the entering of a **special absorbing state** that transitions only to itself and that generates only rewards of $0$. For example, lets consider the state transtion diagram:
@@ -140,8 +132,6 @@ $$S_0 \xrightarrow{R_1=+1} S_1 \xrightarrow{R_2=+1} S_2 \xrightarrow{R_3=+1} \sq
 - The unified notation, including the possibility that $T = \infty$ or $\gamma = 1$ (but not both), for  the return is:
 
 $$\boxed{\tilde{G}_t = \sum_{k=t+1}^{T} \gamma^{k-t-1} R_k}$$
-
----
 
 ## Policies, Value Functions & Bellman Equations {#sec-ch03-3-5}
 
@@ -266,8 +256,6 @@ q_{\pi}(s,a) &=& \displaystyle\sum_{s',r} p(s',r \vert s,a) \Big[r + \gamma v_{\
 &=& \displaystyle\sum_{s',r} p(s',r \vert s,a) \Big[r + \gamma \sum_{a'} \pi(a' \vert s')\, q_{\pi}(s',a') \Big]
 \end{array}}$$
 
----
-
 ## Optimal Policies & Optimal Value Functions {#sec-ch03-3-6}
 
 - For finite MDPS, we can define an optimal policy for finite MDPs as a policy that achieves the maximum expected return.Value functions define a partial ordering over policies. A policy $\pi$ is better than or equal to $\pi'$ iff $v_\pi(s) \geq v_{\pi'}(s)$ for all $s \in S$. 
@@ -306,7 +294,6 @@ $$\boxed{\begin{array}{rcl}
 v_{*}(s) &=& \displaystyle \max_a \sum_{s', r} p(s', r \vert s, a)\left[r + \gamma v_{*}(s')\right]
 \end{array}}$$
 
-
 #### Optimal action-value function, $q_{*}(s,a)$
 
 $$
@@ -339,8 +326,6 @@ Backup Diagrams for $v_*$ and $q_*$
   3. The Markov property
 - In practice, RL methods settle for **approximate solutions** to the Bellman optimality equation, using actual experienced transitions in place of full knowledge of expected transitions.
 
----
-
 ## Optimality & Approximation {#sec-ch03-3-7}
 
 - We have defined optimal value functions and optimal policies clearly. 
@@ -351,8 +336,6 @@ Backup Diagrams for $v_*$ and $q_*$
 - When the state space is small and finite, exact **tabular methods** suffice; for larger state spaces, **function approximation** with compact parameterized representations is necessary.
 - RL's **online nature** allows approximations to focus more effort on frequently encountered states, at the expense of rarely visited ones. This makes useful approximate solutions achievable even when optimal ones are not.
 - This ability to prioritize learning for high-frequency states is a key property that distinguishes RL from other approaches to approximately solving MDPs.
-
----
 
 ## Summary {#sec-ch03-3-8}
 

@@ -40,8 +40,6 @@ RL sits at the intersection of several fields:
 - It has deep ties to **psychology and neuroscience**: many core RL algorithms were inspired by biological learning, and RL has in turn produced influential models of animal learning and the brain's reward system (covered in Chapters 14 & 15).
 - More broadly, RL is part of a trend in AI focusing back towards **simple, general principles** (search, learning, decision making) rather than the "vast bag of special-case tricks" view that dominated parts of the field in earlier decades.
 
----
-
 ## Examples {#sec-ch01-1-2}
 
 The best way to get an intuition for what RL actually covers is through examples:
@@ -62,8 +60,6 @@ What do these have in common? A few things that are easy to miss because they're
 - Critically, all these agents **improve with experience**: the chess player sharpens intuition, the gazelle gets more efficient, Phil streamlines his morning routine.
 
 Prior knowledge (from evolution, design, or past experience) shapes what's easy to learn, but interaction with the environment is what lets the agent adapt to the specifics of its current task.
-
----
 
 ## Elements of Reinforcement Learning {#sec-ch01-1-3}
 
@@ -91,8 +87,6 @@ A model mimics the environment. Given a state and action, it predicts the next s
 
 Modern RL spans the full spectrum from raw trial-and-error to high-level deliberate planning.
 
----
-
 ## Limitations and Scope {#sec-ch01-1-4}
 
 ### The Role of State
@@ -112,8 +106,6 @@ Most methods in this book are built around estimating value functions, but that'
 Evolutionary methods can work well when the policy space is small, when good policies are easy to stumble upon, or when the agent can't fully sense the environment state. But they have a fundamental limitation: **they don't learn from individual interactions**. They ignore which states were visited, which actions were taken, and what the consequences were; all information that can make search dramatically more efficient.
 
 Methods that do learn from individual interactions can exploit the structure of the RL problem in ways evolutionary methods simply can't. While evolution and learning naturally complement each other, this book focuses on methods that learn online through interaction, and evolutionary methods on their own don't qualify.
-
----
 
 ## An Extended Example: Tic-Tac-Toe {#sec-ch01-1-5}
 
@@ -172,8 +164,6 @@ Tic-tac-toe is deliberately simple. RL is much more general:
 - **Prior knowledge**: RL doesn't require starting from scratch, prior information can be incorporated in many ways ([Sections 9.5](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-5), 13.1, 17.4).
 - **Hierarchical learning**: RL can operate at multiple levels simultaneously, where each "action" at a higher level is itself a complex problem-solving procedure.
 
----
-
 ## Summary {#sec-ch01-1-6}
 
 Reinforcement learning is a computational approach to goal-directed learning and decision making, distinguished from other approaches by its emphasis on learning through **direct interaction with an environment**, without needing labeled examples or a complete environment model.
@@ -187,8 +177,6 @@ In short:
 - **Agent** learns from interaction, not supervision.
 - **MDP** formalizes the problem.
 - **Value functions** make the search tractable.
-
----
 
 ## Early History of Reinforcement Learning {#sec-ch01-1-7}
 

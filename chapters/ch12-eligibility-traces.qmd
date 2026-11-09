@@ -22,8 +22,6 @@ number-sections: true
 - **Backward view** algorithms use the current TD error, looking backward to recently visited states, to achieve nearly the same updates as forward view.
 - We start with ideas for state values and prediction, then extend them to action values and control, then do on-policy, then extend to off-policy learning. The field of focus is linear function approximation (covers tabular and state aggregation cases).
 
----
-
 ## The $\lambda$-return {#sec-ch12-12-1}
 
 - Recall in [Chapter 7](ch07-nstep-bootstrapping.qmd) we defined an $n$-step return as the sum of the first $n$ rewards plus the estimated value of the state reached in $n$ steps, each appropriately discounted:
@@ -116,8 +114,6 @@ Forward View TD($\lambda$).
 :::
 
 > **Forward View TD($\lambda$):** We decide how to update each state by looking forward to future rewards and states.
-
----
 
 ## TD($\lambda$) {#sec-ch12-12-2}
 
@@ -214,8 +210,6 @@ $$
 
 - However, $\lambda = 1$ is often the poorest choice.
 
----
-
 ## $n$-step Truncated $\lambda$-return Methods {#sec-ch12-12-3}
 
 - The off-line $\lambda$-return is of limited use because the $\lambda$-return is not known until the episode ends.
@@ -257,8 +251,6 @@ Backup Diagram for Truncated TD($\lambda$).
 
 > **Backup Diagram for Truncated TD($\lambda$):** The truncated $\lambda$-return gives rise to a family of $n$-step $\lambda$-return algorithms called **TTD($\lambda$)**.
 
----
-
 ## Redoing Updates: Online $\lambda$-return Algorithm {#sec-ch12-12-4}
 
 - How do we choose the truncation parameter $n$ in TTD($\lambda$)?
@@ -297,8 +289,6 @@ $$
 $$\boxed{\mathbf{w}_{t+1}^h \doteq \mathbf{w}_t^h + \alpha \!\left[G_{t:h}^\lambda - \hat{v}(S_t, \mathbf{w}_t^h)\right] \nabla \hat{v}(S_t, \mathbf{w}_t^h)}$$
 
 $$\mathbf{w}_t \doteq \mathbf{w}_t^t$$
-
----
 
 ## True Online TD($\lambda$) {#sec-ch12-12-5}
 
@@ -351,8 +341,6 @@ $$\tilde{z}_{i,t} \doteq \left\{ \begin{array}{ll} 1 & \text{if } x_{i,t} = 1 \\
 
 - Nowadays, dutch traces usually perform better than replacing traces and have a clearer theoretical basis.
 - Accumulating traces remain of interest for nonlinear function approximations where dutch traces are unavailable.
-
----
 
 ## Dutch Traces in Monte Carlo Learning {#sec-ch12-12-6}
 
@@ -447,8 +435,6 @@ $$\boxed{\mathbf{w}_T = \mathbf{a}_{T-1} + \alpha G\, \mathbf{z}_{T-1}}$$
 - The time and memory complexity per step is $O(d)$.
 - This is surprising and intriguing since ET is working in a non-TD setting (ET arise where long-term predictions are needed to be learned efficiently).
 
----
-
 ## Sarsa($\lambda$) {#sec-ch12-12-7}
 
 - Now let's extend eligibility traces to action-value methods.
@@ -506,8 +492,6 @@ $$
   - The resulting efficient backward algorithm obtained from using the eligibility trace to invert the action-value form of the forward view, online $\lambda$-return is called the **True Online Sarsa($\lambda$)**.
 
 - There is also a truncated version of Sarsa($\lambda$), called **Forward Sarsa($\lambda$)**, which appears to be a model-free, control method for use in conjunction with multi-layer ANNs.
-
----
 
 ## Variable $\lambda$ and $\gamma$ {#sec-ch12-12-8}
 
@@ -567,8 +551,6 @@ $$
 \text{"a"} &: \text{bootstraps from action values}
 \end{aligned}
 $$
-
----
 
 ## Off-Policy Traces with Control Variates {#sec-ch12-12-9}
 
@@ -690,8 +672,6 @@ $$
 - Recall the challenge of off-policy learning has 2 parts. Off-policy eligibility traces deal effectively with the 1st part, correcting for the expected value of the targets, but not with the 2nd part that has to do with distribution of updates (matching off-policy to on-policy).
 - Algorithmic strategies for handling the 2nd part of the off-policy learning challenge with eligibility traces are summarized in [Section 12.11](#sec-ch12-12-11).
 
----
-
 ## Watkins's Q($\lambda$) to Tree-Backup($\lambda$) {#sec-ch12-12-10}
 
 ### Watkins's Q($\lambda$)
@@ -745,8 +725,6 @@ Backup Diagram for Tree-Backup($\lambda$).
 
 - The ET above combined with the usual semi-gradient TD($\lambda$) parameter-update rule defines the TB($\lambda$) algorithm.
 - Like all semi-gradient algorithms, TB($\lambda$) is not guaranteed to be stable when used with off-policy data and a powerful function approximator **(the deadly triad).**
-
----
 
 ## Stable Off-Policy Methods with Traces {#sec-ch12-12-11}
 
@@ -858,8 +836,6 @@ $$
   - Emphatic TD($\lambda$) is guaranteed to converge for all state-dependent $\lambda$ functions; TD($\lambda$) is not (TD($\lambda$) is guaranteed only for constant $\lambda$).
   - See Yu's counterexample **[Ghassian, Rafiee & Sutton, 2016].**
 
----
-
 ## Implementation Issues {#sec-ch12-12-12}
 
 - **Naive implementation seems expensive:** Updating eligibility traces for every state at every time step appears computationally costly on serial computers.
@@ -867,8 +843,6 @@ $$
 - **Computational cost:** With this optimization, tabular methods with traces are only a few times more expensive than one-step methods.
 - **Function approximation reduces overhead:** When using neural networks, ET typically only double memory and computation per step (much less overhead than in tabular case).
 - **Tabular is the worst case:** The tabular setting represents the highest computational complexity for ET relative to simpler methods.
-
----
 
 ## Conclusions {#sec-ch12-12-13}
 

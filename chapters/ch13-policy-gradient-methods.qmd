@@ -28,8 +28,6 @@ $$
   - **Actor** refers to the learned policy.
   - **Critic** refers to the learned value function (state-value function).
 
----
-
 ## Policy Approximation & Its Advantages {#sec-ch13-13-1}
 
 - In policy gradient methods, the policy can be parametrized in any way, as long as $\pi(a \vert s, \boldsymbol{\theta})$ is differentiable w.r.t. $\boldsymbol{\theta}$ (essentially the partial derivatives' column vector exists and is finite):
@@ -53,8 +51,6 @@ $$h(s, a, \boldsymbol{\theta}) = \boldsymbol{\theta}^T \mathbf{x}(s, a)$$
   - E.g. useful in environments with imperfect information (e.g., card games) where it is optimal to act stochastically, such as when **bluffing in Poker**; it is important to do so randomly to unnerve/confuse an opponent.
 - The policy from policy parametrization may be a **simpler function to approximate** than the action-value function.
 - Often the most important reason for using a policy-based learning method is that it is a good way to **inject prior knowledge** about the desired form of the policy into the RL system.
-
----
 
 ## The Policy Gradient Theorem {#sec-ch13-13-2}
 
@@ -130,8 +126,6 @@ $$
 $$\boxed{\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a)}$$
 :::
 
----
-
 ## REINFORCE: Monte Carlo Policy Gradient {#sec-ch13-13-3}
 
 - REINFORCE is our first policy gradient algorithm.
@@ -185,8 +179,6 @@ $$
 }
 $$
 
----
-
 ## REINFORCE with Baseline {#sec-ch13-13-4}
 
 - The policy gradient theorem can be generalized to include a comparison of the action value to an arbitrary **baseline** $b(s)$:
@@ -231,8 +223,6 @@ $$
 $$\alpha^{\mathbf{w}} = \frac{0.1}{\mathbb{E}\!\left[\|\nabla \hat{v}(S_t, \mathbf{w})\|_\mu^2\right]}$$
 
 - Choosing $\alpha^{\boldsymbol{\theta}}$ is much less clear since its best value depends on the range of variation of the rewards and on the policy parametrization.
-
----
 
 ## Actor-Critic Methods {#sec-ch13-13-5}
 
@@ -312,8 +302,6 @@ $$
 }
 $$
 
----
-
 ## Policy Gradient for Continuing Problems {#sec-ch13-13-6}
 
 - From [Section 10.3](ch10-on-policy-control-approximation.qmd#sec-ch10-10-3) on continuing problems, lack of episode boundaries requires a new performance measure definition in terms of the **average rate of reward per time step**:
@@ -392,8 +380,6 @@ $$
 }
 $$
 
----
-
 ## Policy Parametrization for Continuous Actions {#sec-ch13-13-7}
 
 - Policy gradient methods enable us to handle large (and even continuous) action spaces by learning the statistics of the probability distribution instead of computing learned probabilities for each of the many actions.
@@ -441,8 +427,6 @@ $$
 \sigma(s, \boldsymbol{\theta}) &\doteq \exp\!\left(\boldsymbol{\theta}_\sigma^T \mathbf{x}_\sigma(s)\right)
 \end{aligned}
 $$
-
----
 
 ## Summary {#sec-ch13-13-8}
 

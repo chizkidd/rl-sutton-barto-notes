@@ -41,8 +41,6 @@ q_{*}(s,a) &= \mathbb{E}\left[R_{t+1} + \gamma \max_{a'} q_{*}(S_{t+1}, a') \mid
 \end{aligned}
 $$
 
----
-
 ## Policy Evaluation (Prediction) {#sec-ch04-4-1}
 
 **Policy Evaluation**: How to compute the state-value function $v_\pi$ for an arbitrary policy $\pi$.
@@ -73,8 +71,6 @@ $$
 - At each iteration $k+1$, for all states $s \in S$, we update $v_{k+1}(s)$ from $v_k(s')$ where $s'$ is a successor state of $s$.
 - This update is called an **expected update** because it is based on the expectation over all possible next states, rather than a sample of reward/value from the next state.
 - We think of the updates occurring through **sweeps** of state space.
-
----
 
 ## Policy Improvement {#sec-ch04-4-2}
 
@@ -119,8 +115,6 @@ $$
 - Essentially, if $v_\pi(s) = v_{\pi'}(s)$ then $v_{\pi'}(s)$ must be $v_{*}(s)$ & both $\pi(s)$ and $\pi'(s)$ are optimal policies.
 - Policy improvement thus must give a **strictly better** policy except when the original policy is already optimal.
 
----
-
 ## Policy Iteration {#sec-ch04-4-3}
 
 - This involves a sequence of **monotonically improving** policies & value functions.
@@ -138,8 +132,6 @@ $$
 
 - Policy iteration often converges in surprisingly few iterations.
 
----
-
 ## Value Iteration {#sec-ch04-4-4}
 
 - Policy iteration requires full policy evaluation at each iteration step, which is a computationally expensive process that (formally) requires **infinite** sweeps of the state space to approach the true value function.
@@ -156,8 +148,6 @@ $$
 
 - Value iteration is obtained simply by turning the Bellman Optimality Equation into an update rule.
 
----
-
 ## Asynchronous Dynamic Programming {#sec-ch04-4-5}
 
 - Async DP algorithms are in-place iterative DP algorithms that are **not** organized in terms of systematic sweeps of the state set. **(localized approach)**
@@ -166,8 +156,6 @@ $$
   - In-place DP
   - Prioritized sweeping
   - Real-time DP
-
----
 
 ## Generalized Policy Iteration (GPI) {#sec-ch04-4-6}
 
@@ -179,7 +167,6 @@ $$
 
 Generalized Policy Iteration
 :::
----
 
 ## Efficiency of Dynamic Programming {#sec-ch04-4-7}
 
@@ -188,8 +175,6 @@ Generalized Policy Iteration
 - For the largest problems, only DP methods are feasible.
 - DP is comparatively better suited to handling large state spaces than competing methods such as direct search and linear programming.
 - Async DP methods are preferred often on problems with large state spaces.
-
----
 
 ## Summary {#sec-ch04-4-8}
 

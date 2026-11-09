@@ -9,8 +9,6 @@ number-sections: true
 - $n$-step methods enable bootstrapping to occur over multiple steps, freeing us from the tyranny of the single time step.
   - The idea of $n$-step methods is used as an introduction to the algorithmic idea of **eligibility traces**, which enable bootstrapping over multiple time intervals simultaneously.
 
----
-
 ## $n$-step TD Prediction, $\text{TD}(\lambda)$ {#sec-ch07-7-1}
 
 - Let the TD target look $n$ steps into the future.
@@ -69,8 +67,6 @@ $$G_{t:t+n} = G_t^{(n)} \doteq G_t \quad \text{if } t+n \geq T$$
 
 $$\max_s \left|\mathbb{E}_\pi\left[G_t^{(n)} \mid S_t = s\right] - v_\pi(s)\right| \leq \gamma^n \max_s \left|V_{t+n-1}(s) - v_\pi(s)\right|$$
 
----
-
 ## $n$-step Sarsa, $\text{Sarsa}(\lambda)$ {#sec-ch07-7-2}
 
 - $n$-step value function prediction can be extended to control.
@@ -128,8 +124,6 @@ $$\bar{V}_t(s) \doteq \sum_a \pi(a|s)\, Q_t(s,a), \quad \forall s \in S$$
 - Expected approximate values are essential for action-value methods in RL.
 - If $s$ is terminal, then its expected approximate value is defined to be zero: $$\bar{V}_t(\mathcal{T}) = 0$$
 
----
-
 ## $n$-step Off-policy Learning {#sec-ch07-7-3}
 
 - Recall that off-policy learning entails learning the value function for one policy $\pi$, while following another policy $b$ (behavior policy).
@@ -169,8 +163,6 @@ $$Q_{t+n}(S_t, A_t) \leftarrow Q_{t+n-1}(S_t, A_t) + \alpha\, \rho_{t+1:t+n}\lef
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\, \rho_{t+1:t+n-1}\left[G_t^{(n)} - Q(S_t, A_t)\right]}$$
 
   - This is the same as the $n$-step Sarsa update except that the importance sampling ratio used is $\rho_{t+1:t+n-1}$ instead of $\rho_{t+1:t+n}$, because in Expected Sarsa all possible actions are taken into account in the last state; the one actually taken has no effect and does not need to be corrected for.
-
----
 
 ## Per-decision Methods with Control Variates {#sec-ch07-7-4}
 
@@ -221,8 +213,6 @@ G_{t:h} &\doteq R_{t+1} + \gamma\left[\rho_{t+1} G_{t+1:h} + \bar{V}_{h-1}(S_{t+
     3. Invariant updates of Karampatziakis & Langford [2010]
     4. The usage technique by Mahmood [2017; Mahmood & Sutton, 2015]
 
----
-
 ## Off-policy Learning Without Importance Sampling: The $n$-step Tree Backup Algorithm {#sec-ch07-7-5}
 
 - Off-policy learning without importance sampling:
@@ -271,8 +261,6 @@ G_t^{(2)} &\doteq R_{t+1} + \gamma \sum_{a \neq A_{t+1}} \pi(a \vert S_{t+1})\, 
 &= R_{t+1} + \gamma \sum_{a \neq A_{t+1}} \pi(a \vert S_{t+1})\, Q_{t+1}(S_{t+1}, a) + \gamma\pi(A_{t+1} \vert S_{t+1})\, G_{t+1:t+2}
 \end{aligned}$$
 
-
-
 - The $n$-step tree-backup return is, $\text{for } t < T-1,\ n \geq 2$:
 
     $$\boxed{G_t^{(n)} \doteq R_{t+1} + \gamma \sum_{a \neq A_{t+1}} \pi(a|S_{t+1})\, Q_{t+n-1}(S_{t+1}, a) + \gamma\pi(A_{t+1}|S_{t+1})\, G_{t+1:t+n}}$$
@@ -286,8 +274,6 @@ $$\boxed{Q_{t+n}(S_t, A_t) \leftarrow Q_{t+n-1}(S_t, A_t) + \alpha\left[G_t^{(n)
 - while the values of all other state-action pairs remain unchanged:
 
 $$Q_{t+n}(s,a) = Q_{t+n-1}(s,a) \quad \forall s, a \quad \text{ s.t. } \quad s \neq S_t \text{ or } a \neq A_t$$
-
----
 
 ## A Unifying Algorithm: $n$-step $Q(\sigma)$ {#sec-ch07-7-6}
 
@@ -328,8 +314,6 @@ $$\boxed{G_{t:h} \doteq R_{t+1} + \gamma\left(\sigma_{t+1}\rho_{t+1} + (1-\sigma
 
 - The recursion ends with $G_{h:h} = 0$ if $h < T$ or $G_{T-1:T} = R_T$ if $h = T$.
 - Now we can plug the new defined return into the $n$-step Sarsa update w/o importance sampling (handled already in $G_{t:h}$).
-
----
 
 ## Summary {#sec-ch07-7-7}
 

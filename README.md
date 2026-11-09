@@ -67,6 +67,7 @@ RL-Sutton-Barto-notes/
 ├── .gitignore                   # Ignores _site/, .quarto/, locks, .DS_Store
 ├── _quarto.yml                  # Book config: chapter order, theme, PDF settings
 ├── index.qmd                    # Preface: coverage table + notation table
+├── gallery.qmd                  # Figure gallery: every diagram by chapter
 ├── custom.scss                  # Custom styles (light + dark mode)
 ├── sidebar-toggle.html          # Sidebar collapse/expand buttons
 ├── references.bib               # BibTeX references
