@@ -3,7 +3,7 @@ name: Deploy Quarto Book to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, preview-pdf-fixes]
   workflow_dispatch:
 
 permissions:
@@ -36,6 +36,13 @@ jobs:
       - name: Verify PDF output
         run: test -s _site/rl-notes.pdf
 
+      - name: Upload preview artifact
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rl-notes-preview
+          path: _site
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -43,6 +50,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

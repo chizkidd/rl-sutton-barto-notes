@@ -62,11 +62,11 @@ $$
 - TD(0) bases its update in part on an existing estimate (bootstrapping):
 
 $$
-\begin{align*}
+\begin{aligned}
 v_\pi(s) &\doteq \mathbb{E}\left[G_t \mid S_t = s\right] \\
 &= \mathbb{E}_\pi\left[R_{t+1} + \gamma G_{t+1} \mid S_t = s\right] \\
 &= \mathbb{E}_\pi\left[R_{t+1} + \gamma v_\pi(S_{t+1}) \mid S_t = s\right] \\
-\end{align*}
+\end{aligned}
 $$
 
 - The TD target is an estimate because it samples the expected values in the equation above, and it uses the current estimate $V$ instead of the true $V_\pi$.

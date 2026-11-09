@@ -95,14 +95,14 @@ Let's prove the policy gradient theorem from first principles using elementary c
 **Note:** To keep the notation simple, we leave it implicit in all cases that $\pi = f(\boldsymbol{\theta})$ and all gradients $\nabla[\ldots]$ are also implicit w.r.t. $\boldsymbol{\theta}$.
 
 $$
-\begin{align*}
+\begin{aligned}
 \nabla v_\pi(s) &= \nabla \!\left[\sum_a \pi(a \vert s)\, q_\pi(s,a)\right], \quad \text{for all } s \in \mathcal{S} \\
 &= \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s)\, \nabla q_\pi(s,a)\right] \\
 &= \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s)\, \nabla \sum_{s',r} p(s',r \vert s,a)\!\left(r + v_\pi(s')\right)\right] \\
 &= \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s) \sum_{s'} p(s' \vert s,a)\, \nabla v_\pi(s')\right] \\
 &= \sum_a \Biggl[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s) \sum_{s'} p(s' \vert s,a) \sum_{a'} \Biggl[\nabla\pi(a' \vert s')\, q_\pi(s',a') \\
 &\qquad\qquad + \pi(a' \vert s') \sum_{s''} p(s'' \vert s',a')\, \nabla v_\pi(s'')\Biggr]\Biggr]
-\end{align*}
+\end{aligned}
 $$
 
 Unrolling this recursion:
@@ -118,13 +118,13 @@ $$
 Then:
 
 $$
-\begin{align*}
+\begin{aligned}
 \nabla J(\boldsymbol{\theta}) &= \nabla v_\pi(s_0) \\
 &= \sum_s \!\left(\sum_{k=0}^{\infty} \Pr(s_0 \to s, k, \pi)\right) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) \\
 &= \sum_s \eta(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) \\
 &= \sum_{s'} \eta(s') \sum_s \frac{\eta(s)}{\sum_{s'} \eta(s')} \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) \\
 &= \sum_{s'} \eta(s') \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a)
-\end{align*}
+\end{aligned}
 $$
 
 $$\boxed{\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a)}$$
@@ -142,20 +142,20 @@ $$\boxed{\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \nabla\pi(a 
 - Recall the RHS of the policy gradient theorem is a sum over states weighted by how often the states occur under the target policy $\pi$:
 
 $$
-\begin{align*}
+\begin{aligned}
 \nabla J(\boldsymbol{\theta}) &\propto \sum_s \mu(s) \sum_a q_\pi(s,a)\, \nabla\pi(a \vert s, \boldsymbol{\theta}) \\
 &= \mathbb{E}_\pi \!\left[\sum_a q_\pi(S_t, a)\, \nabla\pi(a \vert S_t, \boldsymbol{\theta})\right]
-\end{align*}
+\end{aligned}
 $$
 
 - We get REINFORCE by replacing the sum over the random variable's possible values by an expectation under $\pi$, and then sampling the expectation:
 
 $$
-\begin{align*}
+\begin{aligned}
 \nabla J(\boldsymbol{\theta}) &\propto \mathbb{E}_\pi \!\left[\sum_a \pi(a \vert S_t, \boldsymbol{\theta})\, q_\pi(S_t, a)\, \frac{\nabla\pi(a \vert S_t, \boldsymbol{\theta})}{\pi(a \vert S_t, \boldsymbol{\theta})}\right] \\
 &= \mathbb{E}_\pi \!\left[q_\pi(S_t, A_t)\, \frac{\nabla\pi(A_t \vert S_t, \boldsymbol{\theta})}{\pi(A_t \vert S_t, \boldsymbol{\theta})}\right] \quad \text{(replacing } a \text{ by the sample } A_t \sim \pi\text{)} \\
 &= \mathbb{E}_\pi \!\left[G_t\, \frac{\nabla\pi(A_t \vert S_t, \boldsymbol{\theta})}{\pi(A_t \vert S_t, \boldsymbol{\theta})}\right] \quad \text{(because } \mathbb{E}_\pi[G_t \vert S_t, A_t] = q_\pi(S_t, A_t)\text{)}
-\end{align*}
+\end{aligned}
 $$
 
 - The last expression is the required expression; a quantity that can be sampled on each time step whose expectation is proportional to the gradient. This leads to the **REINFORCE update**:
@@ -246,11 +246,11 @@ $$\alpha^{\mathbf{w}} = \frac{0.1}{\mathbb{E}\!\left[\|\nabla \hat{v}(S_t, \math
 - One-step actor-critic methods replace the REINFORCE full return with the one-step return and use a learned state-value function as the baseline as follows:
 
 $$
-\begin{align*}
+\begin{aligned}
 \boldsymbol{\theta}_{t+1} &\doteq \boldsymbol{\theta}_t + \alpha \!\left[G_{t:t+1} - \hat{v}(S_t, \mathbf{w})\right] \frac{\nabla\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}{\pi(A_t \vert S_t, \boldsymbol{\theta}_t)} \\
 &= \boldsymbol{\theta}_t + \alpha \!\left[R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}) - \hat{v}(S_t, \mathbf{w})\right] \frac{\nabla\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}{\pi(A_t \vert S_t, \boldsymbol{\theta}_t)} \\
 &= \boldsymbol{\theta}_t + \alpha\, \delta_t\, \frac{\nabla\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}{\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}
-\end{align*}
+\end{aligned}
 $$
 
 - The semi-gradient TD(0) could serve as the natural state-value function learning method.
@@ -319,11 +319,11 @@ $$
 - From [Section 10.3](ch10-on-policy-control-approximation.qmd#sec-ch10-10-3) on continuing problems, lack of episode boundaries requires a new performance measure definition in terms of the **average rate of reward per time step**:
 
 $$
-\begin{align*}
+\begin{aligned}
 J(\boldsymbol{\theta}) \doteq r(\pi) &\doteq \lim_{h \to \infty} \frac{1}{h} \sum_{t=1}^{h} \mathbb{E}\!\left[R_t \vert S_0, A_{0:t-1} \sim \pi\right] \\
 &= \lim_{t \to \infty} \mathbb{E}\!\left[R_t \vert S_0, A_{0:t-1} \sim \pi\right] \\
 &= \sum_s \mu(s) \sum_a \pi(a \vert s) \sum_{s',r} p(s',r \vert s,a)\, r
-\end{align*}
+\end{aligned}
 $$
 
 $$
@@ -346,12 +346,12 @@ $$G_t \doteq R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + R_{t+3} - r(\pi) + \ldots$$
 Leave the notation implicit in all cases that $\pi = f(\boldsymbol{\theta})$ and that the gradients $\nabla[\ldots]$ are w.r.t. $\boldsymbol{\theta}$. In the continuing case $J(\boldsymbol{\theta}) = r(\pi)$, and $v_\pi$ & $q_\pi$ denote values w.r.t. the **differential return**.
 
 $$
-\begin{align*}
+\begin{aligned}
 \nabla v_\pi(s) &= \nabla \!\left[\sum_a \pi(a \vert s)\, q_\pi(s,a)\right], \quad \text{for all } s \in \mathcal{S} \\
 &= \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s)\, \nabla q_\pi(s,a)\right] \\
 &= \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s)\, \nabla \sum_{s',r} p(s',r \vert s,a)\!\left(r - r(\boldsymbol{\theta}) + v_\pi(s')\right)\right] \\
 &= \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s)\!\left[-\nabla r(\boldsymbol{\theta}) + \sum_{s'} p(s' \vert s,a)\, \nabla v_\pi(s')\right]\right]
-\end{align*}
+\end{aligned}
 $$
 
 $$\nabla r(\boldsymbol{\theta}) = \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s) \sum_{s'} p(s' \vert s,a)\, \nabla v_\pi(s')\right] - \nabla v_\pi(s)$$
@@ -359,13 +359,13 @@ $$\nabla r(\boldsymbol{\theta}) = \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,
 Since $\nabla J(\boldsymbol{\theta})$ does not depend on $s$, we sum over all $s \in \mathcal{S}$ weighted by $\mu(s)$ (because $\sum_s \mu(s) = 1$):
 
 $$
-\begin{align*}
+\begin{aligned}
 \nabla J(\boldsymbol{\theta}) &= \sum_s \mu(s) \Bigl(\sum_a \Bigl[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s) \sum_{s'} p(s' \vert s,a)\, \nabla v_\pi(s')\Bigr] - \nabla v_\pi(s)\Bigr) \\
 &= \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) \\
 &\quad + \sum_{s'} \underbrace{\sum_s \mu(s) \sum_a \pi(a \vert s)\, p(s' \vert s,a)}_{\mu(s')} \nabla v_\pi(s') - \sum_s \mu(s)\, \nabla v_\pi(s) \\
 &= \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) + \sum_{s'} \mu(s')\, \nabla v_\pi(s') - \sum_s \mu(s)\, \nabla v_\pi(s) \\
 &= \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) \qquad \text{Q.E.D.}
-\end{align*}
+\end{aligned}
 $$
 :::
 

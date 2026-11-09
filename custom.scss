@@ -145,6 +145,14 @@ img[src$=".svg"] {
   &:hover { opacity: 1; }
   &.left-toggle  { border-radius: 0 6px 6px 0; }
   &.right-toggle { border-radius: 6px 0 0 6px; }
+  /* `hidden` must beat `display: flex` above */
+  &[hidden] { display: none !important; }
+}
+
+/* Below Quarto's sidebar breakpoint the sidebar becomes an offcanvas panel
+   driven by Quarto's own toggle, so the custom buttons would be redundant. */
+@media (max-width: 991.98px) {
+  .sidebar-toggle-btn { display: none; }
 }
 
 [data-bs-theme=dark] .sidebar-toggle-btn {

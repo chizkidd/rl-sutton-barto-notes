@@ -75,7 +75,7 @@ $$\boxed{G_t^\lambda \doteq (1-\lambda) \sum_{n=1}^{\infty} \lambda^{n-1} G_{t:t
 $$
 \begin{array}{l}
 G_t^\lambda = (1-\lambda) \sum\nolimits_{n=1}^{T-t-1} \lambda^{n-1} G_{t:t+n} + \lambda^{T-t-1} G_t \\
-\hspace{3em} \underbrace{\hspace{11em}}_{\text{pre-termination}} \kern{0.5em}\underbrace{\hspace{4em}}_{\text{post-termination}}
+\hspace{3em} \underbrace{\hspace{11em}}_{\text{pre-termination}} \hspace{0.5em}\underbrace{\hspace{4em}}_{\text{post-termination}}
 \end{array}
 $$
 
@@ -132,10 +132,10 @@ Forward View TD($\lambda$).
   - $\mathbf{z}$ is initialized to $\mathbf{0}$, incremented on each time step by the value gradient, and then fades away by $\gamma\lambda$:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{z}_{-1} &\doteq \mathbf{0} \\
 \mathbf{z}_t &\doteq \gamma\lambda \mathbf{z}_{t-1} + \nabla \hat{v}(S_t, \mathbf{w}_t), \quad 0 \leq t \leq T
-\end{align*}
+\end{aligned}
 $$
 
 $$
@@ -180,14 +180,14 @@ Backward View of TD($\lambda$).
 - Let's look at the effect of $\lambda$ to understand the backward view of TD($\lambda$):
 
 $$
-\begin{align*}
+\begin{aligned}
 \text{if } \lambda = 0: \quad & \mathbf{z}_t = \nabla \hat{v}(S_t, \mathbf{w}_t) \\
 & \mathbf{w}_{t+1} = \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{v}(S_t, \mathbf{w}_t) \quad \longrightarrow \quad \text{TD(0)} \\[6pt]
 \text{if } 0 < \lambda < 1: \quad & \text{earlier states are given less credit for the TD error} \\[6pt]
 \text{if } \lambda = 1: \quad & \mathbf{z}_t = \gamma \mathbf{z}_{t-1} + \nabla \hat{v}(S_t, \mathbf{w}_t) \quad \longrightarrow \quad \text{credit for earlier states falls by } \gamma \text{ per step} \\[6pt]
 \text{if } \lambda = 1,\ \gamma = 1: \quad & \mathbf{z}_t = \mathbf{z}_{t-1} + \nabla \hat{v}(S_t, \mathbf{w}_t) \quad \longrightarrow \quad \text{MC-like behavior (no time decay for ET)} \\[6pt]
 \text{if } \lambda = 1: \quad & \text{we get TD(1)}
-\end{align*}
+\end{aligned}
 $$
 
 - In summary, $\lambda = 1$ yields TD(1).
@@ -206,10 +206,10 @@ $$\overline{\text{VE}}(\mathbf{w}_\infty) \leq \frac{1 - \gamma\lambda}{1 - \gam
 - That is, the asymptotic error is no more than $\dfrac{1-\gamma\lambda}{1-\gamma}$ times the smallest possible error for TD($\lambda$):
 
 $$
-\begin{align*}
+\begin{aligned}
 \text{as } \lambda \to 1: \quad & \overline{\text{VE}}(\mathbf{w}_\infty) \to \min_\mathbf{w} \overline{\text{VE}}(\mathbf{w}) \\[6pt]
 \text{as } \lambda \to 0: \quad & \overline{\text{VE}}(\mathbf{w}_\infty) \to \frac{1}{1-\gamma} \min_\mathbf{w} \overline{\text{VE}}(\mathbf{w}) = \overline{\text{VE}}(\mathbf{w}_\text{TD}) \quad \text{(TD(0))}
-\end{align*}
+\end{aligned}
 $$
 
 - However, $\lambda = 1$ is often the poorest choice.
@@ -273,14 +273,14 @@ Backup Diagram for Truncated TD($\lambda$).
 - Let's distinguish between the weight vectors computed at the different horizons by seeing the first 3 sequences:
 
 $$
-\begin{align*}
+\begin{aligned}
 h=1: \quad & \mathbf{w}_1^1 \doteq \mathbf{w}_0^1 + \alpha \!\left[G_{0:1}^\lambda - \hat{v}(S_0, \mathbf{w}_0^1)\right] \nabla \hat{v}(S_0, \mathbf{w}_0^1) \\[6pt]
 h=2: \quad & \mathbf{w}_1^2 \doteq \mathbf{w}_0^2 + \alpha \!\left[G_{0:2}^\lambda - \hat{v}(S_0, \mathbf{w}_0^2)\right] \nabla \hat{v}(S_0, \mathbf{w}_0^2) \\
 & \mathbf{w}_2^2 \doteq \mathbf{w}_1^2 + \alpha \!\left[G_{1:2}^\lambda - \hat{v}(S_1, \mathbf{w}_1^2)\right] \nabla \hat{v}(S_1, \mathbf{w}_1^2) \\[6pt]
 h=3: \quad & \mathbf{w}_1^3 \doteq \mathbf{w}_0^3 + \alpha \!\left[G_{0:3}^\lambda - \hat{v}(S_0, \mathbf{w}_0^3)\right] \nabla \hat{v}(S_0, \mathbf{w}_0^3) \\
 & \mathbf{w}_2^3 \doteq \mathbf{w}_1^3 + \alpha \!\left[G_{1:3}^\lambda - \hat{v}(S_1, \mathbf{w}_1^3)\right] \nabla \hat{v}(S_1, \mathbf{w}_1^3) \\
 & \mathbf{w}_3^3 \doteq \mathbf{w}_2^3 + \alpha \!\left[G_{2:3}^\lambda - \hat{v}(S_2, \mathbf{w}_2^3)\right] \nabla \hat{v}(S_2, \mathbf{w}_2^3)
-\end{align*}
+\end{aligned}
 $$
 
 $$
@@ -370,12 +370,12 @@ $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha \!\left[G - \mathbf{w}_t^T \math
 - We introduce an additional vector memory, the **eligibility trace**, that keeps in it a summary of all the feature vectors seen so far. The overall update will be the same as the MC updates' sequence shown above and is:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{w}_T &= \mathbf{w}_{T-1} + \alpha \!\left(G - \mathbf{w}_{T-1}^T \mathbf{x}_{T-1}\right) \mathbf{x}_{T-1} \\
 &= \mathbf{w}_{T-1} + \alpha \mathbf{x}_{T-1}\!\left(-\mathbf{x}_{T-1}^T \mathbf{w}_{T-1}\right) + \alpha G \mathbf{x}_{T-1} \\
 &= \!\left(\mathbf{I} - \alpha \mathbf{x}_{T-1} \mathbf{x}_{T-1}^T\right) \mathbf{w}_{T-1} + \alpha G \mathbf{x}_{T-1} \\
 &= \mathbf{F}_{T-1}\, \mathbf{w}_{T-1} + \alpha G \mathbf{x}_{T-1}
-\end{align*}
+\end{aligned}
 $$
 
 $$
@@ -390,7 +390,7 @@ $$\therefore\quad \mathbf{w}_{T-1} = \mathbf{F}_{T-2}\, \mathbf{w}_{T-2} + \alph
 Now recursing:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{w}_T &= \mathbf{F}_{T-1}\, \mathbf{w}_{T-1} + \alpha G \mathbf{x}_{T-1} \\
 &= \mathbf{F}_{T-1}\!\left(\mathbf{F}_{T-2}\, \mathbf{w}_{T-2} + \alpha G \mathbf{x}_{T-2}\right) + \alpha G \mathbf{x}_{T-1} \\
 &= \mathbf{F}_{T-1} \mathbf{F}_{T-2}\, \mathbf{w}_{T-2} + \alpha G\!\left(\mathbf{F}_{T-1} \mathbf{x}_{T-2} + \mathbf{x}_{T-1}\right) \\
@@ -399,7 +399,7 @@ $$
 &\quad \vdots \\
 &= \underbrace{\mathbf{F}_{T-1} \mathbf{F}_{T-2} \cdots \mathbf{F}_0\, \mathbf{w}_0}_{\mathbf{a}_{T-1}} + \alpha G \underbrace{\sum\nolimits_{k=0}^{T-1} \mathbf{F}_{T-1} \mathbf{F}_{T-2} \cdots \mathbf{F}_{k+1}\, \mathbf{x}_k}_{\mathbf{z}_{T-1}} \\
 &= \mathbf{a}_{T-1} + \alpha G\, \mathbf{z}_{T-1}
-\end{align*}
+\end{aligned}
 $$
 
 $$
@@ -414,7 +414,7 @@ $$
 - The $\mathbf{z}_t$ vector is in fact a dutch-style eligibility trace, initialized to $\mathbf{z}_0 = \mathbf{x}_0$, that can be updated according to:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{z}_t &= \sum\nolimits_{k=0}^{t} \mathbf{F}_t \mathbf{F}_{t-1} \cdots \mathbf{F}_{k+1}\, \mathbf{x}_k, \quad 1 \leq t < T \\
 &= \sum\nolimits_{k=0}^{t-1} \mathbf{F}_t \mathbf{F}_{t-1} \cdots \mathbf{F}_{k+1}\, \mathbf{x}_k + \mathbf{x}_t \\
 &= \mathbf{F}_t \sum\nolimits_{k=0}^{t-1} \mathbf{F}_{t-1} \mathbf{F}_{t-2} \cdots \mathbf{F}_{k+1}\, \mathbf{x}_k + \mathbf{x}_t \\
@@ -422,7 +422,7 @@ $$
 &= \!\left(\mathbf{I} - \alpha \mathbf{x}_t \mathbf{x}_t^T\right) \mathbf{z}_{t-1} + \mathbf{x}_t \\
 &= \mathbf{z}_{t-1} - \alpha\!\left(\mathbf{z}_{t-1}^T \mathbf{x}_t\right) \mathbf{x}_t + \mathbf{x}_t \\
 &\boxed{= \mathbf{z}_{t-1} + \!\left(1 - \alpha\, \mathbf{z}_{t-1}^T \mathbf{x}_t\right) \mathbf{x}_t}
-\end{align*}
+\end{aligned}
 $$
 
 which is the dutch trace for $\gamma\lambda = 1$.
@@ -430,12 +430,12 @@ which is the dutch trace for $\gamma\lambda = 1$.
 - The $\mathbf{a}_t$ auxiliary vector is initialized to $\mathbf{a}_0 = \mathbf{w}_0$ and then updated according to:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{a}_t &= \mathbf{F}_t \mathbf{F}_{t-1} \cdots \mathbf{F}_0\, \mathbf{w}_0, \quad 1 \leq t < T \\
 &= \mathbf{F}_t\, \mathbf{a}_{t-1} \\
 &= \mathbf{a}_{t-1} - \alpha \mathbf{x}_t \mathbf{x}_t^T \mathbf{a}_{t-1} \\
 &\boxed{= \mathbf{a}_{t-1}\!\left(\mathbf{I} - \alpha \mathbf{x}_t \mathbf{x}_t^T\right)}
-\end{align*}
+\end{aligned}
 $$
 
 ### Takeaways
@@ -494,10 +494,10 @@ $$\delta_t \doteq R_{t+1} + \gamma \hat{q}(S_{t+1}, A_{t+1}, \mathbf{w}_t) - \ha
 - The action-value form of the eligibility trace:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{z}_{-1} &\doteq \mathbf{0} \\
 \mathbf{z}_t &\doteq \gamma\lambda \mathbf{z}_{t-1} + \nabla \hat{q}(S_t, A_t, \mathbf{w}_t), \quad 0 \leq t \leq T
-\end{align*}
+\end{aligned}
 $$
 
 - There exists an action-value version of our ideal TD method, the online $\lambda$-return algorithm and its efficient implementation as true online TD($\lambda$):
@@ -514,20 +514,20 @@ $$
 - To get the most general forms of the final TD algorithms, it is vital to generalize the degree of bootstrapping and discounting beyond constant parameters to functions dependent on the state and action:
 
 $$
-\begin{align*}
+\begin{aligned}
 \lambda_t &\doteq \lambda(S_t, A_t), \quad & \lambda &: S \times A \to [0,1] \\
 \gamma_t &\doteq \gamma(S_t), \quad & \gamma &: S \to [0,1]
-\end{align*}
+\end{aligned}
 $$
 
 - $\lambda_t$ is the termination function and is significant because it changes the return $G_t$, which is now more generally defined as:
 
 $$
-\begin{align*}
+\begin{aligned}
 G_t &\doteq R_{t+1} + \gamma_{t+1} G_{t+1} \\
 &= R_{t+1} + \gamma_{t+1} R_{t+2} + \gamma_{t+1} \gamma_{t+2} R_{t+3} + \gamma_{t+1} \gamma_{t+2} \gamma_{t+3} R_{t+4} + \ldots \\
 &= \sum_{k=t}^{\infty} \left(\prod_{i=t+1}^{k} \gamma_i\right) R_{k+1}
-\end{align*}
+\end{aligned}
 $$
 
 $$
@@ -588,42 +588,42 @@ $$
 - The final $\lambda$-return can be approximated in terms of sums of the state-based TD error $\delta_t^s$, with the approximation becoming exact if the approximate value function does not change:
 
 $$
-\begin{align*}
+\begin{aligned}
 G_t^{\lambda s} &\approx \hat{v}(S_t, \mathbf{w}_t) + \rho_t \sum_{k=t}^{\infty} \delta_k^s \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i \\
 \delta_t^s &\doteq R_{t+1} + \gamma_{t+1}\, \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t)
-\end{align*}
+\end{aligned}
 $$
 
 - The forward view update of the approximate $\lambda$-return is:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{w}_{t+1} &= \mathbf{w}_t + \alpha \!\left[G_t^{\lambda s} - \hat{v}(S_t, \mathbf{w}_t)\right] \nabla \hat{v}(S_t, \mathbf{w}_t) \\
 &\boxed{\approx \mathbf{w}_t + \alpha \rho_t \!\left(\sum_{k=t}^{\infty} \delta_k^s \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i\right) \nabla \hat{v}(S_t, \mathbf{w}_t)}
-\end{align*}
+\end{aligned}
 $$
 
 - We're interested in the equivalence (approximately) between the forward-view update summed over time and a backward-view update summed over time. The equivalence is approximate because we ignore changes in the value function.
 - The sum of the forward-view update over time is:
 
 $$
-\begin{align*}
+\begin{aligned}
 \sum_{t=0}^{\infty} \!\left(\mathbf{w}_{t+1} - \mathbf{w}_t\right) &\approx \sum_{t=0}^{\infty} \sum_{k=t}^{\infty} \alpha \rho_t\, \delta_k^s \nabla \hat{v}(S_t, \mathbf{w}_t) \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i \\
 &= \sum_{k=0}^{\infty} \sum_{t=0}^{k} \alpha \rho_t \nabla \hat{v}(S_t, \mathbf{w}_t)\, \delta_k^s \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i \\
 &\quad \left(\text{using the summation rule: } \sum_{t=x}^{y} \sum_{k=t}^{y} = \sum_{k=x}^{y} \sum_{t=x}^{k}\right) \\
 &= \sum_{k=0}^{\infty} \alpha\, \delta_k^s \sum_{t=0}^{k} \rho_t \nabla \hat{v}(S_t, \mathbf{w}_t) \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i
-\end{align*}
+\end{aligned}
 $$
 
 - If the entire expression from the 2nd sum on could be written and updated incrementally as an eligibility trace, then the sum of the forward-view update over time would be in the form of the sum of a backward-view TD update.
   - That is, if this expression was the trace at time $k$, then we could update it from its value at time $k-1$ by:
 
 $$
-\begin{align*}
+\begin{aligned}
 \mathbf{z}_k &= \sum_{t=0}^{k} \rho_t \nabla \hat{v}(S_t, \mathbf{w}_t) \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i \\
 &= \sum_{t=0}^{k-1} \rho_t \nabla \hat{v}(S_t, \mathbf{w}_t) \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i + \rho_k \nabla \hat{v}(S_k, \mathbf{w}_k) \\
 &= \gamma_k \lambda_k \rho_k \underbrace{\sum_{t=0}^{k-1} \rho_t \nabla \hat{v}(S_t, \mathbf{w}_t) \prod_{i=t+1}^{k-1} \gamma_i \lambda_i \rho_i}_{\mathbf{z}_{k-1}} + \rho_k \nabla \hat{v}(S_k, \mathbf{w}_k)
-\end{align*}
+\end{aligned}
 $$
 
 $$\boxed{\mathbf{z}_k = \rho_k \!\left[\gamma_k \lambda_k\, \mathbf{z}_{k-1} + \nabla \hat{v}(S_k, \mathbf{w}_k)\right]}$$
@@ -644,10 +644,10 @@ $$\mathbf{z}_t \doteq \gamma_t \lambda_t\, \mathbf{z}_{t-1} + \nabla \hat{v}(S_t
   - Starting with either recursive general action-based $\lambda$-return of Sarsa or Expected Sarsa, $G_t^{\lambda a}$, in [Section 12.8](#sec-ch12-12-8) (Expected Sarsa works out to be simpler), we can extend the Expected Sarsa $G_t^{\lambda a}$ to the off-policy case after the off-policy model of action-based, off-policy, control variate, $n$-step return:
 
 $$
-\boxed{\begin{align*}
+\boxed{\begin{aligned}
 G_t^{\lambda a} &\doteq R_{t+1} + \gamma_{t+1}\!\left(\!\left[1 - \lambda_{t+1}\right] \bar{V}_t(S_{t+1}) + \lambda_{t+1}\!\left[\rho_{t+1} G_{t+1}^{\lambda a} + \bar{V}_t(S_{t+1}) - \rho_{t+1}\, \hat{q}(S_{t+1}, A_{t+1}, \mathbf{w}_t)\right]\right) \\
 &= R_{t+1} + \gamma_{t+1}\!\left(\bar{V}_t(S_{t+1}) + \lambda_{t+1} \rho_{t+1} \!\left[G_{t+1}^{\lambda a} - \hat{q}(S_{t+1}, A_{t+1}, \mathbf{w}_t)\right]\right)
-\end{align*}}
+\end{aligned}}
 $$
 
 $$
@@ -660,10 +660,10 @@ $$
 - The $\lambda$-return, approximately as the sum of TD errors, is:
 
 $$
-\begin{align*}
+\begin{aligned}
 G_t^{\lambda a} &\approx \hat{q}(S_t, A_t, \mathbf{w}_t) + \sum_{k=t}^{\infty} \delta_k^a \prod_{i=t+1}^{k} \gamma_i \lambda_i \rho_i \\
 \delta_t^a &= R_{t+1} + \gamma_{t+1} \bar{V}(S_{t+1}) - \hat{q}(S_t, A_t, \mathbf{w}_t)
-\end{align*}
+\end{aligned}
 $$
 
 - Using steps analogous to those for the state case earlier in this section, write a forward-view update based on action-based $\lambda$-return $G_t^{\lambda a}$ above, then transform the sum of the updates using the summation rule and finally derive the eligibility trace for action values:
@@ -716,19 +716,19 @@ Backup Diagram for Watkins's Q($\lambda$).
   - Using the recursive form of the action-based $\lambda$-return for Expected Sarsa and then expanding the bootstrapping target case after the model of tree-backup $n$-step return ([Section 7.5](ch07-nstep-bootstrapping.qmd#sec-ch07-7-5)):
 
 $$
-\boxed{\begin{align*}
+\boxed{\begin{aligned}
 G_t^{\lambda a} &\doteq R_{t+1} + \gamma_{t+1}\!\left(\!\left[1 - \lambda_{t+1}\right] \bar{V}_t(S_{t+1}) + \lambda_{t+1}\!\left[\sum_{a \neq A_{t+1}} \pi(a \vert S_{t+1})\, \hat{q}(S_{t+1}, a, \mathbf{w}_t) + \pi(A_{t+1} \vert S_{t+1}) G_{t+1}^{\lambda a}\right]\right) \\
 &= R_{t+1} + \gamma_{t+1}\!\left(\bar{V}_t(S_{t+1}) + \lambda_{t+1} \pi(A_{t+1} \vert S_{t+1}) \!\left[G_{t+1}^{\lambda a} - \hat{q}(S_{t+1}, A_{t+1}, \mathbf{w}_t)\right]\right)
-\end{align*}}
+\end{aligned}}
 $$
 
 - $G_t^{\lambda a}$ can be approximated (ignoring changes in approx. value function) as a sum of TD errors:
 
 $$
-\begin{align*}
+\begin{aligned}
 G_t^{\lambda a} &\approx \hat{q}(S_t, A_t, \mathbf{w}_t) + \sum_{k=t}^{\infty} \delta_k^a \prod_{i=t+1}^{k} \gamma_i \lambda_i \pi(A_i \vert S_i) \\
 \delta_t^a &= R_{t+1} + \gamma_{t+1} \bar{V}_t(S_{t+1}) - \hat{q}(S_t, A_t, \mathbf{w}_t)
-\end{align*}
+\end{aligned}
 $$
 
 - As always, using same steps as in the previous section, we get a special eligibility trace update involving the target-policy probabilities of the selected actions:
