@@ -130,6 +130,8 @@ img[src$=".svg"] {
   border: 1px solid #e0e6ed;
   border-radius: 8px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:hover {
@@ -138,9 +140,12 @@ img[src$=".svg"] {
   }
 }
 
+/* Fixed image box keeps every card the same height despite differing
+   aspect ratios; the diagram is letterboxed inside it. */
 .figure-gallery img {
   width: 100%;
-  height: auto;
+  height: 190px;
+  object-fit: contain;
   margin: 0 0 0.5rem;
   display: block;
 }
@@ -149,6 +154,7 @@ img[src$=".svg"] {
   font-size: 0.82rem;
   line-height: 1.4;
   color: #555;
+  margin-top: auto;
 }
 
 .figure-gallery .fignum {

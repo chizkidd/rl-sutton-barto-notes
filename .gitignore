@@ -2,3 +2,5 @@ _site/
 .quarto/
 *.~lock.*
 .DS_Store
+
+/.quarto/

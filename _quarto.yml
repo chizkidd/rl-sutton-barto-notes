@@ -87,6 +87,12 @@ format:
         \usepackage{amssymb}
         \usepackage{newunicodechar}
         \newunicodechar{✓}{\checkmark}
+        \usepackage{needspace}
+        \usepackage{etoolbox}
+        \makeatletter
+        \pretocmd{\section}{\needspace{6\baselineskip}}{}{}
+        \pretocmd{\subsection}{\needspace{5\baselineskip}}{}{}
+        \makeatother
         \usepackage{enumitem}
         \setlist{nosep,leftmargin=1.2em}
         \setlength{\parskip}{0.35em}
