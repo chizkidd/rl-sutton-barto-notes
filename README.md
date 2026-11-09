@@ -2,74 +2,78 @@
 
 # RL Notes — Sutton & Barto
 
-Personal study notes from *Reinforcement Learning: An Introduction* (Sutton & Barto, 2nd Ed.), built as a Quarto book and deployed to GitHub Pages.
+Personal study notes from *Reinforcement Learning: An Introduction* (Sutton & Barto, 2nd Ed.), written as a Quarto book and published to GitHub Pages.
 
-## Live Site
+## Read It
 
-[chizkidd.github.io/RL-Sutton-Barto-notes](https://chizkidd.github.io/RL-Sutton-Barto-notes)
+| Format | Link |
+|---|---|
+| Website | [chizkidd.github.io/rl-sutton-barto-notes](https://chizkidd.github.io/rl-sutton-barto-notes/) |
+| PDF | [rl-notes.pdf](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf) |
+| Source | [github.com/chizkidd/RL-Sutton-Barto-notes](https://github.com/chizkidd/RL-Sutton-Barto-notes) |
+
+The PDF covers all 13 chapters and is rebuilt with the site on every push to `main`.
 
 ## Chapters
 
-| Chapter | Topic | Status |
-|---|---|---|
-| 1 | Introduction to RL | ✓ |
-| 2 | Multi-Armed Bandits | ✓ |
-| 3 | Finite Markov Decision Processes | ✓ |
-| 4 | Dynamic Programming | ✓ |
-| 5 | Monte Carlo Methods | ✓ |
-| 6 | Temporal-Difference Learning | ✓ |
-| 7 | n-step Bootstrapping | ✓ |
-| 8 | Planning & Learning with Tabular Methods | ✓ |
-| 9 | On-policy Prediction with Approximation | ✓ |
-| 10 | On-policy Control with Approximation | ✓ |
-| 11 | Off-policy Methods with Approximation | ✓ |
-| 12 | Eligibility Traces | ✓ |
-| 13 | Policy Gradient Methods | ✓ |
+| Chapter | Topic |
+|---|---|
+| 1 | Introduction to RL |
+| 2 | Multi-Armed Bandits |
+| 3 | Finite Markov Decision Processes |
+| 4 | Dynamic Programming |
+| 5 | Monte Carlo Methods |
+| 6 | Temporal-Difference Learning |
+| 7 | n-step Bootstrapping |
+| 8 | Planning & Learning with Tabular Methods |
+| 9 | On-policy Prediction with Approximation |
+| 10 | On-policy Control with Approximation |
+| 11 | Off-policy Methods with Approximation |
+| 12 | Eligibility Traces |
+| 13 | Policy Gradient Methods |
 
+Every chapter is written up; there are no placeholders.
 
 ## Local Development
 
-**Prerequisites:** [Quarto](https://quarto.org/docs/get-started/) installed.
+**Prerequisites:** [Quarto](https://quarto.org/docs/get-started/) plus a LaTeX distribution for the PDF (TinyTeX is installed automatically by the workflow).
 
 ```bash
-# Clone the repo
 git clone https://github.com/chizkidd/RL-Sutton-Barto-notes
 cd RL-Sutton-Barto-notes
 
-# Preview locally with live reload
-quarto preview
-
-# Build the static site
-quarto render
+quarto preview   # live reload at http://localhost:4200
+quarto render    # full build into _site/ (HTML + PDF)
 ```
 
-Output goes to `_site/`.
+Rendered output lands in `_site/`, with the PDF at `_site/rl-notes.pdf`. Both are gitignored.
 
 ## Deployment
 
-Pushing to `main` automatically deploys to GitHub Pages via the GitHub Actions workflow in `.github/workflows/deploy.yml`.
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which renders the book, fails if `_site/rl-notes.pdf` is missing or empty, and publishes `_site/` to GitHub Pages.
 
-To set up GitHub Pages for the first time:
-1. Push the repo to GitHub
-2. Go to **Settings → Pages → Source** and select **GitHub Actions**
-3. Push a commit to `main` to trigger the first deploy
+First-time setup:
+
+1. Push the repository to GitHub.
+2. Go to **Settings → Pages → Source** and select **GitHub Actions**.
+3. Push a commit to `main` to trigger the first deploy.
 
 ## Project Structure
 
 ```
 RL-Sutton-Barto-notes/
-├── README.md                                # Details about repository
-├── LICENSE                                  # MIT license
-├── .gitignore                               # Ignores _site/, .quarto/, locks, .DS_Store
-├── _quarto.yml                              # Book config, chapters list, theme
-├── index.qmd                                # Preface: coverage table + notation table
-├── custom.scss                              # Custom styles (light + dark mode)
-├── sidebar-toggle.html                      # Sidebar collapse/expand buttons
-├── references.bib                           # BibTeX references
+├── README.md                    # This file
+├── LICENSE                      # MIT license
+├── .gitignore                   # Ignores _site/, .quarto/, locks, .DS_Store
+├── _quarto.yml                  # Book config: chapter order, theme, PDF settings
+├── index.qmd                    # Preface: coverage table + notation table
+├── custom.scss                  # Custom styles (light + dark mode)
+├── sidebar-toggle.html          # Sidebar collapse/expand buttons
+├── references.bib               # BibTeX references
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml                       # Render book, then deploy to GitHub Pages
-├── chapters/                                # One .qmd file per chapter (13)
+│       └── deploy.yml           # Render book (HTML + PDF), deploy to GitHub Pages
+├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd
 │   ├── ch02-multi-armed-bandits.qmd
 │   ├── ch03-finite-mdps.qmd
@@ -83,22 +87,22 @@ RL-Sutton-Barto-notes/
 │   ├── ch11-off-policy-methods-approximation.qmd
 │   ├── ch12-eligibility-traces.qmd
 │   └── ch13-policy-gradient-methods.qmd
-└── figures/                                 # 47 redrawn book figures (42 PNG, 5 SVG)
-    ├── ch03-3-1.png                         # chNN-N-N[-label].png: chapter NN, figure N-N
+└── figures/                     # 47 redrawn book figures (42 PNG, 5 SVG)
+    ├── ch03-3-1.png             # chNN-N-N[-label].png — chapter NN, book figure N-N
     ├── ch06-6-4-sarsa.png
     ├── ch12-12-10-watkins-q-lambda.png
-    ├── fig71_nstep_td.svg                   # Chapter 7 figures redrawn as SVG
+    ├── fig71_nstep_td.svg       # Chapter 7 figures, redrawn as SVG
     ├── fig75_tree_backup.svg
     └── ...
 ```
 
-Figure counts per chapter: ch03 (3), ch04 (1), ch05 (1), ch06 (5), ch07 (5 PNG + 5 SVG), ch08 (6), ch09 (4), ch11 (7), ch12 (9), ch13 (1). Chapter 10 has no figures.
+*Figure counts per chapter: ch03 (3), ch04 (1), ch05 (1), ch06 (5), ch07 (5 PNG + 5 SVG), ch08 (6), ch09 (4), ch11 (7), ch12 (9), ch13 (1). Chapters 01, 02 and 10 have no figures.*
+
+Figures use one of two naming schemes: `chNN-N-N[-label].png` for chapters 3–6 and 8–13, and `figNN_slug.svg` for chapter 7's redrawn diagrams.
 
 ## Reference
 
 Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.
-
----
 
 ## Citation
 
@@ -109,6 +113,6 @@ If you use these notes, please cite:
   author = {Obasi, Chizoba},
   title  = {Reinforcement Learning: An Introduction — Personal Study Notes},
   year   = {2026},
-  url    = {https://chizkidd.github.io/RL-Sutton-Barto-notes}
+  url    = {https://chizkidd.github.io/rl-sutton-barto-notes/}
 }
 ```
