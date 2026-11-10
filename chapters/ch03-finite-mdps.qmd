@@ -13,8 +13,6 @@ number-sections: true
 
 ## The Agent-Environment Interface {#sec-ch03-3-1}
 
-**Agent-Environment loop:**
-
 ::: {#fig-31}
 ![](../figures/ch03-3-1.png){width=80% fig-align="center"} 
 
@@ -173,8 +171,6 @@ $$
 - We visualize this relationship between a state and its possible successor states with a **backup diagram.**
 - It is called a backup diagram because it looks at how value is transferred **back up** the tree from the possible successor states of a specific state at the bottom of the tree to that specific state at the top of the tree.
 
-#### Backup Diagrams for $v_{\pi}(s)$
-
 ::: {#fig-32}
 ![](../figures/ch03-3-5-v-pi.png){width=80% fig-align="center"} 
 
@@ -302,8 +298,6 @@ q_{*}(s,a) &= \mathbb{E}\left[R_{t+1} + \gamma \max_{a'} q_{*}(S_{t+1}, a') \mid
 \end{aligned}
 }
 $$
-
-#### Backup Diagrams for $v_{*}(s)$ & $q_{*}(s,a)$
 
 ::: {#fig-33}
 ![](../figures/ch03-3-6-v-q-optimal.png){width=80% fig-align="center"} 
