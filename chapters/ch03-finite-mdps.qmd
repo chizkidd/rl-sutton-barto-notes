@@ -178,7 +178,7 @@ $$
 ::: {#fig-32}
 ![](../figures/ch03-3-5-v-pi.png){width=80% fig-align="center"} 
 
-**Backup diagram for $v_\pi$**: Each open circle represents a state $s$, filled circles represent state-action pairs $(s, a)$, next open circles set represent successor states $s'$.
+**Backup diagram for $v_\pi$.** Each open circle represents a state $s$, filled circles represent state-action pairs $(s, a)$, next open circles set represent successor states $s'$.
 :::
 
 - A state-value is an expectation over the available action-values under a policy:
@@ -308,7 +308,7 @@ $$
 ::: {#fig-33}
 ![](../figures/ch03-3-6-v-q-optimal.png){width=80% fig-align="center"} 
 
-**Backup diagrams for $v_*$ and $q_*$**: the max node appears at the state level for $v_*$ and at the successor state level for $q_*$.
+**Backup diagrams for $v_*$ and $q_*$.** the max node appears at the state level for $v_*$ and at the successor state level for $q_*$.
 :::
 
 ### Takeaways

@@ -118,5 +118,6 @@ format:
         \renewcommand*{\section}{\NeedSpace{8\baselineskip}\PlainSection}
         \renewcommand*{\subsection}{\NeedSpace{8\baselineskip}\PlainSubsection}
         \renewcommand*{\subsubsection}{\NeedSpace{6\baselineskip}\PlainSubsubsection}
+        \renewcommand*{\captionformat}{\ }
 
 bibliography: references.bib
