@@ -162,6 +162,26 @@ img[src$=".svg"] {
   font-weight: 700;
 }
 
+/* Thumbnail and figure number link back to the figure's own place in the
+   chapter, so the gallery works as an index rather than a dead-end page. */
+.figure-gallery a.gallery-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.figure-gallery a.gallery-link:focus-visible img {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}
+
+.figure-gallery a.fignum {
+  color: $primary;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
 [data-bs-theme=dark] {
   .figure-gallery figure {
     border-color: #3a4a5a;

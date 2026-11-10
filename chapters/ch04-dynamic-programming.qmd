@@ -165,7 +165,7 @@ $$
 ::: {#fig-41}
 ![](../figures/ch04-4-6-GPI.png){width=80% fig-align="center"} 
 
-Generalized Policy Iteration
+Generalized Policy Iteration.
 :::
 
 ## Efficiency of Dynamic Programming {#sec-ch04-4-7}

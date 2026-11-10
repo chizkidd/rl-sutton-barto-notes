@@ -21,7 +21,7 @@ number-sections: true
 ::: {#fig-71}
 ![](../figures/ch07-7-1-n-step-td.png){fig-align="center"} 
 
-Backup diagrams for n-step methods
+Backup diagrams for n-step methods.
 :::
 
 - $n$-step methods are methods in which the temporal difference extends over $n$ steps.
@@ -77,7 +77,7 @@ $$\max_s \left|\mathbb{E}_\pi\left[G_t^{(n)} \mid S_t = s\right] - v_\pi(s)\righ
 ::: {#fig-72}
 ![](../figures/ch07-7-2-n-step-sarsa.png){fig-align="center"} 
 
-Backup diagrams for n-step SARSA methods
+Backup diagrams for n-step SARSA methods.
 :::
 
 - Consider the following $n$-step returns for $n = 1, 2, \ldots, \infty$:
@@ -229,7 +229,7 @@ G_{t:h} &\doteq R_{t+1} + \gamma\left[\rho_{t+1} G_{t+1:h} + \bar{V}_{h-1}(S_{t+
 ::: {#fig-73}
 ![](../figures/ch07-7-5-n-step-tree.png){width=70% fig-align="center"} 
 
-The 3-step tree-backup update
+The 3-step tree-backup update.
 :::
 
 - The target for the update of a node was obtained by combining the rewards along the way and the estimated values of the nodes at the bottom.
@@ -288,7 +288,7 @@ $$Q_{t+n}(s,a) = Q_{t+n-1}(s,a) \quad \forall s, a \quad \text{ s.t. } \quad s \
 ::: {#fig-74}
 ![](../figures/ch07-7-6-n-step-q.png){width=70% fig-align="center"} 
 
-Backup diagram for different kinds of n-step Q updates
+Backup diagram for different kinds of n-step Q updates.
 :::
 
 - In unification lies many possibilities as seen/suggested in the figure above.
@@ -328,7 +328,7 @@ $$\boxed{G_{t:h} \doteq R_{t+1} + \gamma\left(\sigma_{t+1}\rho_{t+1} + (1-\sigma
 ::: {#fig-75}
 ![](../figures/ch07-7-7-n-step-td-q.png){width=52% fig-align="center"} 
 
-Backup diagram for 4-step TD & 4-step Q update
+Backup diagram for 4-step TD & 4-step Q update.
 :::
 
 - **Limitations of $n$-step methods:**
