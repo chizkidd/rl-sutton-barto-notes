@@ -317,7 +317,7 @@ $$
 - Mapping circles to the features of a state space for 2-dimension.
 
 ::: {#fig-91}
-![](../figures/ch09-9-5-3-coarse-coding.png){fig-align="center"} 
+![](../figures/ch09-9-5-3-coarse-coding.png){fig-align="center" width=75%} 
 
 **Coarse coding.** Generalization from state $s$ to state $s'$ depends on the number of their features whose receptive fields (in this case, circles) overlap. These states have one feature in common, so there will be slight generalization between them.
 :::
@@ -356,7 +356,7 @@ $$
   - This sidesteps the curse of dimensionality since memory need only match the task's real demands rather than grow exponentially with dimensions.
 
 ::: {#fig-92}
-![](../figures/ch09-9-5-4-hashing-border.png){fig-align="center"} 
+![](../figures/ch09-9-5-4-hashing-border.png){fig-align="center" width=75%} 
 
 **Hashing.** 4 subtiles collapse into 1 tile in the above diagram.
 :::
@@ -372,7 +372,7 @@ $$\boxed{x_i(s) \doteq \exp\!\left(-\frac{\lVert s - c_i \rVert^2}{2\sigma_i^2}\
 - Let's see a 1-D example with a Euclidean distance metric:
 
 ::: {#fig-93}
-![](../figures/ch09-9-5-5-1dim-rbf.png){fig-align="center"} 
+![](../figures/ch09-9-5-5-1dim-rbf.png){fig-align="center" width=75%} 
 
 **1-D RBF.** One-dimensional radial basis function.
 :::
@@ -410,7 +410,7 @@ $$
 - An ANN is a network of interconnected units that have some of the properties of neurons, the main components of nervous systems.
 
 ::: {#fig-94}
-![](../figures/ch09-9-7-ann.png){fig-align="center"} 
+![](../figures/ch09-9-7-ann.png){fig-align="center" width=75%} 
 
 **ANN.** A generic feedforward ANN with 4 input units, 2 output units, and 2 hidden layers.
 :::
