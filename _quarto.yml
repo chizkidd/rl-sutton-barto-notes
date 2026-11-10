@@ -98,5 +98,25 @@ format:
         \setlength{\belowdisplayshortskip}{3pt}
         \setlength{\columnsep}{18pt}
         \setcounter{secnumdepth}{2}
+        % --- pagination: no one-line spills, no headings stranded at a page foot
+        \widowpenalty=10000
+        \clubpenalty=10000
+        \displaywidowpenalty=10000
+        \makeatletter
+        \newcommand{\NeedSpace}[1]{%
+          \par\begingroup
+          \dimen@=#1\relax
+          \ifdim\pagegoal<\maxdimen
+            \advance\dimen@ by \pagetotal
+            \ifdim\dimen@>\pagegoal \vfil\break \fi
+          \fi
+          \endgroup}
+        \makeatother
+        \let\PlainSection\section
+        \let\PlainSubsection\subsection
+        \let\PlainSubsubsection\subsubsection
+        \renewcommand*{\section}{\NeedSpace{8\baselineskip}\PlainSection}
+        \renewcommand*{\subsection}{\NeedSpace{8\baselineskip}\PlainSubsection}
+        \renewcommand*{\subsubsection}{\NeedSpace{6\baselineskip}\PlainSubsubsection}
 
 bibliography: references.bib
