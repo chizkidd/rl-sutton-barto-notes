@@ -83,6 +83,8 @@ $$
 \end{aligned}
 $$
 
+{{< pagebreak >}}
+
 ::: {.callout-note}
 ## Proof: Policy Gradient Theorem (Episodic Case)
 
@@ -328,8 +330,14 @@ $$\sum_s \mu(s) \sum_a \pi(a \vert s, \boldsymbol{\theta})\, p(s' \vert s,a) = \
 
 $$G_t \doteq R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + R_{t+3} - r(\pi) + \ldots$$
 
+{{< pagebreak >}}
+
 ::: {.callout-note}
 ## Proof: Policy Gradient Theorem (Continuing Case)
+
+```{=latex}
+\small
+```
 
 Leave the notation implicit in all cases that $\pi = f(\boldsymbol{\theta})$ and that the gradients $\nabla[\ldots]$ are w.r.t. $\boldsymbol{\theta}$. In the continuing case $J(\boldsymbol{\theta}) = r(\pi)$, and $v_\pi$ & $q_\pi$ denote values w.r.t. the **differential return**.
 
@@ -398,10 +406,8 @@ $$
 ::: {#fig-ch13-13-7-pdf}
 ![](../figures/ch13-13-7-prob-density-function.png){fig-align="center"}
 
-Probability Density Function (PDF).
+**Probability Density Function (PDF):** The probability density functions for several different means and standard deviations are shown above.
 :::
-
-> **Probability Density Function (PDF):** The probability density functions for several different means and standard deviations are shown above.
 
 - $p(x)$ is the **density** of the probability at $x$, and not the probability. It can be greater than 1; it is the total area under the graph that must sum to 1.
 - To get the probability of $x$ falling within a range, take the integral under $p(x)$ for that specific range of $x$ values.

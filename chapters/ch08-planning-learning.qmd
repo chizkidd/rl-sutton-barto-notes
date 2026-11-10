@@ -365,10 +365,8 @@ $$\boxed{V(S_t) \leftarrow \max_{a \in A}\left(R^a_{S_t} + \gamma \sum_{s'} P^a_
 ::: {#fig-83}
 ![](../figures/ch08-8-7-rtdp.png){fig-align="center"} 
 
-Real-time Dynamic Programming (State space)
+**State space diagram**: Start states on the left, irrelevant states (unreachable from any start state under any optimal policy) in the outer region, and relevant states (reachable from some start state under some optimal policy) in the inner region.
 :::
-
-> **State space diagram**: Start states on the left, irrelevant states (unreachable from any start state under any optimal policy) in the outer region, and relevant states (reachable from some start state under some optimal policy) in the inner region.
 
 ### Heuristic Initialization (Optimistic)
 
@@ -404,10 +402,8 @@ Real-time Dynamic Programming (State space)
 ::: {#fig-84}
 ![](../figures/ch08-8-9-heuristic-search.png){fig-align="center"} 
 
-Heuristic search
+**Heuristic Search diagram (selective depth-first search)**: a large tree rooted at the current state, with branches for each action and subtrees for each successor. The tree policy traverses the tree greedily, evaluating and backing up values from the leaf nodes toward the root.
 :::
-
-> **Heuristic Search diagram (selective depth-first search)**: a large tree rooted at the current state, with branches for each action and subtrees for each successor. The tree policy traverses the tree greedily, evaluating and backing up values from the leaf nodes toward the root.
 
 ### Theoretical Properties
 
@@ -499,10 +495,8 @@ $$\boxed{\text{UCT}(s,a) = \underbrace{\frac{W(s,a)}{N(s,a)}}_{\text{exploitatio
 ::: {#fig-85}
 ![](../figures/ch08-8-11-mcts.png){fig-align="center"} 
 
-Monte-Carlo Tree Search (MCTS)
+**MCTS diagram**: 4 stages shown left to right: Selection (tree policy traverses with blue arrows to a leaf), Expansion (leaf expanded), Simulation (rollout policy runs from expanded node to terminal $\Delta$), Backup (return propagated back up with blue arrows).
 :::
-
-> **MCTS diagram**: 4 stages shown left to right: Selection (tree policy traverses with blue arrows to a leaf), Expansion (leaf expanded), Simulation (rollout policy runs from expanded node to terminal $\Delta$), Backup (return propagated back up with blue arrows).
 
 - MCTS continues executing these 4 steps, starting each time at the tree's root node, until no more time is left, or some other computational resource is exhausted. 
 
