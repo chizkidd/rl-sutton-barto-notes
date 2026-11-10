@@ -330,6 +330,10 @@ $$
 - Problems vary by knowledge level: **complete knowledge** gives the agent full dynamics $p$; **incomplete knowledge** does not.
 - In practice, optimal solutions are rarely computable, therefore memory and computation constraints force agents to **approximate** value functions, policies, and models.
 
+```{=latex}
+\newpage
+```
+
 ## Glossary {#sec-ch03-3-9}
 
 - **Reinforcement Learning**: learning from interaction how to behave in order to achieve a goal
