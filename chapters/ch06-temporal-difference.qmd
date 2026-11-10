@@ -131,7 +131,7 @@ $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \
 - This update rule uses a quintuple of events $(S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1})$. Hence, the name **SARSA**. The backup diagram is shown below:
 
 ::: {#fig-63}
-![](../figures/ch06-6-4-sarsa.png){fig-align="center"} 
+![](../figures/ch06-6-4-sarsa.png){width=62% fig-align="center"} 
 
 Backup diagram for SARSA
 :::
@@ -147,7 +147,7 @@ Backup diagram for SARSA
   - update with every time-step.
 
 ::: {#fig-64}
-![](../figures/ch06-6-4-policy-iteration.png){fig-align="center"} 
+![](../figures/ch06-6-4-policy-iteration.png){width=62% fig-align="center"} 
 
 SARSA control
 :::

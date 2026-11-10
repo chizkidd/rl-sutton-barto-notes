@@ -196,7 +196,7 @@ $$
 - Given a fixed computational budget, are expected or sample updates more efficient for planning?
 
 ::: {#fig-82}
-![](../figures/ch08-8-5-one-step.png){fig-align="center"} 
+![](../figures/ch08-8-5-one-step.png){width=70% fig-align="center"} 
 
 Backup diagrams for all the one-step updates covered so far
 :::

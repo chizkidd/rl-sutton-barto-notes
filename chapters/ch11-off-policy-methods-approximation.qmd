@@ -158,7 +158,7 @@ $$\mathbf{w}_{k+1} \doteq \mathbf{w}_k + \frac{\alpha}{\vert S \vert} \sum_s \le
 This extends Example 1 with a terminal state and $R = 0$:
 
 ::: {#fig-113}
-![](../figures/ch11-11-2-tsitsiklis-van-roy-counterexample.png){fig-align="center"} 
+![](../figures/ch11-11-2-tsitsiklis-van-roy-counterexample.png){width=78% fig-align="center"} 
 
 Tsitsiklis & Van Roy's Counterexample.
 :::

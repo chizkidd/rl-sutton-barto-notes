@@ -48,7 +48,7 @@ Backup Diagram for Compound Update.
 - The TD($\lambda$) algorithm is one way of averaging $n$-step updates, each weighted proportionally by $\lambda^{n-1}$ (where $\lambda \in [0,1]$) and normalized by a factor of $(1-\lambda)$ to ensure that the weights sum to $1$.
 
 ::: {#fig-ch12-12-1-tdlambda}
-![](../figures/ch12-12-1-td-lambda.png){fig-align="center"}
+![](../figures/ch12-12-1-td-lambda.png){width=75% fig-align="center"}
 
 Backup Diagram for TD($\lambda$).
 :::
@@ -244,7 +244,7 @@ $$
 $$
 
 ::: {#fig-ch12-12-3-ttdlambda}
-![](../figures/ch12-12-3-truncated-td-lambda.png){fig-align="center"}
+![](../figures/ch12-12-3-truncated-td-lambda.png){width=80% fig-align="center"}
 
 Backup Diagram for Truncated TD($\lambda$).
 :::
@@ -716,7 +716,7 @@ $$
 $$\boxed{\mathbf{z}_t \doteq \gamma_t \lambda_t \pi(A_t \vert S_t)\, \mathbf{z}_{t-1} + \nabla \hat{q}(S_t, A_t, \mathbf{w}_t)}$$
 
 ::: {#fig-ch12-12-10-tree-backup}
-![](../figures/ch12-12-10-tree-backup-q-lambda.png){fig-align="center"}
+![](../figures/ch12-12-10-tree-backup-q-lambda.png){width=80% fig-align="center"}
 
 Backup Diagram for Tree-Backup($\lambda$).
 :::
