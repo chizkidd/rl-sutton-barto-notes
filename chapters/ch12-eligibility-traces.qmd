@@ -32,7 +32,7 @@ $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \g
   - E.g. average the 2-step and 4-step return: $\frac{1}{2} G_{t:t+2} + \frac{1}{2} G_{t:t+4}$
 
 ::: {#fig-ch12-12-1-compound}
-![](../figures/ch12-12-1-the-2-and-4-step-returns.png){fig-align="center"}
+![](../figures/ch12-12-1-the-2-and-4-step-returns.png){height=3.5in fig-align="center"}
 
 Backup Diagram for Compound Update.
 :::
