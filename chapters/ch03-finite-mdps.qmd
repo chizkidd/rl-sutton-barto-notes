@@ -18,7 +18,7 @@ number-sections: true
 ::: {#fig-31}
 ![](../figures/ch03-3-1.png){width=80% fig-align="center"} 
 
-The agent-environment interaction in an MDP
+The agent-environment interaction in an MDP.
 :::
 
 - The agent is the learner and decison maker, while the environment is everything outside the agent that the agent interacts with.

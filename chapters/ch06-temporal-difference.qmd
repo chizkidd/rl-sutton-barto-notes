@@ -121,7 +121,7 @@ $$\boxed{G_t - V(S_t) = \sum_{k=t}^{T-1} \gamma^{k-t}\, \delta_k}$$
 ::: {#fig-62}
 ![](../figures/ch06-6-4-episode.png){fig-align="center"} 
 
-An episode
+An episode.
 :::
 
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \gamma Q(S_{t+1}, A_{t+1})}_{\text{TD target}} - Q(S_t, A_t)\Big]}$$
@@ -145,7 +145,7 @@ $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \
 ::: {#fig-64}
 ![](../figures/ch06-6-4-policy-iteration.png){width=62% fig-align="center"} 
 
-SARSA control
+SARSA control.
 :::
 
 - Every time step:
