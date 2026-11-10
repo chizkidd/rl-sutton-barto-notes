@@ -32,7 +32,7 @@ $$\begin{aligned}
 ::: {#fig-61}
 ![](../figures/ch06-6-1-td0.png){fig-align="center"} 
 
-**TD(0) backup diagram**: one-step lookahead from state $s$ through action to next state $s'$.
+**TD(0) backup diagram.** one-step lookahead from state $s$ through action to next state $s'$.
 :::
 
 ### Pseudocode: Tabular TD(0) for Estimating $v_\pi$ 
@@ -131,7 +131,7 @@ $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \
 ::: {#fig-63}
 ![](../figures/ch06-6-4-sarsa.png){width=62% fig-align="center"} 
 
-**Sarsa backup diagram**: from state-action pair $(S, A)$ through reward $R$ to next state $S'$ and next action $A'$.
+**Sarsa backup diagram.** from state-action pair $(S, A)$ through reward $R$ to next state $S'$ and next action $A'$.
 :::
 
 - As in all on-policy methods, we continually estimate $q_\pi$ for the behavior policy $\pi$ & simultaneously update the policy $\pi$ greedily w.r.t. $q_\pi$.
@@ -187,7 +187,7 @@ $$Q(s,a) \longrightarrow q_*(s,a)$$
 ::: {#fig-65}
 ![](../figures/ch06-6-5-q-learning.png){fig-align="center"} 
 
-**Q-learning backup diagram**: from state-action $(S, A)$ through reward $R$ to next state $S'$, with a max over all next actions $A'$.
+**Q-learning backup diagram.** from state-action $(S, A)$ through reward $R$ to next state $S'$, with a max over all next actions $A'$.
 :::
 
 ### Q-learning (Consider Off-policy Learning of $Q(s,a)$)

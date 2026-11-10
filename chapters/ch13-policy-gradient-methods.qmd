@@ -406,7 +406,7 @@ $$
 ::: {#fig-ch13-13-7-pdf}
 ![](../figures/ch13-13-7-prob-density-function.png){fig-align="center"}
 
-**Probability Density Function (PDF):** The probability density functions for several different means and standard deviations are shown above.
+**Probability Density Function (PDF).** The probability density functions for several different means and standard deviations are shown above.
 :::
 
 - $p(x)$ is the **density** of the probability at $x$, and not the probability. It can be greater than 1; it is the total area under the graph that must sum to 1.

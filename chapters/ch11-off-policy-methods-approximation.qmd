@@ -81,7 +81,7 @@ Consider part of a larger MDP with 2 states whose estimated values are $w$ and $
 ::: {#fig-111}
 ![](../figures/ch11-11-2-example1.png){fig-align="center"} 
 
-**Simple Counterexample:** 2-state part of an MDP.
+**Simple Counterexample.** 2-state part of an MDP.
 :::
 
 - $w$ updates will diverge to infinity, since the transition will always look good (higher next-state estimated value than current state estimated value).
@@ -122,7 +122,7 @@ $$
 ::: {#fig-112}
 ![](../figures/ch11-11-2-bairds-counterexample.png){fig-align="center"} 
 
-**Baird's Counterexample:** Episodic 7-state, 2-action MDP.
+**Baird's Counterexample.** Episodic 7-state, 2-action MDP.
 :::
 
 - **Assumptions/knowns:**
@@ -156,7 +156,7 @@ This extends Example 1 with a terminal state and $R = 0$:
 ::: {#fig-113}
 ![](../figures/ch11-11-2-tsitsiklis-van-roy-counterexample.png){width=78% fig-align="center"} 
 
-**Tsitsiklis & Van Roy's Counterexample:** Extension of Example 1 with probability $\varepsilon$ of transitioning to the terminal state (shaded).
+**Tsitsiklis & Van Roy's Counterexample.** Extension of Example 1 with probability $\varepsilon$ of transitioning to the terminal state (shaded).
 :::
 
 - Let's find $w_{k+1}$ at each step that minimizes the $\overline{\text{VE}}$ between the estimated value and the expected one-step return:
@@ -208,7 +208,7 @@ $$
 ::: {#fig-114}
 ![](../figures/ch11-11-4-linear-value-func-approx-geometry.png){fig-align="center"} 
 
-**The Geometry of Linear Value-Function Approximation:** Shown is the 3D space of all value functions over three states, while shown as a plane is the subspace of all value functions representable by a linear function approximator with parameter $\mathbf{w} = (w_1, w_2)^T$. The true value function $v_\pi$ is in the larger space and can be projected down (into the subspace, using a projection operator $\Pi$) to its best approximation in the value error ($\text{VE}$) sense. The best approximators in the Bellman error ($\text{BE}$), projected Bellman error ($\text{PBE}$), and temporal difference error ($\text{TDE}$) senses are all potentially different and are shown in the lower right.
+**The Geometry of Linear Value-Function Approximation.** Shown is the 3D space of all value functions over three states, while shown as a plane is the subspace of all value functions representable by a linear function approximator with parameter $\mathbf{w} = (w_1, w_2)^T$. The true value function $v_\pi$ is in the larger space and can be projected down (into the subspace, using a projection operator $\Pi$) to its best approximation in the value error ($\text{VE}$) sense. The best approximators in the Bellman error ($\text{BE}$), projected Bellman error ($\text{PBE}$), and temporal difference error ($\text{TDE}$) senses are all potentially different and are shown in the lower right.
 :::
 
 ### Projection Operation
@@ -347,7 +347,7 @@ $$
 ::: {#fig-115}
 ![](../figures/ch11-11-6-example1.png){fig-align="center"} 
 
-**Value Error (VE) Learnability Counterexample:** Deterministic MRP pair with an endless stream of $0$s and $2$s
+**Value Error (VE) Learnability Counterexample.** Deterministic MRP pair with an endless stream of $0$s and $2$s
 :::
 
 - These MRPs have a deterministic reward with observable data of an endless stream of 0s and 2s.
@@ -375,7 +375,7 @@ $$
 ::: {#fig-116}
 ![](../figures/ch11-11-6-example2.png){fig-align="center"} 
 
-**Bellman Error (BE) Learnability Counterexample:** Complex Deterministic MRP pair with same distribution but different minimizing parameter vector
+**Bellman Error (BE) Learnability Counterexample.** Complex Deterministic MRP pair with same distribution but different minimizing parameter vector
 :::
 
 - The example above serves as a counterexample to the learnability of the Bellman error.
@@ -386,7 +386,7 @@ $$
 ::: {#fig-117}
 ![](../figures/ch11-11-6-causal-relationships-mdps-datadistr-errors.png){fig-align="center"} 
 
-**Causal Relationships among the data distribution, MDPs & various objectives:** Monte-Carlo & Bootstrapping objectives
+**Causal Relationships among the data distribution, MDPs & various objectives.** Monte-Carlo & Bootstrapping objectives
 :::
 
 ## Gradient-TD Methods {#sec-ch11-11-7}

@@ -34,7 +34,7 @@ $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \g
 ::: {#fig-ch12-12-1-compound}
 ![](../figures/ch12-12-1-the-2-and-4-step-returns.png){height=3.5in fig-align="center"}
 
-**Backup Diagram for Compound Update:** The compound update mixing half of a two-step return and half of a four-step return.
+**Backup Diagram for Compound Update.** The compound update mixing half of a two-step return and half of a four-step return.
 :::
 
 - Any set of $n$-step returns can be averaged, even an infinite set, as long as the weights on the component returns are positive and sum to $1$.
@@ -48,7 +48,7 @@ $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \g
 ::: {#fig-ch12-12-1-tdlambda}
 ![](../figures/ch12-12-1-td-lambda.png){width=75% fig-align="center"}
 
-**Backup Diagram for TD($\lambda$):** If $\lambda = 0$, then the overall update reduces to its first component, the **TD(0)** update, whereas if $\lambda = 1$, then the overall update reduces to its last component, the **MC** update.
+**Backup Diagram for TD($\lambda$).** If $\lambda = 0$, then the overall update reduces to its first component, the **TD(0)** update, whereas if $\lambda = 1$, then the overall update reduces to its last component, the **MC** update.
 :::
 
 - Essentially, $\lambda$-return, $G_t^\lambda$, combines all $n$-step returns $G_{t:t+n}$ in a weighted average manner, $(1-\lambda)\lambda^{n-1}$, and is defined in its state-based form by:
@@ -85,7 +85,7 @@ $$
 ::: {#fig-ch12-12-1-weighting}
 ![](../figures/ch12-12-1-td-lambda-weighting-function.png){fig-align="center"}
 
-**TD($\lambda$) Weighting:** Weighting given in the $\lambda$-return to each of the $n$-step returns.
+**TD($\lambda$) Weighting.** Weighting given in the $\lambda$-return to each of the $n$-step returns.
 :::
 
 - Our first learning algorithm based on the $\lambda$-return is the **off-line $\lambda$-return algorithm**, which waits until the end of an episode to make updates. Its semi-gradient, $\lambda$-return, target update for $t = 0, 1, 2, \ldots, T-1$ is:
@@ -104,7 +104,7 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha \!\left[G_t^\lambda - \ha
 ::: {#fig-ch12-12-1-forward-view}
 ![](../figures/ch12-12-1-forward-view-td-lambda.png){fig-align="center"}
 
-**Forward View TD($\lambda$):** We decide how to update each state by looking forward to future rewards and states.
+**Forward View TD($\lambda$).** We decide how to update each state by looking forward to future rewards and states.
 :::
 
 ## TD($\lambda$) {#sec-ch12-12-2}
@@ -160,7 +160,7 @@ $$
 ::: {#fig-ch12-12-2-backward-view}
 ![](../figures/ch12-12-2-backward-view-td-lambda.png){fig-align="center"}
 
-**Backward View of TD($\lambda$):** In the backward or mechanistic view of TD($\lambda$), each update depends on the current TD error combined with the current eligibility traces of past events.
+**Backward View of TD($\lambda$).** In the backward or mechanistic view of TD($\lambda$), each update depends on the current TD error combined with the current eligibility traces of past events.
 :::
 
 - Let's look at the effect of $\lambda$ to understand the backward view of TD($\lambda$):
@@ -236,7 +236,7 @@ $$
 ::: {#fig-ch12-12-3-ttdlambda}
 ![](../figures/ch12-12-3-truncated-td-lambda.png){width=80% fig-align="center"}
 
-**Backup Diagram for Truncated TD($\lambda$):** The truncated $\lambda$-return gives rise to a family of $n$-step $\lambda$-return algorithms called **TTD($\lambda$)**.
+**Backup Diagram for Truncated TD($\lambda$).** The truncated $\lambda$-return gives rise to a family of $n$-step $\lambda$-return algorithms called **TTD($\lambda$)**.
 :::
 
 ## Redoing Updates: Online $\lambda$-return Algorithm {#sec-ch12-12-4}
@@ -451,7 +451,7 @@ $$
 ::: {#fig-ch12-12-7-sarsa-lambda}
 ![](../figures/ch12-12-7-sarsa-lambda.png){fig-align="center"}
 
-**Backup Diagram for Sarsa($\lambda$):** The first update looks ahead one full step, to the next state-action pair, the second looks ahead two steps, to the second state-action pair, and so on. A final update is based on the complete return.
+**Backup Diagram for Sarsa($\lambda$).** The first update looks ahead one full step, to the next state-action pair, the second looks ahead two steps, to the second state-action pair, and so on. A final update is based on the complete return.
 :::
 
 - The weighting of each $n$-step update in the $\lambda$-return is same as in TD($\lambda$) and $\lambda$-return.
@@ -668,7 +668,7 @@ $$
 ::: {#fig-ch12-12-10-watkins}
 ![](../figures/ch12-12-10-watkins-q-lambda.png){fig-align="center"}
 
-**Backup Diagram for Watkins's Q($\lambda$):** The series of component updates ends either with the end of the episode or with the first nongreedy action, whichever comes first.
+**Backup Diagram for Watkins's Q($\lambda$).** The series of component updates ends either with the end of the episode or with the first nongreedy action, whichever comes first.
 :::
 
 ### Tree-Backup($\lambda$)
@@ -702,7 +702,7 @@ $$\boxed{\mathbf{z}_t \doteq \gamma_t \lambda_t \pi(A_t \vert S_t)\, \mathbf{z}_
 ::: {#fig-ch12-12-10-tree-backup}
 ![](../figures/ch12-12-10-tree-backup-q-lambda.png){width=80% fig-align="center"}
 
-**Backup Diagram for Tree-Backup($\lambda$):** The tree-backup updates of each length are weighted in the usual way dependent on the bootstrapping parameter $\lambda$.
+**Backup Diagram for Tree-Backup($\lambda$).** The tree-backup updates of each length are weighted in the usual way dependent on the bootstrapping parameter $\lambda$.
 :::
 
 - The ET above combined with the usual semi-gradient TD($\lambda$) parameter-update rule defines the TB($\lambda$) algorithm.
