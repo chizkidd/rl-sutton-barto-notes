@@ -1,0 +1,33 @@
+name: Math check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  katex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # The HTML edition draws math with KaTeX, so the browser is the arbiter
+      # of what readers see, not LaTeX. Quarto loads katex@latest from the CDN,
+      # so CI pins the 0.16 line for reproducible results; bump when it moves.
+      - name: Install KaTeX
+        run: npm install --prefix "$RUNNER_TEMP/katex" --no-save --no-audit --no-fund --loglevel=error katex@0.16.11
+
+      - name: Render every math chunk through KaTeX
+        env:
+          KATEX_DIR: ${{ runner.temp }}/katex/node_modules/katex
+        run: node scripts/check-math.cjs
