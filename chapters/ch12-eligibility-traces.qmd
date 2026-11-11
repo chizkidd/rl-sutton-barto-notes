@@ -32,7 +32,7 @@ $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \g
   - E.g. average the 2-step and 4-step return: $\frac{1}{2} G_{t:t+2} + \frac{1}{2} G_{t:t+4}$
 
 ::: {#fig-ch12-12-1-compound}
-![](../figures/ch12-12-1-the-2-and-4-step-returns.png){height=8.9in fig-align="center"}
+![](../figures/ch12-12-1-the-2-and-4-step-returns.png){height=3.5in fig-align="center"}
 
 **Backup Diagram for Compound Update.** The compound update mixing half of a two-step return and half of a four-step return.
 :::
@@ -46,7 +46,7 @@ $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \g
 - The TD($\lambda$) algorithm is one way of averaging $n$-step updates, each weighted proportionally by $\lambda^{n-1}$ (where $\lambda \in [0,1]$) and normalized by a factor of $(1-\lambda)$ to ensure that the weights sum to $1$.
 
 ::: {#fig-ch12-12-1-tdlambda}
-![](../figures/ch12-12-1-td-lambda.png){width=100% fig-align="center"}
+![](../figures/ch12-12-1-td-lambda.png){width=75% fig-align="center"}
 
 **Backup Diagram for TD($\lambda$).** If $\lambda = 0$, then the overall update reduces to its first component, the **TD(0)** update, whereas if $\lambda = 1$, then the overall update reduces to its last component, the **MC** update.
 :::
@@ -83,7 +83,7 @@ $$
 $$
 
 ::: {#fig-ch12-12-1-weighting}
-![](../figures/ch12-12-1-td-lambda-weighting-function.png){width=100% fig-align="center"}
+![](../figures/ch12-12-1-td-lambda-weighting-function.png){fig-align="center"}
 
 **TD($\lambda$) Weighting.** Weighting given in the $\lambda$-return to each of the $n$-step returns.
 :::
@@ -102,7 +102,7 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha \!\left[G_t^\lambda - \ha
   - Like MC, can only be computed from complete return.
 
 ::: {#fig-ch12-12-1-forward-view}
-![](../figures/ch12-12-1-forward-view-td-lambda.png){width=100% fig-align="center"}
+![](../figures/ch12-12-1-forward-view-td-lambda.png){fig-align="center"}
 
 **Forward View TD($\lambda$).** We decide how to update each state by looking forward to future rewards and states.
 :::
@@ -158,7 +158,7 @@ V(s) &\leftarrow V(s) + \alpha\, \delta_t\, \mathbf{z}_t
 $$
 
 ::: {#fig-ch12-12-2-backward-view}
-![](../figures/ch12-12-2-backward-view-td-lambda.png){width=100% fig-align="center"}
+![](../figures/ch12-12-2-backward-view-td-lambda.png){fig-align="center"}
 
 **Backward View of TD($\lambda$).** In the backward or mechanistic view of TD($\lambda$), each update depends on the current TD error combined with the current eligibility traces of past events.
 :::
@@ -234,7 +234,7 @@ $$
 $$
 
 ::: {#fig-ch12-12-3-ttdlambda}
-![](../figures/ch12-12-3-truncated-td-lambda.png){width=100% fig-align="center"}
+![](../figures/ch12-12-3-truncated-td-lambda.png){width=80% fig-align="center"}
 
 **Backup Diagram for Truncated TD($\lambda$).** The truncated $\lambda$-return gives rise to a family of $n$-step $\lambda$-return algorithms called **TTD($\lambda$)**.
 :::
@@ -449,7 +449,7 @@ $$
   - **Final update:** complete return
 
 ::: {#fig-ch12-12-7-sarsa-lambda}
-![](../figures/ch12-12-7-sarsa-lambda.png){width=100% fig-align="center"}
+![](../figures/ch12-12-7-sarsa-lambda.png){fig-align="center"}
 
 **Backup Diagram for Sarsa($\lambda$).** The first update looks ahead one full step, to the next state-action pair, the second looks ahead two steps, to the second state-action pair, and so on. A final update is based on the complete return.
 :::
@@ -666,7 +666,7 @@ $$
 - It involves decaying the ET in the usual way as long as a greedy action was taken, then cuts the traces to 0 after the 1st non-greedy action.
 
 ::: {#fig-ch12-12-10-watkins}
-![](../figures/ch12-12-10-watkins-q-lambda.png){width=100% fig-align="center"}
+![](../figures/ch12-12-10-watkins-q-lambda.png){fig-align="center"}
 
 **Backup Diagram for Watkins's Q($\lambda$).** The series of component updates ends either with the end of the episode or with the first nongreedy action, whichever comes first.
 :::
@@ -700,7 +700,7 @@ $$
 $$\boxed{\mathbf{z}_t \doteq \gamma_t \lambda_t \pi(A_t \vert S_t)\, \mathbf{z}_{t-1} + \nabla \hat{q}(S_t, A_t, \mathbf{w}_t)}$$
 
 ::: {#fig-ch12-12-10-tree-backup}
-![](../figures/ch12-12-10-tree-backup-q-lambda.png){width=100% fig-align="center"}
+![](../figures/ch12-12-10-tree-backup-q-lambda.png){width=80% fig-align="center"}
 
 **Backup Diagram for Tree-Backup($\lambda$).** The tree-backup updates of each length are weighted in the usual way dependent on the bootstrapping parameter $\lambda$.
 :::

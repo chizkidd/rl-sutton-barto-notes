@@ -65,7 +65,7 @@ $$
 ## Dyna: Integrated Planning, Acting, and Learning {#sec-ch08-8-2}
 
 ::: {#fig-81}
-![](../figures/ch08-8-2-title.png){width=100% fig-align="center"}
+![](../figures/ch08-8-2-title.png){fig-align="center"} 
 
 Dyna-Q interactions and general Dyna architecture.
 :::
@@ -196,7 +196,7 @@ $$
 - Given a fixed computational budget, are expected or sample updates more efficient for planning?
 
 ::: {#fig-82}
-![](../figures/ch08-8-5-one-step.png){width=100% fig-align="center"}
+![](../figures/ch08-8-5-one-step.png){width=70% fig-align="center"} 
 
 Backup diagrams for all the one-step updates covered so far.
 :::
@@ -363,7 +363,7 @@ $$\boxed{V(S_t) \leftarrow \max_{a \in A}\left(R^a_{S_t} + \gamma \sum_{s'} P^a_
   - These kinds of problems are usually expressed in cost minimization not reward maximization.
 
 ::: {#fig-83}
-![](../figures/ch08-8-7-rtdp.png){width=100% fig-align="center"}
+![](../figures/ch08-8-7-rtdp.png){fig-align="center"} 
 
 **State space diagram.** Start states on the left, irrelevant states (unreachable from any start state under any optimal policy) in the outer region, and relevant states (reachable from some start state under some optimal policy) in the inner region.
 :::
@@ -400,7 +400,7 @@ $$\boxed{V(S_t) \leftarrow \max_{a \in A}\left(R^a_{S_t} + \gamma \sum_{s'} P^a_
 - Heuristic search is an extension of greedy policy beyond one-step to multi-step lookahead to obtain better action selections.
 
 ::: {#fig-84}
-![](../figures/ch08-8-9-heuristic-search.png){width=100% fig-align="center"}
+![](../figures/ch08-8-9-heuristic-search.png){fig-align="center"} 
 
 **Heuristic Search diagram (selective depth-first search).** a large tree rooted at the current state, with branches for each action and subtrees for each successor. The tree policy traverses the tree greedily, evaluating and backing up values from the leaf nodes toward the root.
 :::
@@ -493,7 +493,7 @@ $$\boxed{\text{UCT}(s,a) = \underbrace{\frac{W(s,a)}{N(s,a)}}_{\text{exploitatio
 - Propagate simulation result up the path and update all nodes/edges on the path.
 
 ::: {#fig-85}
-![](../figures/ch08-8-11-mcts.png){width=100% fig-align="center"}
+![](../figures/ch08-8-11-mcts.png){fig-align="center"} 
 
 **MCTS diagram.** 4 stages shown left to right: Selection (tree policy traverses with blue arrows to a leaf), Expansion (leaf expanded), Simulation (rollout policy runs from expanded node to terminal $\Delta$), Backup (return propagated back up with blue arrows).
 :::
@@ -599,7 +599,7 @@ $$\Rightarrow \text{total: } O\!\left(n \cdot (d + L)\right) \text{ for } n \tex
 >$$\text{VERTICAL (Top to Bottom): shallow backups} \xrightarrow{\text{depth/length of update}} \text{deep backups}$$
 
 ::: {#fig-86}
-![](../figures/ch08-8-13-summary-unified-rl.png){width=100% fig-align="center"}
+![](../figures/ch08-8-13-summary-unified-rl.png){fig-align="center"}
 
 Unified view of RL depicting a slice through the space of RL methods.
 :::

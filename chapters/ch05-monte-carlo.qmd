@@ -70,7 +70,7 @@ $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\left[G_t - V(S_t)\right]}$$
   - **Policy improvement**: $\varepsilon$-greedy policy improvement
 
 ::: {#fig-51}
-![](../figures/ch05-5-3-q-gpi.png){width=100% fig-align="center"}
+![](../figures/ch05-5-3-q-gpi.png){width=80% fig-align="center"} 
 
 Generalized Policy Iteration.
 :::
