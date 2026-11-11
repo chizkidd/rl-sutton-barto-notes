@@ -306,6 +306,10 @@ $$\boxed{Q_1(S_t, A_t) \leftarrow Q_1(S_t, A_t) + \alpha\left[R_{t+1} + \gamma\,
 - Afterstate methods are aptly described in terms of GPI, with a policy and afterstate value function interacting in essentially the same way.
   - Still have to decide between on or off policy for managing the need for persistent exploration.
 
+```{=latex}
+\newpage
+```
+
 ## Summary {#sec-ch06-6-9}
 
 - **TD methods** learn from incomplete episodes and are alternatives to MC methods for solving the prediction part of the RL problem.

@@ -13,8 +13,6 @@ number-sections: true
 
 ## The Agent-Environment Interface {#sec-ch03-3-1}
 
-**Agent-Environment loop:**
-
 ::: {#fig-31}
 ![](../figures/ch03-3-1.png){width=80% fig-align="center"} 
 
@@ -49,19 +47,13 @@ $$\sum_{s' \in \mathcal{S}} \sum_{r \in \mathcal{R}} p(s', r \mid s, a) = 1 \qua
 
 - From the 4-argument dynamics function, $p$, we can compute anthing we want to know about the environment. Let's go through some of these functions of interest below.
 
-#### State-transition/Transition probability function
-
 - _State-transition probabilities_ as a 3-argument function $p: S \times S \times A \to [0,1]$
 
 $$p(s'|s,a) \doteq \mathbb{P}\{S_t = s' \mid S_{t-1} = s,\, A_{t-1} = a\} = \sum_{r \in R} p(s', r | s, a)$$
 
-#### Reward function for $(s,a)$ pair
-
 - _Expected rewards for state-action pairs_ as a 2-argument function $r: S \times A \to \mathbb{R}$
 
 $$r(s,a) \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a\right] = \sum_{r \in R} r \sum_{s' \in S} p(s', r | s, a)$$
-
-#### Reward function for $(s,a,s')$ triple
 
 - _Expected rewards for state-action-next-state triples_ as a 3-argument function $r: S \times A \times S \to \mathbb{R}$
 
@@ -172,8 +164,6 @@ $$
 - It states that the starting state value must equal the (discounted) value of the expected next state, plus the reward expected along the way.
 - We visualize this relationship between a state and its possible successor states with a **backup diagram.**
 - It is called a backup diagram because it looks at how value is transferred **back up** the tree from the possible successor states of a specific state at the bottom of the tree to that specific state at the top of the tree.
-
-#### Backup Diagrams for $v_{\pi}(s)$
 
 ::: {#fig-32}
 ![](../figures/ch03-3-5-v-pi.png){width=80% fig-align="center"} 
@@ -303,8 +293,6 @@ q_{*}(s,a) &= \mathbb{E}\left[R_{t+1} + \gamma \max_{a'} q_{*}(S_{t+1}, a') \mid
 }
 $$
 
-#### Backup Diagrams for $v_{*}(s)$ & $q_{*}(s,a)$
-
 ::: {#fig-33}
 ![](../figures/ch03-3-6-v-q-optimal.png){width=80% fig-align="center"} 
 
@@ -341,6 +329,10 @@ $$
 - **Value functions** assign expected returns to states or state-action pairs; **optimal value functions** give the maximum achievable return, and any policy greedy w.r.t. them is optimal.
 - Problems vary by knowledge level: **complete knowledge** gives the agent full dynamics $p$; **incomplete knowledge** does not.
 - In practice, optimal solutions are rarely computable, therefore memory and computation constraints force agents to **approximate** value functions, policies, and models.
+
+```{=latex}
+\newpage
+```
 
 ## Glossary {#sec-ch03-3-9}
 

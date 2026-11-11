@@ -264,7 +264,7 @@ $$
 
 ### Proof: The Bandit Gradient Algorithm as Stochastic Gradient Ascent
 
-#### Gradient ascent update:
+#### Gradient ascent update
 
 $$H_{t+1}(a) \doteq H_t(a) + \alpha \frac{\partial \mathbb{E}[R_t]}{\partial H_t(a)}$$
 
@@ -274,7 +274,7 @@ $$
 \end{aligned}
 $$
 
-#### Exact performance gradient:
+#### Exact performance gradient
 
 $$
 \begin{aligned}
