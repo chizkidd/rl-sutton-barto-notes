@@ -404,7 +404,7 @@ $$
 $$
 
 ::: {#fig-ch13-13-7-pdf}
-![](../figures/ch13-13-7-prob-density-function.png){fig-align="center"}
+![](../figures/ch13-13-7-prob-density-function.png){width=100% fig-align="center"}
 
 **Probability Density Function (PDF).** The probability density functions for several different means and standard deviations are shown above.
 :::

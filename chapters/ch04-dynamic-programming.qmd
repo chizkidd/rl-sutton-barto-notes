@@ -163,7 +163,7 @@ $$
 - Both processes in GPI can be viewed as both competing & cooperating. They compete in the sense that they pull in opposing directions.
 
 ::: {#fig-41}
-![](../figures/ch04-4-6-GPI.png){width=80% fig-align="center"} 
+![](../figures/ch04-4-6-GPI.png){width=100% fig-align="center"}
 
 Generalized Policy Iteration.
 :::
