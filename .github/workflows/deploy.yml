@@ -14,6 +14,19 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+# The PDF is built by a fixed toolchain so that a render which passed today
+# renders the same way later. Bump these deliberately, as a pair:
+#   - TINYTEX_VERSION picks the TinyTeX release; its TeX Live year must match
+#     TEXLIVE_REPO_FROM below.
+#   - The archive only publishes a frozen repository once a TeX Live year is
+#     finished, so this tracks the newest completed year (2025 as of Nov 2026).
+#     When TeX Live 2026 is archived, move both to 2026.
+env:
+  TINYTEX_VERSION: "2025.12"
+  TEXLIVE_YEAR: "2025"
+  TEXLIVE_REPO: "https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/tlnet-final/"
+  LATEX_PACKAGES: "microtype enumitem"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,8 +39,31 @@ jobs:
         with:
           version: "1.5.57"
 
-      - name: Install TinyTeX
-        run: quarto install tinytex
+      - name: Install TinyTeX ${{ env.TINYTEX_VERSION }}
+        run: |
+          curl -sL https://yihui.org/tinytex/install-bin-unix.sh -o "$RUNNER_TEMP/install-tinytex.sh"
+          TINYTEX_VERSION="$TINYTEX_VERSION" sh "$RUNNER_TEMP/install-tinytex.sh"
+          echo "$HOME/.TinyTeX/bin/x86_64-linux" >> "$GITHUB_PATH"
+
+      # The pinned bundle carries amsfonts/amssymb but not microtype or
+      # enumitem, so those two come from the frozen TeX Live repository rather
+      # than the moving CTAN mirror. tlmgr has to update itself first, or it
+      # refuses to install from an archived repository.
+      - name: Pin TeX Live packages to the frozen ${{ env.TEXLIVE_YEAR }} repository
+        run: |
+          tlmgr option repository "$TEXLIVE_REPO"
+          tlmgr update --self
+          tlmgr install $LATEX_PACKAGES
+          tlmgr info $LATEX_PACKAGES | grep -E '^(package|revision):'
+
+      - name: Verify the pinned toolchain
+        run: |
+          set -euo pipefail
+          xelatex --version | head -1
+          for pkg in microtype.sty amssymb.sty enumitem.sty; do
+            if [ -z "$(kpsewhich "$pkg")" ]; then echo "missing $pkg"; exit 1; fi
+          done
+          echo "toolchain OK"
 
       - name: Render Book
         run: quarto render
