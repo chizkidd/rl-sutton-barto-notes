@@ -47,7 +47,7 @@ jobs:
           tlmgr update --self
           tlmgr install $LATEX_PACKAGES
           xelatex --version | head -1
-          quarto render --to pdf
+          quarto render
           cp _site/rl-notes.pdf "$RUNNER_TEMP/pinned.pdf"
 
       - name: Install the latest TinyTeX
@@ -59,7 +59,7 @@ jobs:
         run: |
           export PATH="$HOME/.TinyTeX/bin/x86_64-linux:$PATH"
           xelatex --version | head -1
-          quarto render --to pdf
+          quarto render
           cp _site/rl-notes.pdf "$RUNNER_TEMP/latest.pdf"
 
       - name: Compare the two builds
