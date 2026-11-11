@@ -1,0 +1,95 @@
+name: TeX drift canary
+
+on:
+  schedule:
+    # 06:00 UTC on the first of every month
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Builds the book twice - once with the toolchain the deploy pins, once with
+# whatever TinyTeX is current - and compares text and rendered pages. Drift is
+# reported as a warning plus a job summary; it never fails the run and never
+# deploys. A pinned-toolchain failure still fails, because that is the baseline.
+env:
+  TINYTEX_VERSION: "2025.12"
+  TEXLIVE_YEAR: "2025"
+  TEXLIVE_REPO: "https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/tlnet-final/"
+  LATEX_PACKAGES: "microtype enumitem"
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2
+        with:
+          version: "1.5.57"
+
+      - name: Install PyMuPDF for the comparison
+        run: python3 -m pip install --quiet pymupdf
+
+      - name: Install the pinned TinyTeX ${{ env.TINYTEX_VERSION }}
+        run: |
+          curl -sL https://yihui.org/tinytex/install-bin-unix.sh -o "$RUNNER_TEMP/tinytex.sh"
+          TINYTEX_VERSION="$TINYTEX_VERSION" TINYTEX_DIR="$RUNNER_TEMP/pinned" sh "$RUNNER_TEMP/tinytex.sh"
+          echo "PINNED_BIN=$RUNNER_TEMP/pinned/.TinyTeX/bin/x86_64-linux" >> "$GITHUB_ENV"
+
+      - name: Build with the pinned toolchain
+        run: |
+          export PATH="$PINNED_BIN:$PATH"
+          tlmgr option repository "$TEXLIVE_REPO"
+          tlmgr update --self
+          tlmgr install $LATEX_PACKAGES
+          xelatex --version | head -1
+          quarto render --to pdf
+          cp _site/rl-notes.pdf "$RUNNER_TEMP/pinned.pdf"
+
+      - name: Install the latest TinyTeX
+        continue-on-error: true
+        run: quarto install tinytex --no-prompt
+
+      - name: Build with the latest toolchain
+        continue-on-error: true
+        run: |
+          export PATH="$HOME/.TinyTeX/bin/x86_64-linux:$PATH"
+          xelatex --version | head -1
+          quarto render --to pdf
+          cp _site/rl-notes.pdf "$RUNNER_TEMP/latest.pdf"
+
+      - name: Compare the two builds
+        run: |
+          {
+            echo "## TeX drift canary"
+            echo
+            echo "Baseline: TinyTeX ${TINYTEX_VERSION}, frozen TeX Live ${TEXLIVE_YEAR} repository."
+            echo "Compared against: the latest TinyTeX from upstream."
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ ! -f "$RUNNER_TEMP/latest.pdf" ]; then
+            echo "::warning::the latest TinyTeX could not build the book - see the build step above"
+            echo "The latest toolchain could not build the book at all." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          set +e
+          python3 scripts/compare-pdf.py "$RUNNER_TEMP/pinned.pdf" "$RUNNER_TEMP/latest.pdf" > "$RUNNER_TEMP/compare.md"
+          status=$?
+          set -e
+
+          cat "$RUNNER_TEMP/compare.md"
+          cat "$RUNNER_TEMP/compare.md" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$status" = "2" ]; then
+            echo "::warning::TeX drift detected - the latest toolchain renders the book differently"
+          elif [ "$status" != "0" ]; then
+            echo "::warning::the comparison could not run (status $status)"
+          fi
+
+          exit 0
