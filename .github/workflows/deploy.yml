@@ -29,15 +29,6 @@ jobs:
       - name: Install TinyTeX
         run: quarto install tinytex
 
-      # The PDF header needs microtype, amssymb and enumitem. Installing them
-      # explicitly keeps the deploy independent of Quarto's on-the-fly package
-      # resolution, which cannot see packages outside TinyTeX's base set (that
-      # is what stalled the build on newunicodechar.sty).
-      - name: Install LaTeX packages
-        run: |
-          export PATH="$(echo "$HOME"/.TinyTeX/bin/*):$PATH"
-          tlmgr install microtype amsfonts enumitem
-
       - name: Render Book
         run: quarto render
 
