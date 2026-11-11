@@ -288,8 +288,8 @@ $$
 &\textbf{Initialize } \text{policy parameter } \boldsymbol{\theta} \in \mathbb{R}^{d'} \text{ and state-value weights } \mathbf{w} \in \mathbb{R}^d \text{ (e.g., to } \mathbf{0}\text{)} \\
 &\textbf{Loop forever } \text{(for each episode):} \\
 &\quad \text{Initialize } S \text{ (1st state of episode)} \\
-&\quad \mathbf{z}^{\boldsymbol{\theta}} \leftarrow \mathbf{0} \quad \text{($d'$-component eligibility trace vector)} \\
-&\quad \mathbf{z}^{\mathbf{w}} \leftarrow \mathbf{0} \quad \text{($d$-component eligibility trace vector)} \\
+&\quad \mathbf{z}^{\boldsymbol{\theta}} \leftarrow \mathbf{0} \quad \text{(}d'\text{-component eligibility trace vector)} \\
+&\quad \mathbf{z}^{\mathbf{w}} \leftarrow \mathbf{0} \quad \text{(}d\text{-component eligibility trace vector)} \\
 &\quad \textbf{Loop while } S \text{ is not terminal (for each time step):} \\
 &\qquad A \sim \pi(\cdot \vert S, \boldsymbol{\theta}) \\
 &\qquad \text{Take action } A\text{, observe } S', R \quad \text{(if } S' \text{ is terminal, then } \hat{v}(S', \mathbf{w}) \doteq 0\text{)} \\
