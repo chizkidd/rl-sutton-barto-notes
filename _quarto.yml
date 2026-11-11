@@ -85,8 +85,6 @@ format:
       text: |
         \usepackage{microtype}
         \usepackage{amssymb}
-        \usepackage{newunicodechar}
-        \newunicodechar{✓}{\checkmark}
         \usepackage{enumitem}
         \setlist{nosep,leftmargin=1.2em}
         \setlength{\parskip}{0.35em}
