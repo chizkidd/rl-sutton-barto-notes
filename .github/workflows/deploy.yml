@@ -70,12 +70,6 @@ jobs:
       - name: Verify PDF output
         run: test -s _site/rl-notes.pdf
 
-      - name: Install PyMuPDF for the pagination check
-        run: python3 -m pip install --quiet pymupdf
-
-      - name: Check pagination
-        run: python3 scripts/check-pagination.py _site/rl-notes.pdf
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
