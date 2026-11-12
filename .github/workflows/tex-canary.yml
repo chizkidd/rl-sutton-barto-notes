@@ -36,6 +36,8 @@ jobs:
 
       - name: Install the pinned TinyTeX ${{ env.TINYTEX_VERSION }}
         run: |
+          mkdir -p "$RUNNER_TEMP/pinned"
+          mkdir -p "$RUNNER_TEMP/pinned"
           curl -sL https://yihui.org/tinytex/install-bin-unix.sh -o "$RUNNER_TEMP/tinytex.sh"
           TINYTEX_VERSION="$TINYTEX_VERSION" TINYTEX_DIR="$RUNNER_TEMP/pinned" sh "$RUNNER_TEMP/tinytex.sh"
           echo "PINNED_BIN=$RUNNER_TEMP/pinned/.TinyTeX/bin/x86_64-linux" >> "$GITHUB_ENV"
@@ -52,12 +54,19 @@ jobs:
 
       - name: Install the latest TinyTeX
         continue-on-error: true
-        run: quarto install tinytex --no-prompt
+        run: |
+          mkdir -p "$RUNNER_TEMP/latest"
+          curl -sL https://yihui.org/tinytex/install-bin-unix.sh -o "$RUNNER_TEMP/tinytex-latest.sh"
+          # TINYTEX_VERSION is set job-wide for the pinned leg; clear it so this
+          # installs the current upstream release instead of the same bundle.
+          TINYTEX_VERSION= TINYTEX_DIR="$RUNNER_TEMP/latest" sh "$RUNNER_TEMP/tinytex-latest.sh"
+          export PATH="$RUNNER_TEMP/latest/.TinyTeX/bin/x86_64-linux:$PATH"
+          tlmgr install $LATEX_PACKAGES
 
       - name: Build with the latest toolchain
         continue-on-error: true
         run: |
-          export PATH="$HOME/.TinyTeX/bin/x86_64-linux:$PATH"
+          export PATH="$RUNNER_TEMP/latest/.TinyTeX/bin/x86_64-linux:$PATH"
           xelatex --version | head -1
           quarto render
           cp _site/rl-notes.pdf "$RUNNER_TEMP/latest.pdf"
