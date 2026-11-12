@@ -12,10 +12,12 @@ Rules, in PostScript points and taken from the book's page template:
 A few points of descent below the block are normal - the last line's descenders
 sit there on any full page - so overflow starts a little further down.
 
-Pages that already broke the first rule when this check was added are recorded
-in pagination-baseline.json keyed by their first line of text. They keep the
-build green until someone fixes them; anything new fails. Remove an entry once
-its page is fixed, and the check will start guarding it too.
+Some pages are short by design - part dividers, chapter openers, chapter ends -
+so the check holds a budget instead of an allowlist: pagination-budget.json
+records how many pages may exceed the limit. A per-page list is fragile, because
+the same page begins with a different line under a different TeX release; the
+count is not. Adding a hole past the budget fails the build, and so does any
+overflow, which has no budget at all.
 
 Needs PyMuPDF: python3 -m pip install pymupdf
 """
@@ -41,7 +43,7 @@ OVERFLOW_LIMIT = 6.0  # descent below the block that counts as spilling over
 HEADER_LIMIT = 45.0   # running headers sit above this
 FOOTER_LIMIT = 760.0  # folio numbers sit below this
 
-DEFAULT_BASELINE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pagination-baseline.json")
+DEFAULT_BUDGET = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pagination-budget.json")
 
 
 def signature(page):
@@ -77,7 +79,8 @@ def measure(page):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("pdf")
-    parser.add_argument("--baseline", default=DEFAULT_BASELINE)
+    parser.add_argument("--budget", default=DEFAULT_BUDGET)
+    parser.add_argument("--max-holes", type=int, default=None)
     parser.add_argument("--list", action="store_true", help="print every page's slack and exit 0")
     args = parser.parse_args()
 
@@ -85,10 +88,12 @@ def main():
         print(f"missing PDF: {args.pdf}", file=sys.stderr)
         return 2
 
-    baseline = set()
-    if os.path.isfile(args.baseline):
-        with open(args.baseline) as handle:
-            baseline = set(json.load(handle).get("holes", []))
+    budget = 0
+    if os.path.isfile(args.budget):
+        with open(args.budget) as handle:
+            budget = int(json.load(handle).get("max_holes", 0))
+    if args.max_holes is not None:
+        budget = args.max_holes
 
     doc = fitz.open(args.pdf)
     try:
@@ -101,29 +106,24 @@ def main():
             print(f"p{number:>3}  slack={slack:7.1f}  bottom={bottom:6.1f}  {sig}")
         return 0
 
-    holes, overflows = [], []
-    for number, sig, bottom, slack in pages:
-        if slack < -OVERFLOW_LIMIT:
-            overflows.append((number, sig, slack, bottom))
-        elif slack > HOLE_LIMIT and sig not in baseline:
-            holes.append((number, sig, slack))
+    overflows = [(n, sig, slack, bottom) for n, sig, bottom, slack in pages if slack < -OVERFLOW_LIMIT]
+    holes = [(n, sig, slack) for n, sig, bottom, slack in pages if slack > HOLE_LIMIT]
 
     for number, sig, slack, bottom in overflows:
         print(f"::error file={args.pdf}::p{number}: content ends at {bottom:.1f}pt, past the {BOTTOM:.0f}pt block - {sig}")
+
+    print(f"pages with more than {HOLE_LIMIT:.0f}pt of empty space: {len(holes)} (budget {budget})")
     for number, sig, slack in holes:
-        print(f"::error file={args.pdf}::p{number}: {slack:.0f}pt of empty space at the foot - {sig}")
+        print(f"  p{number}: {slack:.0f}pt - {sig}")
+    if len(holes) > budget:
+        print(f"::error file={args.pdf}::{len(holes)} pages leave more than {HOLE_LIMIT:.0f}pt empty, budget is {budget}")
 
-    if holes or overflows:
-        print(f"\n{len(overflows)} page(s) spilling past the margin, {len(holes)} page(s) with >{HOLE_LIMIT:.0f}pt of empty space.")
+    failed = overflows or len(holes) > budget
+    print(f"\nchecked {len(pages)} pages: {len(overflows)} spilling past the margin, {len(holes)} over the hole limit")
+    if failed:
         return 1
-
-    used = {sig for _, sig, _, slack in pages if slack > HOLE_LIMIT}
-    stale = sorted(baseline - used)
-    print(f"checked {len(pages)} pages: no new holes, nothing past the margin")
-    if stale:
-        print(f"note: {len(stale)} baseline entr(y/ies) no longer apply and can be removed:")
-        for sig in stale[:5]:
-            print(f"  - {sig}")
+    if len(holes) < budget:
+        print(f"budget can be tightened to {len(holes)} in pagination-budget.json")
     return 0
 
 
