@@ -46,6 +46,10 @@ $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \g
 
 $$\text{with } G_{t:t+n} \doteq G_t \text{ if } t+n \geq T$$
 
+```{=latex}
+\newpage
+```
+
 - The $n$-step update equation is:
 
 $$\boxed{\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T}$$
@@ -93,6 +97,10 @@ v_\pi(s) &\doteq \mathbb{E}_\pi\!\left[G_t \mid S_t = s\right] \\
 q_\pi(s, a) &\doteq \mathbb{E}_\pi\!\left[G_t \mid S_t = s, A_t = a\right]
 \end{aligned}
 $$
+
+```{=latex}
+\newpage
+```
 
 - Differential value functions also have Bellman equations:
 

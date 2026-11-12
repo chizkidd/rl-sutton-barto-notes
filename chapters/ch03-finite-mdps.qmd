@@ -299,6 +299,10 @@ $$
 **Backup diagrams for $v_*$ and $q_*$.** the max node appears at the state level for $v_*$ and at the successor state level for $q_*$.
 :::
 
+```{=latex}
+\clearpage
+```
+
 ### Takeaways
 
 - For finite MDPs, the Bellman optimality equation has a **unique solution,** a system of $n$ equations in $n$ unknowns (one per state) solvable if the dynamics $p$ are known.

@@ -370,6 +370,10 @@ $$
 
 - The $\overline{\text{BE}}$ can be computed from knowledge of the MDP but is not learnable from data, and its minimum solution is not learnable.
 
+```{=latex}
+\clearpage
+```
+
 ### Example 2
 
 ::: {#fig-116}
