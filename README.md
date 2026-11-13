@@ -107,7 +107,7 @@ RL-Sutton-Barto-notes/
 │   ├── ch11-off-policy-methods-approximation.qmd
 │   ├── ch12-eligibility-traces.qmd
 │   └── ch13-policy-gradient-methods.qmd
-└── figures/                     # 47 redrawn book figures (42 PNG, 5 SVG)
+└── figures/                     # 42 figure PNGs (the book's diagrams)
     ├── ch03-3-1.png             # chNN-N-N[-label].png — chapter NN, book figure N-N
     ├── ch06-6-4-sarsa.png
     ├── ch12-12-10-watkins-q-lambda.png
@@ -118,7 +118,9 @@ RL-Sutton-Barto-notes/
 
 *Figure counts per chapter: ch03 (3), ch04 (1), ch05 (1), ch06 (5), ch07 (5 PNG + 5 SVG), ch08 (6), ch09 (4), ch11 (7), ch12 (9), ch13 (1). Chapters 01, 02 and 10 have no figures.*
 
-Figures use one of two naming schemes: `chNN-N-N[-label].png` for chapters 3–6 and 8–13, and `figNN_slug.svg` for chapter 7's redrawn diagrams.
+Figures use one of two naming schemes: `chNN-N-N[-label].png` for chapters 3–6 and 8–13, and `figNN_slug.svg` for chapter 7's earlier diagrams.
+
+Chapter 7 also keeps five SVG attempts next to its PNGs. They are commented out in the chapter source and are not part of the build, so `figures/SOURCES.md` — which maps every image to its chapter, figure number and caption — lists the 42 PNGs that actually appear.
 
 ## Reference
 
