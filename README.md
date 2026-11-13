@@ -48,6 +48,20 @@ quarto render    # full build into _site/ (HTML + PDF)
 
 Rendered output lands in `_site/`, with the PDF at `_site/rl-notes.pdf`. Both are gitignored.
 
+The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the frozen TeX Live 2025 package repository, so every run gets identical inputs. A newer local TeX Live is fine for writing, but it breaks some pages slightly differently from the published PDF — worth knowing before treating a local page-number difference as a regression.
+
+## Continuous Integration
+
+Three workflows share the pinned toolchain (Quarto 1.5.57, TinyTeX 2025.12 against frozen TeX Live 2025), and every action is pinned to a commit SHA rather than a tag, so a given commit always builds with the same inputs.
+
+| Workflow | Runs on | What it does |
+|---|---|---|
+| `deploy.yml` | push to `main`, manual | Renders the book, fails if `_site/rl-notes.pdf` is missing or empty, publishes `_site/` to GitHub Pages |
+| `math-check.yml` | push, manual | Renders every math chunk through KaTeX and fails on a parse error, an unclosed `$$`, or a stray visible `$` |
+| `tex-canary.yml` | 06:00 UTC on the 1st of each month, manual | Builds the PDF twice — pinned and current TinyTeX — then compares page count, page text and rasterised pages, warning (never failing the build) when the newer toolchain lays the book out differently |
+
+The canary is a warning by design: drift is information, not a broken build. Its report appears in the run's job summary, listing the pages that differ.
+
 ## Deployment
 
 Pushing to `main` triggers `.github/workflows/deploy.yml`, which renders the book, fails if `_site/rl-notes.pdf` is missing or empty, and publishes `_site/` to GitHub Pages.
@@ -73,7 +87,12 @@ RL-Sutton-Barto-notes/
 ├── references.bib               # BibTeX references
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml           # Render book (HTML + PDF), deploy to GitHub Pages
+│       ├── deploy.yml           # Render book (HTML + PDF), deploy to GitHub Pages
+│       ├── math-check.yml       # KaTeX-render every math chunk, fail on a parse error
+│       └── tex-canary.yml       # Monthly build with current TinyTeX, warn on layout drift
+├── scripts/
+│   ├── check-math.cjs           # Used by math-check.yml
+│   └── compare-pdf.py           # Used by tex-canary.yml
 ├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd
 │   ├── ch02-multi-armed-bandits.qmd
