@@ -111,12 +111,12 @@ RL-Sutton-Barto-notes/
     ├── ch03-3-1.png             # chNN-N-N[-label].png — chapter NN, book figure N-N
     ├── ch06-6-4-sarsa.png
     ├── ch12-12-10-watkins-q-lambda.png
-    ├── fig71_nstep_td.svg       # Chapter 7 figures, redrawn as SVG
+    ├── fig71_nstep_td.svg       # Chapter 7 SVG alternates, commented out
     ├── fig75_tree_backup.svg
     └── ...
 ```
 
-*Figure counts per chapter: ch03 (3), ch04 (1), ch05 (1), ch06 (5), ch07 (5 PNG + 5 SVG), ch08 (6), ch09 (4), ch11 (7), ch12 (9), ch13 (1). Chapters 01, 02 and 10 have no figures.*
+*Figure counts per chapter: ch03 (3), ch04 (1), ch05 (1), ch06 (5), ch07 (5), ch08 (6), ch09 (4), ch11 (7), ch12 (9), ch13 (1). Chapters 01, 02 and 10 have no figures.*
 
 Figures use one of two naming schemes: `chNN-N-N[-label].png` for chapters 3–6 and 8–13, and `figNN_slug.svg` for chapter 7's earlier diagrams.
 
