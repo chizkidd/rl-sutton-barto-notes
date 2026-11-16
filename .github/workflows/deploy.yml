@@ -17,7 +17,7 @@ concurrency:
 # The PDF is built by a fixed toolchain so that a render which passed today
 # renders the same way later. Bump these deliberately, as a pair:
 #   - TINYTEX_VERSION picks the TinyTeX release; its TeX Live year must match
-#     TEXLIVE_REPO_FROM below.
+#     TEXLIVE_REPO below.
 #   - The archive only publishes a frozen repository once a TeX Live year is
 #     finished, so this tracks the newest completed year (2025 as of Nov 2026).
 #     When TeX Live 2026 is archived, move both to 2026.

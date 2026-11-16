@@ -2,7 +2,7 @@
 
 Every diagram in these notes, mapped to the chapter and figure number it appears as (42 figures). All of them are hand-drawn in the original handwritten notes and cleaned up for this book; the PNG in `figures/` is the artefact the book is built from, so it is the source of truth for rendering.
 
-The scanned handwritten pages themselves are not stored in this repo (they are large binary files that would permanently bloat the history). If a figure ever needs re-deriving, the scan page is the fallback — see the README for where the scans live.
+The scanned handwritten pages themselves are not stored in this repo (they are large binary files that would permanently bloat the history). If a figure ever needs re-deriving, the original scan page is the fallback; the scans are kept offline and are not part of this repository.
 
 | PNG | Chapter | Figure | Caption | Referenced in |
 |:--|:--|:--|:--|:--|
