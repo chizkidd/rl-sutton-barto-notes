@@ -12,7 +12,7 @@ Personal study notes from *Reinforcement Learning: An Introduction* (Sutton & Ba
 | PDF | [rl-notes.pdf](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf) |
 | EPUB | [rl-notes.epub](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.epub) |
 | Anki deck | [rl-notes-anki.tsv](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes-anki.tsv) |
-| Source | [github.com/chizkidd/RL-Sutton-Barto-notes](https://github.com/chizkidd/RL-Sutton-Barto-notes) |
+| Source | [github.com/chizkidd/rl-sutton-barto-notes](https://github.com/chizkidd/rl-sutton-barto-notes) |
 
 The PDF covers all 13 chapters and is rebuilt with the site on every push to `main`.
 
@@ -41,14 +41,14 @@ Every chapter is written up; there are no placeholders.
 **Prerequisites:** [Quarto](https://quarto.org/docs/get-started/) plus a LaTeX distribution for the PDF (TinyTeX is installed automatically by the workflow).
 
 ```bash
-git clone https://github.com/chizkidd/RL-Sutton-Barto-notes
-cd RL-Sutton-Barto-notes
+git clone https://github.com/chizkidd/rl-sutton-barto-notes
+cd rl-sutton-barto-notes
 
 quarto preview   # live reload at http://localhost:4200
-quarto render    # full build into _site/ (HTML + PDF)
+quarto render    # full build into _site/ (HTML + PDF + EPUB)
 ```
 
-Rendered output lands in `_site/`, with the PDF at `_site/rl-notes.pdf`. Both are gitignored.
+Rendered output lands in `_site/`, with the PDF at `_site/rl-notes.pdf` and the EPUB at `_site/rl-notes.epub`. All of it is gitignored.
 
 The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the frozen TeX Live 2025 package repository, so every run gets identical inputs. A newer local TeX Live is fine for writing, but it breaks some pages slightly differently from the published PDF — worth knowing before treating a local page-number difference as a regression.
 
@@ -60,7 +60,7 @@ The toolchain is pinned (Quarto 1.5.57, TinyTeX 2025.12 against the frozen TeX L
 
 ## Extras
 
-Each of these is a one-command tool; none of them run in CI.
+Each of these is a one-command tool. The checks and generators are local-only — none of them run in CI; the deploy workflow runs `export-anki.cjs` so the downloadable deck matches the book.
 
 ```bash
 node scripts/export-anki.cjs       # bullets -> Anki cloze deck (dist/anki/rl-notes.tsv)
@@ -70,6 +70,7 @@ node scripts/check-refs.cjs        # dead citations, figure refs, gallery anchor
 node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
 python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
+python3 scripts/freeze-anchors.py  # write the built heading ids into the chapters
 ```
 
 **Notation index** — `notation.qmd` maps 24 symbols to the section that defines them and counts the sections that use them. It is generated from the sources, so the locations cannot go stale; the descriptions are hand-written.
@@ -106,7 +107,7 @@ First-time setup:
 RL-Sutton-Barto-notes/
 ├── README.md                    # This file
 ├── LICENSE                      # MIT license
-├── .gitignore                   # Ignores _site/, .quarto/, .preview/, locks, .DS_Store
+├── .gitignore                   # Ignores _site/, .quarto/, .preview/, locks, __pycache__, .DS_Store
 ├── _quarto.yml                  # Book config: chapter order, theme, PDF settings
 ├── index.qmd                    # Preface: coverage table + notation table
 ├── gallery.qmd                  # Figure gallery: every diagram by chapter
@@ -120,10 +121,12 @@ RL-Sutton-Barto-notes/
 ├── scripts/
 │   ├── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
 │   ├── check-parity.py          # HTML vs PDF: section numbering and caption text
-│   ├── check-refs.cjs           # Dead citations, @fig- labels and gallery anchors
+│   ├── check-epub.py            # EPUB: XHTML, link and anchor resolution
+│   ├── check-refs.cjs           # Dead citations, @fig- labels, gallery anchors, built-page links
 │   ├── build-notation.cjs       # Regenerates notation.qmd from the chapters
+│   ├── build-epub-gallery.py    # Regenerates the EPUB figure list from the gallery grid
 │   ├── make-webp.py             # WebP copies of the figures for the gallery
-│   └── freeze-anchors.py        # Writes current heading ids into the sources
+│   └── freeze-anchors.py        # Freezes heading ids; fails if one is used twice
 ├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd
 │   ├── ch02-multi-armed-bandits.qmd
@@ -150,7 +153,7 @@ RL-Sutton-Barto-notes/
 
 *Figure counts per chapter: ch03 (3), ch04 (1), ch05 (1), ch06 (5), ch07 (5), ch08 (6), ch09 (4), ch11 (7), ch12 (9), ch13 (1). Chapters 01, 02 and 10 have no figures.*
 
-Figures use one of two naming schemes: `chNN-N-N[-label].png` for chapters 3–6 and 8–13, and `figNN_slug.svg` for chapter 7's earlier diagrams.
+The PNGs follow `chNN-N-N[-label].png` throughout, including chapter 7 (`ch07-7-1-n-step-td.png`). The five `.svg` files in chapter 7 keep the older `figNN_slug.svg` name; they are the superseded attempts described below.
 
 Chapter 7 also keeps five SVG attempts next to its PNGs. They are commented out in the chapter source and are not part of the build, so `figures/SOURCES.md` — which maps every image to its chapter, figure number and caption — lists the 42 PNGs that actually appear.
 
