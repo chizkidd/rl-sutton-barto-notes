@@ -59,7 +59,7 @@ $$
 \end{aligned}
 $$
 
-$$\text{where } \rho_k = 1 \hspace{0.5em} \text{ for } k \geq T \quad \text{and} \quad G_{t:t+n} = G_t \hspace{0.5em} \text{ if } t+n \geq T$$
+$$\text{where } \rho_k = 1 \quad \text{ for } k \geq T \quad \text{and} \quad G_{t:t+n} = G_t \quad \text{ if } t+n \geq T$$
 
 - The off-policy, semi-gradient $\mathbf{n}$**-step backup tree** (no importance sampling) algorithm is:
 
@@ -220,7 +220,7 @@ $$
 \lVert v \rVert_\mu^2 &\doteq \sum_{s \in S} \mu(s)\, v(s)^2 \\[6pt]
 \overline{\text{VE}}(\mathbf{w}) &= \lVert v_\mathbf{w} - v_\pi \rVert_\mu^2 \\[6pt]
 \Pi\, v &\doteq v_\mathbf{w} \quad \\[6pt]
-\text{where } \mathbf{w} = \arg\min_{\mathbf{w} \in \mathbb{R}^d} \lVert v - v_\mathbf{w} \rVert_\mu^2 &  \hspace{0.8em} \text{and} \hspace{0.5em}  \Pi \equiv \text{projection operator}
+\text{where } \mathbf{w} = \arg\min_{\mathbf{w} \in \mathbb{R}^d} \lVert v - v_\mathbf{w} \rVert_\mu^2 &  \quad \text{and} \quad  \Pi \equiv \text{projection operator}
 \end{aligned}
 $$
 

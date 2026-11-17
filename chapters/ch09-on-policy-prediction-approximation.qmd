@@ -111,11 +111,11 @@ $$
 - The **ultimate goal** (reason for learning a value function) is to find a better policy.
 - If we use $\overline{\text{VE}}$, the goal is to find a **global optimum** (optimal weight vector, $\mathbf{w}^*$):
 
-$$\mathbf{w}^* \hspace{.5em} \text{for which} \hspace{.75em} \overline{\text{VE}}(\mathbf{w}^*) \leq \overline{\text{VE}}(\mathbf{w}), \quad \forall \mathbf{w}$$
+$$\mathbf{w}^* \quad \text{for which} \quad \overline{\text{VE}}(\mathbf{w}^*) \leq \overline{\text{VE}}(\mathbf{w}), \quad \forall \mathbf{w}$$
 
 - Complex function approximators may converge to a **local optimum**: 
 
-$$\mathbf{w}^* \hspace{.5em} \text{for which} \hspace{.75em} \overline{\text{VE}}(\mathbf{w}^*) \leq \overline{\text{VE}}(\mathbf{w}), \quad \forall \mathbf{w} \hspace{.5em} \text{in some neighborhood of} \hspace{.5em} \mathbf{w}^*$$
+$$\mathbf{w}^* \quad \text{for which} \quad \overline{\text{VE}}(\mathbf{w}^*) \leq \overline{\text{VE}}(\mathbf{w}), \quad \forall \mathbf{w} \quad \text{in some neighborhood of} \quad \mathbf{w}^*$$
 
 ## Stochastic-Gradient & Semi-Gradient Methods {#sec-ch09-9-3}
 

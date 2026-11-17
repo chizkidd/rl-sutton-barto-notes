@@ -356,7 +356,7 @@ Since $\nabla J(\boldsymbol{\theta})$ does not depend on $s$, we sum over all $s
 
 $$
 \begin{aligned}
-\nabla J(\boldsymbol{\theta}) &= \sum_s \mu(s) \Bigl(\sum_a \Bigl[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s) \sum_{s'} p(s' \vert s,a)\, \nabla v_\pi(s')\Bigr] - \nabla v_\pi(s)\Bigr) \\
+\nabla J(\boldsymbol{\theta}) &= \sum_s \mu(s) \left(\sum_a \left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s) \sum_{s'} p(s' \vert s,a)\, \nabla v_\pi(s')\right] - \nabla v_\pi(s)\right) \\
 &= \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) \\
 &\quad + \sum_{s'} \underbrace{\sum_s \mu(s) \sum_a \pi(a \vert s)\, p(s' \vert s,a)}_{\mu(s')} \nabla v_\pi(s') - \sum_s \mu(s)\, \nabla v_\pi(s) \\
 &= \sum_s \mu(s) \sum_a \nabla\pi(a \vert s)\, q_\pi(s,a) + \sum_{s'} \mu(s')\, \nabla v_\pi(s') - \sum_s \mu(s)\, \nabla v_\pi(s) \\

@@ -26,7 +26,7 @@ $$\begin{aligned}
 $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\underbrace{\left[R_{t+1} + \gamma V(S_{t+1}) - V(S_t)\right]}_{\text{TD Error}}}$$
 
 $$\begin{aligned}
-\text{where } R_{t+1} + \gamma V(S_{t+1}) &\equiv \text{the \textbf{TD target}}
+\text{where } R_{t+1} + \gamma V(S_{t+1}) &\equiv \text{the } \textbf{TD target}
 \end{aligned}$$
 
 ::: {#fig-61}

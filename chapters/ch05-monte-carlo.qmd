@@ -265,7 +265,7 @@ $$\boxed{\bar{G}_{t:h} \doteq R_{t+1} + R_{t+2} + \ldots + R_h, \quad 0 \leq t \
 $$\begin{aligned}
 \text{where "flat"} &\equiv \text{absence of discounting} \\[6pt]
 \text{"partial"} &\equiv \text{these returns do not extend all the way to termination,} \\
-&\quad \text{but instead stop at } h, \text{ called the \textbf{horizon}}
+&\quad \text{but instead stop at } h, \text{ called the } \textbf{horizon}
 \end{aligned}$$
 
 - The conventional full return $G_t$ can be viewed as a sum of flat partial returns:
