@@ -31,8 +31,10 @@ try:
 except ImportError:  # older PyMuPDF releases
     import fitz
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from bookhtml import first_difference, html_captions, sort_key  # noqa: E402
+
 HTML_SECTION = re.compile(r'<h[2-4]\b[^>]*data-number="([\d.]+)"')
-HTML_CAPTION = re.compile(r"<figcaption[^>]*>\s*(.*?)</figcaption>", re.S)
 MATH_SPAN = re.compile(r'<span class="math[^"]*">.*?</span>', re.S)
 MATH_TEX = re.compile(r"\$[^$]*\$|\\\(.*?\\\)|\\\[.*?\\\]", re.S)
 # \text{ve} and friends print as ordinary words in both builds
@@ -61,36 +63,11 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
-def first_difference(a: str, b: str) -> str:
-    """The first word where the two captions part company, with a little context."""
-    wa, wb = a.split(), b.split()
-    i = 0
-    while i < len(wa) and i < len(wb) and wa[i] == wb[i]:
-        i += 1
-    left = " ".join(wa[max(0, i - 2):i]) or "(start)"
-    right = wb[i] if i < len(wb) else "(end)"
-    return f'{left} "{wa[i] if i < len(wa) else "(end)"}" -> "{right}"'
-
-
 def html_sections(site: Path):
     numbers = []
     for page in sorted(site.glob("chapters/*.html")):
         numbers += HTML_SECTION.findall(page.read_text(encoding="utf-8"))
     return numbers
-
-
-def html_captions(site: Path):
-    """number -> caption text, from the figcaptions."""
-    out = {}
-    for page in sorted(site.glob("chapters/*.html")):
-        text = page.read_text(encoding="utf-8")
-        for m in HTML_CAPTION.finditer(text):
-            # "Figure&nbsp;3.1: ..." has no real whitespace until it is unescaped
-            label = re.match(r"\s*Figure\s+([\d.]+)\s*[:.]\s*(.*)$", html.unescape(m.group(1)), re.S)
-            if not label:
-                continue
-            out[label.group(1)] = label.group(2)
-    return out
 
 
 def pdf_sections(doc):
@@ -158,10 +135,6 @@ def pdf_captions(doc):
                     out[key] += " " + text
                 prev_y = y1
     return out
-
-
-def sort_key(number: str):
-    return [int(p) for p in number.split(".")]
 
 
 def main():

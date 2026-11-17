@@ -49,6 +49,8 @@ The scanned handwritten pages themselves are not stored in this repo (they are l
 | [`ch12-12-10-tree-backup-q-lambda.png`](ch12-12-10-tree-backup-q-lambda.png) | 12 · Eligibility Traces | 12.9 | Backup Diagram for Tree-Backup($\lambda$). The tree-backup updates of each length are weighted in the usual way dependent on the bootstrapping parameter $\lambda$. | [`ch12-eligibility-traces.qmd`](../chapters/ch12-eligibility-traces.qmd#fig-ch12-12-10-tree-backup), [HTML](https://chizkidd.github.io/rl-sutton-barto-notes/chapters/ch12-eligibility-traces.html#fig-ch12-12-10-tree-backup), gallery |
 | [`ch13-13-7-prob-density-function.png`](ch13-13-7-prob-density-function.png) | 13 · Policy Gradient Methods | 13.1 | Probability Density Function (PDF). The probability density functions for several different means and standard deviations are shown above. | [`ch13-policy-gradient-methods.qmd`](../chapters/ch13-policy-gradient-methods.qmd#fig-ch13-13-7-pdf), [HTML](https://chizkidd.github.io/rl-sutton-barto-notes/chapters/ch13-policy-gradient-methods.html#fig-ch13-13-7-pdf), gallery |
 
+`python3 scripts/check-sources.py` compares every row with the build: the PNG, the chapter and its `{#fig-…}` anchor, the number, and the caption, plus figures in the book that have no row. Run it after editing this file.
+
 The Caption column is the text the book prints, not a summary: it is copied from the chapter so the table can be read against the site. The [HTML] links point at the published chapter anchors, because the `.html` files only exist in `_site/` and would be dead in the repository view.
 
 ## Adding or replacing a figure
@@ -57,4 +59,4 @@ The Caption column is the text the book prints, not a summary: it is copied from
 2. Reference it from the chapter as a numbered figure div with an id — `{#fig-61}` in most chapters, `{#fig-ch12-12-1-compound}` in chapter 12 — and a caption whose bold title ends with a period.
 3. Add a WebP copy (`python3 scripts/make-webp.py`) and add the figure to the HTML grid in `gallery.qmd` with the same `Figure N.F` number and a thumbnail link back to the chapter anchor.
 4. Regenerate the EPUB's figure list from that grid: `python3 scripts/build-epub-gallery.py` (its `--check` mode reports a stale list).
-5. Add a row to the table above with the caption the book actually prints.
+5. Add a row to the table above with the caption the book actually prints, then run `python3 scripts/check-sources.py` to confirm the row matches the build.
