@@ -65,7 +65,7 @@ $$
 ## Dyna: Integrated Planning, Acting, and Learning {#sec-ch08-8-2}
 
 ::: {#fig-81}
-![](../figures/ch08-8-2-title.png){fig-align="center"} 
+![](../figures/ch08-8-2-title.png){fig-align="center" fig-alt="Dyna-Q interactions and general Dyna architecture."} 
 
 Dyna-Q interactions and general Dyna architecture.
 :::
@@ -196,7 +196,7 @@ $$
 - Given a fixed computational budget, are expected or sample updates more efficient for planning?
 
 ::: {#fig-82}
-![](../figures/ch08-8-5-one-step.png){width=70% fig-align="center"} 
+![](../figures/ch08-8-5-one-step.png){width=70% fig-align="center" fig-alt="Backup diagrams for all the one-step updates covered so far."} 
 
 Backup diagrams for all the one-step updates covered so far.
 :::
@@ -363,7 +363,7 @@ $$\boxed{V(S_t) \leftarrow \max_{a \in A}\left(R^a_{S_t} + \gamma \sum_{s'} P^a_
   - These kinds of problems are usually expressed in cost minimization not reward maximization.
 
 ::: {#fig-83}
-![](../figures/ch08-8-7-rtdp.png){fig-align="center"} 
+![](../figures/ch08-8-7-rtdp.png){fig-align="center" fig-alt="State space diagram. Start states on the left, irrelevant states (unreachable from any start state under any optimal policy) in the outer region, and relevant states (reachable from some start state under some optimal policy) in the inner region."} 
 
 **State space diagram.** Start states on the left, irrelevant states (unreachable from any start state under any optimal policy) in the outer region, and relevant states (reachable from some start state under some optimal policy) in the inner region.
 :::
@@ -400,7 +400,7 @@ $$\boxed{V(S_t) \leftarrow \max_{a \in A}\left(R^a_{S_t} + \gamma \sum_{s'} P^a_
 - Heuristic search is an extension of greedy policy beyond one-step to multi-step lookahead to obtain better action selections.
 
 ::: {#fig-84}
-![](../figures/ch08-8-9-heuristic-search.png){fig-align="center"} 
+![](../figures/ch08-8-9-heuristic-search.png){fig-align="center" fig-alt="Heuristic Search diagram (selective depth-first search). a large tree rooted at the current state, with branches for each action and subtrees for each successor. The tree policy traverses the tree greedily, evaluating and backing up values from…"} 
 
 **Heuristic Search diagram (selective depth-first search).** a large tree rooted at the current state, with branches for each action and subtrees for each successor. The tree policy traverses the tree greedily, evaluating and backing up values from the leaf nodes toward the root.
 :::
@@ -493,7 +493,7 @@ $$\boxed{\text{UCT}(s,a) = \underbrace{\frac{W(s,a)}{N(s,a)}}_{\text{exploitatio
 - Propagate simulation result up the path and update all nodes/edges on the path.
 
 ::: {#fig-85}
-![](../figures/ch08-8-11-mcts.png){fig-align="center"} 
+![](../figures/ch08-8-11-mcts.png){fig-align="center" fig-alt="MCTS diagram. 4 stages shown left to right: Selection (tree policy traverses with blue arrows to a leaf), Expansion (leaf expanded), Simulation (rollout policy runs from expanded node to terminal ), Backup (return propagated back up with blue…"} 
 
 **MCTS diagram.** 4 stages shown left to right: Selection (tree policy traverses with blue arrows to a leaf), Expansion (leaf expanded), Simulation (rollout policy runs from expanded node to terminal $\Delta$), Backup (return propagated back up with blue arrows).
 :::
@@ -599,7 +599,7 @@ $$\Rightarrow \text{total: } O\!\left(n \cdot (d + L)\right) \text{ for } n \tex
 >$$\text{VERTICAL (Top to Bottom): shallow backups} \xrightarrow{\text{depth/length of update}} \text{deep backups}$$
 
 ::: {#fig-86}
-![](../figures/ch08-8-13-summary-unified-rl.png){fig-align="center"}
+![](../figures/ch08-8-13-summary-unified-rl.png){fig-align="center" fig-alt="Unified view of RL depicting a slice through the space of RL methods."}
 
 Unified view of RL depicting a slice through the space of RL methods.
 :::

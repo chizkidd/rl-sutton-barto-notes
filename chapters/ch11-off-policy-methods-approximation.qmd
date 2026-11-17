@@ -79,7 +79,7 @@ $$\text{where } \delta_t \text{ is the Expected Sarsa TD error defined earlier i
 Consider part of a larger MDP with 2 states whose estimated values are $w$ and $2w$:
 
 ::: {#fig-111}
-![](../figures/ch11-11-2-example1.png){fig-align="center"} 
+![](../figures/ch11-11-2-example1.png){fig-align="center" fig-alt="Simple Counterexample. 2-state part of an MDP."} 
 
 **Simple Counterexample.** 2-state part of an MDP.
 :::
@@ -90,8 +90,8 @@ Consider part of a larger MDP with 2 states whose estimated values are $w$ and $
 $$
 \begin{aligned}
 \delta_t &= R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t) \\
-&= 0 + \gamma \cdot 2w_t - w_t \\
-&= (2\gamma - 1)\, w_t
+&= 0 + \gamma \cdot 2\mathbf{w}_t - \mathbf{w}_t \\
+&= (2\gamma - 1)\, \mathbf{w}_t
 \end{aligned}
 $$
 
@@ -99,9 +99,9 @@ $$
 
 $$
 \begin{aligned}
-w_{t+1} &= w_t + \alpha \rho_t\, \delta_t \nabla \hat{v}(S_t, w_t) \\
-&= w_t + (\alpha)(1)\!\left[(2\gamma - 1) w_t\right](1) \\
-&= w_t\!\left[1 + \alpha(2\gamma - 1)\right]
+\mathbf{w}_{t+1} &= \mathbf{w}_t + \alpha \rho_t\, \delta_t \nabla \hat{v}(S_t, \mathbf{w}_t) \\
+&= \mathbf{w}_t + (\alpha)(1)\!\left[(2\gamma - 1) \mathbf{w}_t\right](1) \\
+&= \mathbf{w}_t\!\left[1 + \alpha(2\gamma - 1)\right]
 \end{aligned}
 $$
 
@@ -120,7 +120,7 @@ $$
 - Consider the episodic 7-state, 2-action MDP shown below.
 
 ::: {#fig-112}
-![](../figures/ch11-11-2-bairds-counterexample.png){fig-align="center"} 
+![](../figures/ch11-11-2-bairds-counterexample.png){fig-align="center" fig-alt="Baird's Counterexample. Episodic 7-state, 2-action MDP."} 
 
 **Baird's Counterexample.** Episodic 7-state, 2-action MDP.
 :::
@@ -154,7 +154,7 @@ $$\mathbf{w}_{k+1} \doteq \mathbf{w}_k + \frac{\alpha}{\vert S \vert} \sum_s \le
 This extends Example 1 with a terminal state and $R = 0$:
 
 ::: {#fig-113}
-![](../figures/ch11-11-2-tsitsiklis-van-roy-counterexample.png){width=78% fig-align="center"} 
+![](../figures/ch11-11-2-tsitsiklis-van-roy-counterexample.png){width=78% fig-align="center" fig-alt="Tsitsiklis and Van Roy's Counterexample. Extension of Example 1 with probability of transitioning to the terminal state (shaded)."} 
 
 **Tsitsiklis & Van Roy's Counterexample.** Extension of Example 1 with probability $\varepsilon$ of transitioning to the terminal state (shaded).
 :::
@@ -206,7 +206,7 @@ $$
   - TD methods present other solutions.
 
 ::: {#fig-114}
-![](../figures/ch11-11-4-linear-value-func-approx-geometry.png){fig-align="center"} 
+![](../figures/ch11-11-4-linear-value-func-approx-geometry.png){fig-align="center" fig-alt="The Geometry of Linear Value-Function Approximation. Shown is the 3D space of all value functions over three states, while shown as a plane is the subspace of all value functions representable by a linear function approximator with parameter w =…"} 
 
 **The Geometry of Linear Value-Function Approximation.** Shown is the 3D space of all value functions over three states, while shown as a plane is the subspace of all value functions representable by a linear function approximator with parameter $\mathbf{w} = (w_1, w_2)^T$. The true value function $v_\pi$ is in the larger space and can be projected down (into the subspace, using a projection operator $\Pi$) to its best approximation in the value error ($\text{VE}$) sense. The best approximators in the Bellman error ($\text{BE}$), projected Bellman error ($\text{PBE}$), and temporal difference error ($\text{TDE}$) senses are all potentially different and are shown in the lower right.
 :::
@@ -345,7 +345,7 @@ $$
 ### Example 1
 
 ::: {#fig-115}
-![](../figures/ch11-11-6-example1.png){fig-align="center"} 
+![](../figures/ch11-11-6-example1.png){fig-align="center" fig-alt="Value Error (VE) Learnability Counterexample. Deterministic MRP pair with an endless stream of 0s and 2s."} 
 
 **Value Error (VE) Learnability Counterexample.** Deterministic MRP pair with an endless stream of $0$s and $2$s.
 :::
@@ -377,7 +377,7 @@ $$
 ### Example 2
 
 ::: {#fig-116}
-![](../figures/ch11-11-6-example2.png){width=80% fig-align="center"} 
+![](../figures/ch11-11-6-example2.png){width=80% fig-align="center" fig-alt="Bellman Error (BE) Learnability Counterexample. Complex Deterministic MRP pair with same distribution but different minimizing parameter vector."} 
 
 **Bellman Error (BE) Learnability Counterexample.** Complex Deterministic MRP pair with same distribution but different minimizing parameter vector.
 :::
@@ -388,7 +388,7 @@ $$
 - $\overline{\text{BE}}$ is limited to model-based settings, therefore $\overline{\text{PBE}}$ is preferred.
 
 ::: {#fig-117}
-![](../figures/ch11-11-6-causal-relationships-mdps-datadistr-errors.png){width=80% fig-align="center"} 
+![](../figures/ch11-11-6-causal-relationships-mdps-datadistr-errors.png){width=80% fig-align="center" fig-alt="Causal Relationships among the data distribution, MDPs and various objectives. Monte-Carlo and Bootstrapping objectives."} 
 
 **Causal Relationships among the data distribution, MDPs & various objectives.** Monte-Carlo & Bootstrapping objectives.
 :::

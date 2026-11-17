@@ -17,9 +17,9 @@ number-sections: true
   - **One-step** TD methods update is based on the one next reward only.
   - $\mathbf{n}$**-step**: somewhere in between that performs an update based on an intermediate number of rewards (more than 1 but less than all the rewards in the entire episode).
 
-<!-- ![n-step TD Backup Diagrams](../figures/fig71_nstep_td.svg) -->
+<!-- ![](../figures/fig71_nstep_td.svg){fig-alt="n-step TD Backup Diagrams"} -->
 ::: {#fig-71}
-![](../figures/ch07-7-1-n-step-td.png){fig-align="center"} 
+![](../figures/ch07-7-1-n-step-td.png){fig-align="center" fig-alt="Backup diagrams for n-step methods."} 
 
 Backup diagrams for n-step methods.
 :::
@@ -73,9 +73,9 @@ $$\max_s \left|\mathbb{E}_\pi\left[G_t^{(n)} \mid S_t = s\right] - v_\pi(s)\righ
 - Switch value function updates based on state rewards to state-action value function updates based on state-action pairs and then use an $\varepsilon$-greedy policy.
 - Backup diagrams for $n$-step Sarsa are similar to those of $n$-step TD, consisting of strings of alternating states and actions, except that the Sarsa ones all start and end with an action rather than a state.
 
-<!-- ![n-step Sarsa Backup Diagrams](../figures/fig72_nstep_sarsa.svg) -->
+<!-- ![](../figures/fig72_nstep_sarsa.svg){fig-alt="n-step Sarsa Backup Diagrams"} -->
 ::: {#fig-72}
-![](../figures/ch07-7-2-n-step-sarsa.png){fig-align="center"} 
+![](../figures/ch07-7-2-n-step-sarsa.png){fig-align="center" fig-alt="Backup diagrams for n-step SARSA methods."} 
 
 Backup diagrams for n-step SARSA methods.
 :::
@@ -225,9 +225,9 @@ G_{t:h} &\doteq R_{t+1} + \gamma\left[\rho_{t+1} G_{t+1:h} + \bar{V}_{h-1}(S_{t+
   - A list of unselected actions for each state.
   - We have no sample for the unselected actions, so therefore we bootstrap using their estimated values.
 
-<!-- ![3-step Tree Backup Diagram](../figures/fig75_tree_backup.svg) -->
+<!-- ![](../figures/fig75_tree_backup.svg){fig-alt="3-step Tree Backup Diagram"} -->
 ::: {#fig-73}
-![](../figures/ch07-7-5-n-step-tree.png){width=70% fig-align="center"} 
+![](../figures/ch07-7-5-n-step-tree.png){width=70% fig-align="center" fig-alt="The 3-step tree-backup update."} 
 
 The 3-step tree-backup update.
 :::
@@ -284,9 +284,9 @@ $$Q_{t+n}(s,a) = Q_{t+n-1}(s,a) \quad \forall s, a \quad \text{ s.t. } \quad s \
 
 - **Unification Algorithm** $\Rightarrow$ _One Idea_: Decide on a step-by-step basis whether we want to sample, as in Sarsa, or consider the expectation over all actions instead, as in tree-backup update.
 
-<!-- ![4-step Q(σ) and comparisons](../figures/fig76_qsigma.svg) -->
+<!-- ![](../figures/fig76_qsigma.svg){fig-alt="4-step Q(σ) and comparisons"} -->
 ::: {#fig-74}
-![](../figures/ch07-7-6-n-step-q.png){width=70% fig-align="center"} 
+![](../figures/ch07-7-6-n-step-q.png){width=70% fig-align="center" fig-alt="Backup diagram for different kinds of n-step Q updates."} 
 
 Backup diagram for different kinds of n-step Q updates.
 :::
@@ -324,9 +324,9 @@ $$\boxed{G_{t:h} \doteq R_{t+1} + \gamma\left(\sigma_{t+1}\rho_{t+1} + (1-\sigma
   - **$n$-step TD with importance sampling** 
   - **$n$-step $Q(\sigma)$** which generalizes **Expected Sarsa & Q-learning.**
 
-<!-- ![Summary backup diagrams](../figures/fig77_summary.svg) -->
+<!-- ![](../figures/fig77_summary.svg){fig-alt="Summary backup diagrams"} -->
 ::: {#fig-75}
-![](../figures/ch07-7-7-n-step-td-q.png){width=52% fig-align="center"} 
+![](../figures/ch07-7-7-n-step-td-q.png){width=52% fig-align="center" fig-alt="Backup diagram for 4-step TD and 4-step Q update."} 
 
 Backup diagram for 4-step TD & 4-step Q update.
 :::
