@@ -72,7 +72,7 @@ python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
 
 **Notation index** — `notation.qmd` maps 24 symbols to the section that defines them and counts the sections that use them. It is generated from the sources, so the locations cannot go stale; the descriptions are hand-written.
 
-**Parity check** — `check-parity.py` compares section numbers and figure counts between `_site/` and `rl-notes.pdf`, because the two formats are configured separately (`number-depth: 3` against `secnumdepth 2`) and drift silently.
+**Parity check** — `check-parity.py` compares section numbers and the full text of every figure caption between `_site/` and `rl-notes.pdf`, because the two formats are configured separately (`number-depth: 3` against `secnumdepth 2`) and drift silently. Captions are compared word for word, so changing a single word in a caption fails the check; math is dropped because the HTML holds TeX source and the PDF typeset glyphs.
 
 **Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, and all 84 gallery links against the chapter anchors.
 
@@ -113,7 +113,7 @@ RL-Sutton-Barto-notes/
 ├── notation.qmd                 # Generated notation index (appendices)
 ├── scripts/
 │   ├── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
-│   ├── check-parity.py          # HTML vs PDF: section numbering and figure count
+│   ├── check-parity.py          # HTML vs PDF: section numbering and caption text
 │   ├── check-refs.cjs           # Dead citations, @fig- labels and gallery anchors
 │   ├── build-notation.cjs       # Regenerates notation.qmd from the chapters
 │   ├── make-webp.py             # WebP copies of the figures for the gallery

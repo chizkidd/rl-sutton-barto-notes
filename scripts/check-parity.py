@@ -10,9 +10,11 @@ What is compared:
   - section numbers, HTML `data-number` against the numbers the PDF prints,
     ignoring the PDF's table-of-contents pages (they repeat every number, with
     dot leaders, before the content starts)
-  - figure captions, by number and by text: the HTML `figcaption` says
-    "Figure 3.1: ..." and the PDF says "Figure 3.1. ...", which is a difference
-    in punctuation, not in content
+  - figure captions, by number and by the full caption text: the HTML
+    `figcaption` says "Figure 3.1: ..." and the PDF says "Figure 3.1. ...",
+    which is punctuation. Inline math is dropped before comparing, because the
+    HTML carries the TeX source and the PDF the typeset glyphs. Any wording
+    difference is reported, so the comparison is exact rather than a score.
 
 Usage: python3 scripts/check-parity.py [--site _site] [--pdf _site/rl-notes.pdf]
 Requires PyMuPDF (pip install pymupdf).
@@ -31,28 +33,43 @@ except ImportError:  # older PyMuPDF releases
 
 HTML_SECTION = re.compile(r'<h[2-4]\b[^>]*data-number="([\d.]+)"')
 HTML_CAPTION = re.compile(r"<figcaption[^>]*>\s*(.*?)</figcaption>", re.S)
+MATH_SPAN = re.compile(r'<span class="math[^"]*">.*?</span>', re.S)
+MATH_TEX = re.compile(r"\$[^$]*\$|\\\(.*?\\\)|\\\[.*?\\\]", re.S)
+# \text{ve} and friends print as ordinary words in both builds
+MATH_WORDS = re.compile(r"\\(?:text|textrm|textbf|mathbf|mathrm|mathit|operatorname)\{([^{}]*)\}")
 PDF_SECTION = re.compile(r"^(\d{1,2}(?:\.\d{1,2})+?)\.?\s+(\S.*)$")
 PDF_CAPTION = re.compile(r"^Figure\s+(\d+\.\d+)\.\s*(.*)$")
+PDF_BULLET = re.compile(r"^[•\-–∘·▪]")
 TOC_LEADER = re.compile(r"\.\s\.\s\.")
 
 
 def norm(text: str) -> str:
+    """Reduce a caption to its words, so only wording is compared.
+
+    Math is dropped on both sides: the HTML holds TeX source in a math span and
+    the PDF holds typeset glyphs, and the glyphs carry digits the HTML does not
+    (a caption reading "0s and 2s" is two numbers in TeX but plain text here).
+    Figure and section numbers are compared separately, so nothing is lost.
+    """
+    # \text{ve} in the HTML comes out as the word "ve" in the PDF, so keep the
+    # literal argument and drop the rest of the formula.
+    text = MATH_SPAN.sub(lambda m: " " + " ".join(MATH_WORDS.findall(m.group(0))) + " ", text)
+    text = MATH_TEX.sub(" ", text)
     text = re.sub(r"<[^>]+>", " ", text)
     text = html.unescape(text).replace("\u00a0", " ")
-    text = re.sub(r"[^A-Za-z0-9 ]+", " ", text)
+    text = re.sub(r"[^A-Za-z ]+", " ", text)  # also drops the math glyphs
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
-def words(text: str):
-    return {w for w in norm(text).split() if len(w) > 2}
-
-
-def similarity(a: str, b: str) -> float:
-    """Share of the shorter caption's words that the other caption has."""
-    wa, wb = words(a), words(b)
-    if not wa or not wb:
-        return 1.0 if a.strip() == b.strip() else 0.0
-    return len(wa & wb) / min(len(wa), len(wb))
+def first_difference(a: str, b: str) -> str:
+    """The first word where the two captions part company, with a little context."""
+    wa, wb = a.split(), b.split()
+    i = 0
+    while i < len(wa) and i < len(wb) and wa[i] == wb[i]:
+        i += 1
+    left = " ".join(wa[max(0, i - 2):i]) or "(start)"
+    right = wb[i] if i < len(wb) else "(end)"
+    return f'{left} "{wa[i] if i < len(wa) else "(end)"}" -> "{right}"'
 
 
 def html_sections(site: Path):
@@ -100,13 +117,46 @@ def pdf_sections(doc):
 
 
 def pdf_captions(doc):
-    """number -> caption text, from the lines the PDF prints."""
+    """number -> caption text, from the lines the PDF prints.
+
+    A caption wraps over several lines, and PyMuPDF may split it across blocks,
+    so track the lines: keep taking them while the size holds and the spacing
+    stays tight. A heading, an equation, a bullet, or the next paragraph all
+    break one of those, which is what ends the caption.
+    """
     out = {}
     for page in doc:
-        for line in page.get_text().splitlines():
-            m = PDF_CAPTION.match(line.strip())
-            if m and m.group(1) not in out:
-                out[m.group(1)] = m.group(2)
+        key = size = prev_y = None
+        for block in page.get_text("dict")["blocks"]:
+            for line in block.get("lines", []):
+                spans = line.get("spans") or [{}]
+                text = "".join(sp["text"] for sp in spans).strip()
+                if not text:
+                    continue
+                line_size = max(sp.get("size", 0) for sp in spans)
+                y0, y1 = line["bbox"][1], line["bbox"][3]
+                m = PDF_CAPTION.match(text)
+                if m:
+                    key, size, prev_y = m.group(1), line_size, y1
+                    out.setdefault(key, m.group(2))
+                    continue
+                if key is None:
+                    continue
+                if (
+                    abs(line_size - size) > 0.4                     # a heading or equation
+                    or y0 - prev_y > 6.0                            # the next paragraph
+                    or PDF_BULLET.match(text)
+                    or text.isdigit()                               # page number
+                    or text.startswith("Table of contents")
+                ):
+                    key = None
+                    continue
+                # a word hyphenated across the line break joins back up
+                if out[key].endswith("-") and text[:1].islower():
+                    out[key] = out[key][:-1] + text
+                else:
+                    out[key] += " " + text
+                prev_y = y1
     return out
 
 
@@ -118,7 +168,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", default="_site")
     parser.add_argument("--pdf", default="_site/rl-notes.pdf")
-    parser.add_argument("--min-similarity", type=float, default=0.6)
     args = parser.parse_args()
 
     site = Path(args.site)
@@ -151,10 +200,10 @@ def main():
         problems.append(f"figures only in the PDF: {', '.join(only_pdf)}")
 
     for number in sorted(set(h_caps) & set(p_caps), key=sort_key):
-        score = similarity(h_caps[number], p_caps[number])
-        if score < args.min_similarity:
+        a, b = norm(h_caps[number]), norm(p_caps[number])
+        if a != b:
             problems.append(
-                f"caption {number} differs ({score:.0%} word overlap): "
+                f"caption {number} differs at {first_difference(a, b)}: "
                 f'HTML "{" ".join(h_caps[number].split())[:70]}" / PDF "{" ".join(p_caps[number].split())[:70]}"'
             )
 
