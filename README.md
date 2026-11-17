@@ -66,7 +66,7 @@ Each of these is a one-command tool. The checks and generators are local-only �
 node scripts/export-anki.cjs       # bullets -> Anki cloze deck (dist/anki/rl-notes.tsv)
 python3 scripts/check-parity.py    # compare the built HTML and PDF for drift
 python3 scripts/check-epub.py      # epub: XHTML, link and anchor resolution
-node scripts/check-refs.cjs        # dead citations, figure refs, gallery anchors, built-page links
+node scripts/check-refs.cjs        # dead citations, figure refs, gallery anchors, then linkcheck.py
 node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
 python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
@@ -79,9 +79,9 @@ python3 scripts/freeze-anchors.py  # write the built heading ids into the chapte
 
 **Parity check** — `check-parity.py` compares section numbers and the full text of every figure caption between `_site/` and `rl-notes.pdf`, because the two formats are configured separately (`number-depth: 3` against `secnumdepth 2`) and drift silently. Captions are compared word for word, so changing a single word in a caption fails the check; math is dropped because the HTML holds TeX source and the PDF typeset glyphs.
 
-**EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter), if any `href` or `src` does not resolve to a file inside the archive (a `.qmd` source path or a `chapters/*.html` page looks fine on the web and is missing from the book), or if any `#fragment` names an id that the document it lands in does not have. None of those show up until the book is opened in a reader.
+**EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter), if any `href` or `src` does not resolve to a file inside the archive (a `.qmd` source path or a `chapters/*.html` page looks fine on the web and is missing from the book), or if any `#fragment` names an id that the document it lands in does not have. None of those show up until the book is opened in a reader. The last two rules are `linkcheck.py`, the same code `check-refs.cjs` runs against `_site/`, so a link is judged the same way on the site and inside the archive; this script supplies only the documents and anchors of the zip.
 
-**Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, all 84 gallery links against the chapter anchors, and then every `href`/`src` of the 16 built pages in `_site/`, resolving each to a file and every `#fragment` to an id. That last part covers the generated pages — the notation index is written by `build-notation.cjs`, so a wrong path prefix in it never shows up in the sources; that is how 24 dead links once shipped. Links to the pdf, epub and Anki deck are skipped when those files are absent, because a `--to html` render does not produce them.
+**Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, all 84 gallery links against the chapter anchors, and then every `href`/`src` of the 16 built pages in `_site/`, resolving each to a file and every `#fragment` to an id. The resolution is `linkcheck.py`, shared with the EPUB check above so the two cannot drift apart, and it covers same-page `#anchor` links too. That last part covers the generated pages — the notation index is written by `build-notation.cjs`, so a wrong path prefix in it never shows up in the sources; that is how 24 dead links once shipped. Links to the pdf, epub and Anki deck are skipped when those files are absent, because a `--to html` render does not produce them. This pass shells out to `python3 scripts/linkcheck.py`, so the check needs Python alongside Node.
 
 **EPUB and releases** — the book builds EPUB alongside HTML and PDF, and tagged releases keep a frozen copy of the PDF for citation. See Releases.
 
@@ -122,7 +122,8 @@ RL-Sutton-Barto-notes/
 │   ├── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
 │   ├── check-parity.py          # HTML vs PDF: section numbering and caption text
 │   ├── check-epub.py            # EPUB: XHTML, link and anchor resolution
-│   ├── check-refs.cjs           # Dead citations, @fig- labels, gallery anchors, built-page links
+│   ├── check-refs.cjs           # Dead citations, @fig- labels, gallery anchors; linkcheck.py for _site/
+│   ├── linkcheck.py             # Shared link and anchor resolution: site pages and EPUB documents
 │   ├── build-notation.cjs       # Regenerates notation.qmd from the chapters
 │   ├── build-epub-gallery.py    # Regenerates the EPUB figure list from the gallery grid
 │   ├── make-webp.py             # WebP copies of the figures for the gallery

@@ -15,26 +15,21 @@ What is checked, per document in the archive:
   - every #fragment, including one inside a relative link, names an id that
     exists in the document it lands in
 
+The second and third are what check-refs.cjs does for _site/, so the rules
+themselves live in linkcheck.py and this script supplies only the archive: the
+documents it holds, and the ids inside them.
+
 Usage: python3 scripts/check-epub.py [--epub _site/rl-notes.epub]
 """
 
 import argparse
-import posixpath
-import re
 import sys
-import urllib.parse
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
-REFERENCE = re.compile(r'\b(?:href|src)="([^"]*)"')
-ID = re.compile(r'\bid="([^"]+)"')
-ABSOLUTE = ("http://", "https://", "mailto:", "tel:", "data:", "javascript:")
-
-
-def is_web_path(target: str) -> bool:
-    """A path that only exists in the web build, e.g. chapters/ch03-....html."""
-    return target.endswith(".html") and "chapters/" in target
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import linkcheck  # noqa: E402  (needs the path above when run from elsewhere)
 
 
 def check(epub: Path) -> int:
@@ -52,9 +47,10 @@ def check(epub: Path) -> int:
         present = set(archive.namelist())
         text = {name: archive.read(name).decode("utf-8", "replace") for name in docs}
         # every document's ids, so a link can be checked against its landing page
-        ids = {name: set(ID.findall(body)) for name, body in text.items()}
+        ids = {name: linkcheck.document_ids(body) for name, body in text.items()}
 
-        malformed, broken, web_paths, no_anchor = [], [], [], []
+        malformed = []
+        found = {linkcheck.WEB_ONLY: [], linkcheck.MISSING: [], linkcheck.ANCHOR: []}
         for name in docs:
             try:
                 ET.fromstring(text[name])
@@ -62,23 +58,11 @@ def check(epub: Path) -> int:
                 malformed.append(f"{name}: {e}")
                 continue  # its references would only repeat the parse failure
 
-            base = posixpath.dirname(name)
-            for ref in REFERENCE.findall(text[name]):
-                if ref.startswith(ABSOLUTE):
-                    continue
-                target, _, frag = ref.partition("#")
-                target, frag = urllib.parse.unquote(target), urllib.parse.unquote(frag)
-
-                if target:  # "#frag" alone points into this same document
-                    landing = posixpath.normpath(posixpath.join(base, target))
-                    if landing not in present:
-                        entry = f"{name} -> {ref}"
-                        (web_paths if is_web_path(target) else broken).append(entry)
-                        continue
-                else:
-                    landing = name
-                if frag and frag not in ids.get(landing, set()):
-                    no_anchor.append(f"{name} -> {ref}")
+            for finding in linkcheck.check_document(
+                name, text[name], ids, lambda landing: landing in present, web_only_error=True
+            ):
+                found[finding.kind].append(f"{name} -> {finding.ref}")
+        web_paths, broken, no_anchor = found[linkcheck.WEB_ONLY], found[linkcheck.MISSING], found[linkcheck.ANCHOR]
 
     print(f"check-epub: {len(docs)} xhtml chapter(s) in {epub.name}")
     problems = []
