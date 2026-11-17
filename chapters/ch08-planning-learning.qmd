@@ -205,7 +205,7 @@ Backup diagrams for all the one-step updates covered so far.
 
 | Value estimated | Expected updates (DP) | Sample updates (one-step TD) |
 |---|---|---|
-| $v_\pi(s)$ | Policy evaluation<br>(full branching over actions & next states) | TD(0)<br>(single sampled transition) |
+| $v_\pi(s)$ | Policy evaluation<br/>(full branching over actions & next states) | TD(0)<br/>(single sampled transition) |
 | $v_*(s)$ | Value iteration (max over actions, full branching) | — |
 | $q_\pi(s,a)$ | $q$-policy evaluation | Sarsa |
 | $q_*(s,a)$ | $q$-value iteration | Q-learning |
