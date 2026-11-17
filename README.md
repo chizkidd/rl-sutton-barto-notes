@@ -66,7 +66,7 @@ Each of these is a one-command tool; none of them run in CI.
 node scripts/export-anki.cjs       # bullets -> Anki cloze deck (dist/anki/rl-notes.tsv)
 python3 scripts/check-parity.py    # compare the built HTML and PDF for drift
 python3 scripts/check-epub.py      # epub: XHTML, link and anchor resolution
-node scripts/check-refs.cjs        # dead citations, figure refs and gallery anchors
+node scripts/check-refs.cjs        # dead citations, figure refs, gallery anchors, built-page links
 node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
 python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
@@ -80,7 +80,7 @@ python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
 
 **EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter), if any `href` or `src` does not resolve to a file inside the archive (a `.qmd` source path or a `chapters/*.html` page looks fine on the web and is missing from the book), or if any `#fragment` names an id that the document it lands in does not have. None of those show up until the book is opened in a reader.
 
-**Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, and all 84 gallery links against the chapter anchors.
+**Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, all 84 gallery links against the chapter anchors, and then every `href`/`src` of the 16 built pages in `_site/`, resolving each to a file and every `#fragment` to an id. That last part covers the generated pages — the notation index is written by `build-notation.cjs`, so a wrong path prefix in it never shows up in the sources; that is how 24 dead links once shipped. Links to the pdf, epub and Anki deck are skipped when those files are absent, because a `--to html` render does not produce them.
 
 **EPUB and releases** — the book builds EPUB alongside HTML and PDF, and tagged releases keep a frozen copy of the PDF for citation. See Releases.
 
