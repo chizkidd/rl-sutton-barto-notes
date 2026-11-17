@@ -24,7 +24,7 @@ number-sections: true
 
 ## The $\lambda$-return {#sec-ch12-12-1}
 
-- Recall in [Chapter 7](ch07-nstep-bootstrapping.qmd) we defined an $n$-step return as the sum of the first $n$ rewards plus the estimated value of the state reached in $n$ steps, each appropriately discounted:
+- Recall in [Chapter 7](#sec-ch07-7-1) we defined an $n$-step return as the sum of the first $n$ rewards plus the estimated value of the state reached in $n$ steps, each appropriately discounted:
 
 $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n \hat{v}(S_{t+n}, \mathbf{w}_{t+n-1}), \quad 0 \leq t \leq T - n$$
 
@@ -676,8 +676,8 @@ $$
 - Let's look at the eligibility trace version of Tree Backup, which is called **Tree-Backup($\lambda$)** or **TB($\lambda$)**.
 - TB($\lambda$) is the **true successor** to Q-learning because it has no importance sampling.
 - TB($\lambda$) concept is straightforward:
-  - The tree-backup updates of each length ([Section 7.5](ch07-nstep-bootstrapping.qmd#sec-ch07-7-5)) are weighted dependent on the bootstrapping parameter $\lambda$.
-  - Using the recursive form of the action-based $\lambda$-return for Expected Sarsa and then expanding the bootstrapping target case after the model of tree-backup $n$-step return ([Section 7.5](ch07-nstep-bootstrapping.qmd#sec-ch07-7-5)):
+  - The tree-backup updates of each length ([Section 7.5](#sec-ch07-7-5)) are weighted dependent on the bootstrapping parameter $\lambda$.
+  - Using the recursive form of the action-based $\lambda$-return for Expected Sarsa and then expanding the bootstrapping target case after the model of tree-backup $n$-step return ([Section 7.5](#sec-ch07-7-5)):
 
 $$
 \boxed{\begin{aligned}

@@ -9,7 +9,7 @@ Reinforcement learning (RL) is about learning **what to do** so as to maximize a
 
 RL is simultaneously a **problem**, a **class of solution methods**, and a **field of study**. Keeping these three separate matters a lot. Confusing the problem with the method is a surprisingly common source of muddy thinking.
 
-Formally, RL is framed as the optimal control of an **incompletely-known Markov Decision Process (MDP)**. The full formalization comes in [Chapter 3](ch03-finite-mdps.qmd), but the core idea is to capture the essentials of an agent interacting with its environment over time to achieve a goal (sensation, action, and goal) in their simplest meaningful forms.
+Formally, RL is framed as the optimal control of an **incompletely-known Markov Decision Process (MDP)**. The full formalization comes in [Chapter 3](#sec-ch03-3-1), but the core idea is to capture the essentials of an agent interacting with its environment over time to achieve a goal (sensation, action, and goal) in their simplest meaningful forms.
 
 ### How RL Differs from Other ML Paradigms {#how-rl-differs-from-other-ml-paradigms}
 
@@ -83,7 +83,7 @@ Rewards are primary. No rewards, no values. But when it comes to actually making
 
 ### Model (Optional) {#model-optional}
 
-A model mimics the environment. Given a state and action, it predicts the next state and reward. Models enable **planning**: reasoning about future situations before actually experiencing them. Methods that use models are called **model-based**; those that don't are **model-free** (pure trial and error). [Chapter 8](ch08-planning-learning.qmd) covers systems that do both simultaneously: learning from experience, building a model, and using that model to plan.
+A model mimics the environment. Given a state and action, it predicts the next state and reward. Models enable **planning**: reasoning about future situations before actually experiencing them. Methods that use models are called **model-based**; those that don't are **model-free** (pure trial and error). [Chapter 8](#sec-ch08-8-1) covers systems that do both simultaneously: learning from experience, building a model, and using that model to plan.
 
 Modern RL spans the full spectrum from raw trial-and-error to high-level deliberate planning.
 
@@ -91,7 +91,7 @@ Modern RL spans the full spectrum from raw trial-and-error to high-level deliber
 
 ### The Role of State {#the-role-of-state}
 
-RL leans heavily on the concept of **state**: it's the input to the policy and value function, and both input and output of the model. Informally, state is whatever information is available to the agent about its environment at a given time. The formal definition comes in [Chapter 3](ch03-finite-mdps.qmd) via MDPs.
+RL leans heavily on the concept of **state**: it's the input to the policy and value function, and both input and output of the model. Informally, state is whatever information is available to the agent about its environment at a given time. The formal definition comes in [Chapter 3](#sec-ch03-3-1) via MDPs.
 
 This book takes state as given, we assume some preprocessing system produces the state signal, and we don't tackle the question of how to construct, change, or learn it (except briefly in Section 17.3). This isn't because state representation is unimportant, it's very important, but because the focus here is on the **decision-making problem**: what action to take given whatever state signal you have.
 

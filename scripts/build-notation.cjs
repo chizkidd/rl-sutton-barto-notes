@@ -105,7 +105,7 @@ function main() {
       continue;
     }
     const first = hits[0];
-    const link = `[§${first.number}](../chapters/${first.file}#${first.id})`;
+    const link = `[§${first.number}](chapters/${first.file}#${first.id})`;
     rows.push({
       display: symbol.display,
       meaning: symbol.meaning,
