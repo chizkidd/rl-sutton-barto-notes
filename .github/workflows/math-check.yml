@@ -30,3 +30,8 @@ jobs:
         env:
           KATEX_DIR: ${{ runner.temp }}/katex/node_modules/katex
         run: node scripts/check-math.cjs
+
+      # Same surface, different failure: KaTeX accepts a weight vector spelled
+      # w_t as happily as \mathbf{w}_t, and the reader is the one who notices.
+      - name: Check notation consistency
+        run: node scripts/lint-notation.cjs
