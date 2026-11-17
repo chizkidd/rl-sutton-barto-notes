@@ -2,6 +2,11 @@
 project:
   type: book
   output-dir: _site
+  # The gallery points at the WebP copies from raw <picture> markup, which the
+  # resource scanner does not follow, so they have to be named here or they are
+  # never copied into _site.
+  resources:
+    - figures/webp
 
 book:
   title: "Reinforcement Learning: An Introduction (2nd Edition)"
