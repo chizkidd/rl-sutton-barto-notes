@@ -53,18 +53,13 @@ The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the froze
 
 ## Continuous Integration
 
-Two workflows cover the book, and every action is pinned to a commit SHA rather than a tag, so a given commit always builds with the same inputs. `deploy.yml` is the one that matters day to day, and its steps are chained: the checks run first, the build only starts if they pass, and Pages only receives the artifact once the build succeeded — so a failing check stops the publish rather than running beside it.
+One workflow, `.github/workflows/deploy.yml`: it renders the book and publishes `_site/` to GitHub Pages on every push to `main`. It fails only if the render fails or `_site/rl-notes.pdf` comes out empty, which are the two things that actually break the site.
 
-| Workflow | Runs on | What it does |
-|---|---|---|
-| `deploy.yml` | push to `main`, pull request, manual | `checks` job (every run): renders every math chunk through KaTeX (fails on a parse error, an unclosed `$$`, or a stray visible `$`), runs the notation lint and the section coverage gate. `changed` job (pull requests only): diffs the branch and reports whether it touched a build input. `build` job (`needs: [checks, changed]`): renders the book, verifies the PDF and the Anki deck — on a pull request only when that diff touched `chapters/`, `figures/`, `index.qmd`, `gallery.qmd`, `_quarto.yml`, `custom.scss`, `references.bib`, `sidebar-toggle.html` or `deploy.yml` itself. `deploy` job (`needs: build`, skipped on pull requests): publishes `_site/` to GitHub Pages |
-| `tex-canary.yml` | 06:00 UTC on the 1st of each month, manual | Builds the PDF twice — pinned and current TinyTeX — then compares page count, page text and rasterised pages, warning (never failing the build) when the newer toolchain lays the book out differently |
-
-The canary is a warning by design: drift is information, not a broken build. Its report appears in the run's job summary, listing the pages that differ.
+The toolchain is pinned (Quarto 1.5.57, TinyTeX 2025.12 against the frozen TeX Live 2025 repository) and every action is pinned to a commit SHA, so the PDF lays out the same way on every run.
 
 ## Study Tooling
 
-Three small scripts read the chapter sources; none of them are needed to build the book.
+Three small scripts read the chapter sources. None of them run in CI and none are needed to build the book.
 
 ```bash
 node scripts/coverage.cjs          # which sections of the book are covered
@@ -72,9 +67,9 @@ node scripts/lint-notation.cjs     # fail on a symbol spelled two ways
 node scripts/export-anki.cjs       # build an Anki deck from the bullet points
 ```
 
-`coverage.cjs` compares the notes against `data/book-toc.json` — the 121 sections of the second edition, extracted from the official PDF's table of contents rather than typed by hand. Both lists are in book order, so it aligns them with dynamic programming and lets either side skip, which is what keeps a heading from being paired with the wrong section just because they share a word. Current result: **121/121 sections**. Add `--json` for the full pairing. CI runs it with `--fail-under 100`, so dropping a section fails the build.
+`coverage.cjs` compares the notes against `data/book-toc.json` — the 121 sections of the second edition, extracted from the official PDF's table of contents rather than typed by hand. Both lists are in book order, so it aligns them with dynamic programming and lets either side skip, which is what keeps a heading from being paired with the wrong section just because they share a word. Current result: **121/121 sections**. Add `--json` for the full pairing, or `--fail-under 100` to turn a dropped section into a non-zero exit.
 
-`lint-notation.cjs` holds the two rules the notes kept breaking: the weight vector is `\mathbf{w}` (not a bare `w_t`), and "is defined as" is `\doteq` (not `:=`). It reports `file:line` and exits non-zero, and the `checks` job in `deploy.yml` runs it.
+`lint-notation.cjs` holds the two rules the notes kept breaking: the weight vector is `\mathbf{w}` (not a bare `w_t`), and "is defined as" is `\doteq` (not `:=`). It reports `file:line` and exits non-zero. Nothing runs it automatically; call it when you want it.
 
 `export-anki.cjs` turns every bullet that bolds a term into a cloze card — 420 cards from 1120 bullets — with the section path as the extra field and `rl::chNN::section` tags, written to `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze). The deploy workflow rebuilds it into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
 
@@ -105,14 +100,12 @@ RL-Sutton-Barto-notes/
 ├── references.bib               # BibTeX references
 ├── .github/
 │   └── workflows/
-│       ├── deploy.yml           # Checks -> build -> Pages; a failed check stops the publish
-│       └── tex-canary.yml       # Monthly build with current TinyTeX, warn on layout drift
+│       └── deploy.yml           # Render the book, publish _site/ to GitHub Pages
 ├── scripts/
-│   ├── check-math.cjs           # Used by the checks job in deploy.yml
-│   ├── lint-notation.cjs        # Used by the checks job in deploy.yml
-│   ├── coverage.cjs             # Section coverage against the book's TOC
-│   ├── export-anki.cjs          # Bullets -> Anki cloze deck
-│   └── compare-pdf.py           # Used by tex-canary.yml
+│   ├── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
+│   ├── check-math.cjs           # Optional: KaTeX-render every math chunk
+│   ├── lint-notation.cjs        # Optional: symbol consistency
+│   └── coverage.cjs             # Optional: section coverage against the book's TOC
 ├── data/
 │   └── book-toc.json            # The 2nd edition's 121 sections, from its PDF TOC
 ├── chapters/                    # One .qmd per chapter (13)

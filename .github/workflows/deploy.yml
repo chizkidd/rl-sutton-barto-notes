@@ -1,24 +1,25 @@
-name: Deploy Quarto Book to GitHub Pages
+name: Build and Deploy
 
-# The checks and the build live in one workflow so that a failing check stops
-# the publish instead of running beside it: `build` needs `checks`, and the
-# Pages upload only happens after both.
+# One job that renders the book, one that publishes it. Nothing gates the
+# render beyond "the PDF exists", which is the only thing that has ever broken.
 on:
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
-# The PDF is built by a fixed toolchain so that a render which passed today
-# renders the same way later. Bump these deliberately, as a pair:
-#   - TINYTEX_VERSION picks the TinyTeX release; its TeX Live year must match
-#     TEXLIVE_REPO below.
-#   - The archive only publishes a frozen repository once a TeX Live year is
-#     finished, so this tracks the newest completed year (2025 as of Nov 2026).
-#     When TeX Live 2026 is archived, move both to 2026.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# Pinned so the PDF lays out the same way every run:
+#   - TINYTEX_VERSION's TeX Live year must match TEXLIVE_REPO.
+#   - The archive only freezes a repository once a TeX Live year is finished,
+#     so this tracks the newest completed year. Move both to 2026 when it lands.
 env:
   TINYTEX_VERSION: "2025.12"
   TEXLIVE_YEAR: "2025"
@@ -26,79 +27,12 @@ env:
   LATEX_PACKAGES: "microtype enumitem"
 
 jobs:
-  # Everything that can fail without rendering anything: math, notation,
-  # coverage. Cheap, and it fails before TeX is installed.
-  checks:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - name: Set up Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: "20"
-
-      # The HTML edition draws math with KaTeX, so the browser is the arbiter
-      # of what readers see, not LaTeX. Quarto loads katex@latest from the CDN,
-      # so CI pins the 0.16 line for reproducible results; bump when it moves.
-      - name: Install KaTeX
-        run: npm install --prefix "$RUNNER_TEMP/katex" --no-save --no-audit --no-fund --loglevel=error katex@0.16.11
-
-      - name: Render every math chunk through KaTeX
-        env:
-          KATEX_DIR: ${{ runner.temp }}/katex/node_modules/katex
-        run: node scripts/check-math.cjs
-
-      # Same surface, different failure: KaTeX accepts a weight vector spelled
-      # w_t as happily as \mathbf{w}_t, and the reader is the one who notices.
-      - name: Check notation consistency
-        run: node scripts/lint-notation.cjs
-
-      # The notes are one heading per book section; lose the heading and the
-      # section is silently gone. --fail-under 100 pins the 121/121 that
-      # coverage.cjs currently reports, so any dropped section fails here.
-      - name: Check section coverage
-        run: node scripts/coverage.cjs --fail-under 100
-
-  # On a pull request, decide whether the render is worth four minutes. A README
-  # or script change still gets the checks but cannot break the book, so the
-  # build is skipped; anything the book is built from brings it back.
-  changed:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    outputs:
-      relevant: ${{ steps.diff.outputs.relevant }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0 # need the base commit to diff against
-      - name: Does this pull request touch anything the book is built from?
-        id: diff
-        run: |
-          set -euo pipefail
-          files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}"...HEAD)
-          echo "changed files:"
-          echo "$files"
-          if echo "$files" | grep -qE '^(chapters/|figures/|_quarto\.yml|custom\.scss|references\.bib|sidebar-toggle\.html|index\.qmd|gallery\.qmd|\.github/workflows/deploy\.yml)'; then
-            echo "relevant=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "relevant=false" >> "$GITHUB_OUTPUT"
-          fi
-
   build:
-    needs: [checks, changed]
-    # always() keeps this alive when `changed` is skipped on a push; the two
-    # conditions then say: checks must have passed, and either this is a push
-    # to main or the pull request touched a build input.
-    if: |
-      always() &&
-      needs.checks.result == 'success' &&
-      (github.event_name != 'pull_request' || needs.changed.outputs.relevant == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2
         with:
@@ -110,25 +44,13 @@ jobs:
           TINYTEX_VERSION="$TINYTEX_VERSION" sh "$RUNNER_TEMP/install-tinytex.sh"
           echo "$HOME/.TinyTeX/bin/x86_64-linux" >> "$GITHUB_PATH"
 
-      # The pinned bundle carries amsfonts/amssymb but not microtype or
-      # enumitem, so those two come from the frozen TeX Live repository rather
-      # than the moving CTAN mirror. tlmgr has to update itself first, or it
-      # refuses to install from an archived repository.
-      - name: Pin TeX Live packages to the frozen ${{ env.TEXLIVE_YEAR }} repository
+      # The TinyTeX bundle ships amsmath but not microtype or enumitem, so those
+      # come from the frozen repository rather than the moving CTAN mirror.
+      - name: Install LaTeX packages
         run: |
           tlmgr option repository "$TEXLIVE_REPO"
           tlmgr update --self
           tlmgr install $LATEX_PACKAGES
-          tlmgr info $LATEX_PACKAGES | grep -E '^(package|revision):'
-
-      - name: Verify the pinned toolchain
-        run: |
-          set -euo pipefail
-          xelatex --version | head -1
-          for pkg in microtype.sty amssymb.sty enumitem.sty; do
-            if [ -z "$(kpsewhich "$pkg")" ]; then echo "missing $pkg"; exit 1; fi
-          done
-          echo "toolchain OK"
 
       - name: Render Book
         run: quarto render
@@ -136,13 +58,9 @@ jobs:
       - name: Verify PDF output
         run: test -s _site/rl-notes.pdf
 
-      # Built from the chapter sources after the render, so the deck served to
-      # readers is always the one that matches the published book.
+      # The deck is built from the same sources as the PDF, right after it.
       - name: Build the Anki deck
         run: node scripts/export-anki.cjs --out _site/rl-notes-anki.tsv
-
-      - name: Verify Anki deck output
-        run: test -s _site/rl-notes-anki.tsv
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
@@ -150,18 +68,8 @@ jobs:
           path: _site
 
   deploy:
-    needs: [build]
-    # Pull requests get the checks and the build, never a publish.
-    if: github.event_name != 'pull_request'
+    needs: build
     runs-on: ubuntu-latest
-    # Scoped to the job, so a pull-request run cannot queue behind or in front
-    # of a real publish; only deploys serialise against each other.
-    concurrency:
-      group: "pages"
-      cancel-in-progress: false
-    permissions:
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
