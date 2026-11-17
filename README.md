@@ -10,6 +10,7 @@ Personal study notes from *Reinforcement Learning: An Introduction* (Sutton & Ba
 |---|---|
 | Website | [chizkidd.github.io/rl-sutton-barto-notes](https://chizkidd.github.io/rl-sutton-barto-notes/) |
 | PDF | [rl-notes.pdf](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf) |
+| Anki deck | [rl-notes-anki.tsv](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes-anki.tsv) |
 | Source | [github.com/chizkidd/RL-Sutton-Barto-notes](https://github.com/chizkidd/RL-Sutton-Barto-notes) |
 
 The PDF covers all 13 chapters and is rebuilt with the site on every push to `main`.
@@ -76,7 +77,7 @@ node scripts/export-anki.cjs       # build an Anki deck from the bullet points
 
 `lint-notation.cjs` holds the two rules the notes kept breaking: the weight vector is `\mathbf{w}` (not a bare `w_t`), and "is defined as" is `\doteq` (not `:=`). It reports `file:line` and exits non-zero, and `math-check.yml` runs it.
 
-`export-anki.cjs` turns every bullet that bolds a term into a cloze card — 420 cards from 1120 bullets — with the section path as the extra field and `rl::chNN::section` tags, written to `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze).
+`export-anki.cjs` turns every bullet that bolds a term into a cloze card — 420 cards from 1120 bullets — with the section path as the extra field and `rl::chNN::section` tags, written to `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze). The deploy workflow rebuilds it into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
 
 Every figure also carries real alt text: the caption with its LaTeX flattened to words, in both `chapters/*.qmd` and `gallery.qmd`.
 
