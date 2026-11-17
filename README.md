@@ -57,23 +57,9 @@ One workflow, `.github/workflows/deploy.yml`: it renders the book and publishes 
 
 The toolchain is pinned (Quarto 1.5.57, TinyTeX 2025.12 against the frozen TeX Live 2025 repository) and every action is pinned to a commit SHA, so the PDF lays out the same way on every run.
 
-## Study Tooling
+## Anki Deck
 
-Three small scripts read the chapter sources. None of them run in CI and none are needed to build the book.
-
-```bash
-node scripts/coverage.cjs          # which sections of the book are covered
-node scripts/lint-notation.cjs     # fail on a symbol spelled two ways
-node scripts/export-anki.cjs       # build an Anki deck from the bullet points
-```
-
-`coverage.cjs` compares the notes against `data/book-toc.json` — the 121 sections of the second edition, extracted from the official PDF's table of contents rather than typed by hand. Both lists are in book order, so it aligns them with dynamic programming and lets either side skip, which is what keeps a heading from being paired with the wrong section just because they share a word. Current result: **121/121 sections**. Add `--json` for the full pairing, or `--fail-under 100` to turn a dropped section into a non-zero exit.
-
-`lint-notation.cjs` holds the two rules the notes kept breaking: the weight vector is `\mathbf{w}` (not a bare `w_t`), and "is defined as" is `\doteq` (not `:=`). It reports `file:line` and exits non-zero. Nothing runs it automatically; call it when you want it.
-
-`export-anki.cjs` turns every bullet that bolds a term into a cloze card — 420 cards from 1120 bullets — with the section path as the extra field and `rl::chNN::section` tags, written to `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze). The deploy workflow rebuilds it into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
-
-Every figure also carries real alt text: the caption with its LaTeX flattened to words, in both `chapters/*.qmd` and `gallery.qmd`.
+`node scripts/export-anki.cjs` turns every bullet that bolds a term into a cloze card, tagged by chapter and section, and writes `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze). The deploy workflow runs the same script into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
 
 ## Deployment
 
@@ -102,12 +88,7 @@ RL-Sutton-Barto-notes/
 │   └── workflows/
 │       └── deploy.yml           # Render the book, publish _site/ to GitHub Pages
 ├── scripts/
-│   ├── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
-│   ├── check-math.cjs           # Optional: KaTeX-render every math chunk
-│   ├── lint-notation.cjs        # Optional: symbol consistency
-│   └── coverage.cjs             # Optional: section coverage against the book's TOC
-├── data/
-│   └── book-toc.json            # The 2nd edition's 121 sections, from its PDF TOC
+│   └── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
 ├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd
 │   ├── ch02-multi-armed-bandits.qmd
