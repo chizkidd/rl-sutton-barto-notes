@@ -86,7 +86,7 @@ $$
 {{< pagebreak >}}
 
 ::: {.callout-note}
-## Proof: Policy Gradient Theorem (Episodic Case)
+## Proof: Policy Gradient Theorem (Episodic Case) {#sec-ch13-proof-episodic}
 
 Let's prove the policy gradient theorem from first principles using elementary calculus.
 
@@ -333,7 +333,7 @@ $$G_t \doteq R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + R_{t+3} - r(\pi) + \ldots$$
 {{< pagebreak >}}
 
 ::: {.callout-note}
-## Proof: Policy Gradient Theorem (Continuing Case)
+## Proof: Policy Gradient Theorem (Continuing Case) {#sec-ch13-proof-continuing}
 
 ```{=latex}
 \small

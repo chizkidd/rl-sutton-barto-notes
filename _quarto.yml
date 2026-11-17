@@ -13,7 +13,7 @@ book:
   site-url: "https://chizkidd.github.io/rl-sutton-barto-notes"
   repo-url: https://github.com/chizkidd/rl-sutton-barto-notes
   repo-actions: [issue]
-  downloads: [pdf]
+  downloads: [pdf, epub]
   search: true
   page-navigation: true
   google-analytics: "G-F6HCEEPQLV"
@@ -42,6 +42,7 @@ book:
         - chapters/ch13-policy-gradient-methods.qmd
   appendices:
     - gallery.qmd
+    - notation.qmd
 
 format:
   html:
@@ -117,5 +118,9 @@ format:
         \renewcommand*{\subsection}{\NeedSpace{8\baselineskip}\PlainSubsection}
         \renewcommand*{\subsubsection}{\NeedSpace{6\baselineskip}\PlainSubsubsection}
         \renewcommand*{\captionformat}{\ }
+
+  epub:
+    toc: true
+    toc-depth: 2
 
 bibliography: references.bib

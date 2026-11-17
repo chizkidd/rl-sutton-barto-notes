@@ -10,6 +10,7 @@ Personal study notes from *Reinforcement Learning: An Introduction* (Sutton & Ba
 |---|---|
 | Website | [chizkidd.github.io/rl-sutton-barto-notes](https://chizkidd.github.io/rl-sutton-barto-notes/) |
 | PDF | [rl-notes.pdf](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf) |
+| EPUB | [rl-notes.epub](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.epub) |
 | Anki deck | [rl-notes-anki.tsv](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes-anki.tsv) |
 | Source | [github.com/chizkidd/RL-Sutton-Barto-notes](https://github.com/chizkidd/RL-Sutton-Barto-notes) |
 
@@ -57,6 +58,28 @@ One workflow, `.github/workflows/deploy.yml`: it renders the book and publishes 
 
 The toolchain is pinned (Quarto 1.5.57, TinyTeX 2025.12 against the frozen TeX Live 2025 repository) and every action is pinned to a commit SHA, so the PDF lays out the same way on every run.
 
+## Extras
+
+Each of these is a one-command tool; none of them run in CI.
+
+```bash
+node scripts/export-anki.cjs       # bullets -> Anki cloze deck (dist/anki/rl-notes.tsv)
+python3 scripts/check-parity.py    # compare the built HTML and PDF for drift
+node scripts/check-refs.cjs        # dead citations, figure refs and gallery anchors
+node scripts/build-notation.cjs    # regenerate notation.qmd
+python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
+```
+
+**Notation index** — `notation.qmd` maps 24 symbols to the section that defines them and counts the sections that use them. It is generated from the sources, so the locations cannot go stale; the descriptions are hand-written.
+
+**Parity check** — `check-parity.py` compares section numbers and figure counts between `_site/` and `rl-notes.pdf`, because the two formats are configured separately (`number-depth: 3` against `secnumdepth 2`) and drift silently.
+
+**Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, and all 84 gallery links against the chapter anchors.
+
+**EPUB and releases** — the book builds EPUB alongside HTML and PDF, and tagged releases keep a frozen copy of the PDF for citation. See Releases.
+
+**Image weight** — `figures/webp/` holds display-size WebP copies (1.2 MB against 14.7 MB of PNGs) that the gallery serves through `<picture>`, falling back to PNG. The PDF keeps the PNGs.
+
 ## Anki Deck
 
 `node scripts/export-anki.cjs` turns every bullet that bolds a term into a cloze card, tagged by chapter and section, and writes `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze). The deploy workflow runs the same script into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
@@ -87,8 +110,14 @@ RL-Sutton-Barto-notes/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml           # Render the book, publish _site/ to GitHub Pages
+├── notation.qmd                 # Generated notation index (appendices)
 ├── scripts/
-│   └── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
+│   ├── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
+│   ├── check-parity.py          # HTML vs PDF: section numbering and figure count
+│   ├── check-refs.cjs           # Dead citations, @fig- labels and gallery anchors
+│   ├── build-notation.cjs       # Regenerates notation.qmd from the chapters
+│   ├── make-webp.py             # WebP copies of the figures for the gallery
+│   └── freeze-anchors.py        # Writes current heading ids into the sources
 ├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd
 │   ├── ch02-multi-armed-bandits.qmd
@@ -107,6 +136,7 @@ RL-Sutton-Barto-notes/
     ├── ch03-3-1.png             # chNN-N-N[-label].png — chapter NN, book figure N-N
     ├── ch06-6-4-sarsa.png
     ├── ch12-12-10-watkins-q-lambda.png
+    ├── webp/                    # Same 42 figures as WebP, for the gallery
     ├── fig71_nstep_td.svg       # Chapter 7 SVG alternates, commented out
     ├── fig75_tree_backup.svg
     └── ...
