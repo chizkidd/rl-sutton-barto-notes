@@ -1,18 +1,16 @@
 name: Deploy Quarto Book to GitHub Pages
 
+# The checks and the build live in one workflow so that a failing check stops
+# the publish instead of running beside it: `build` needs `checks`, and the
+# Pages upload only happens after both.
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 # The PDF is built by a fixed toolchain so that a render which passed today
 # renders the same way later. Bump these deliberately, as a pair:
@@ -28,7 +26,42 @@ env:
   LATEX_PACKAGES: "microtype enumitem"
 
 jobs:
+  # Everything that can fail without rendering anything: math, notation,
+  # coverage. Cheap, and it fails before TeX is installed.
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+
+      # The HTML edition draws math with KaTeX, so the browser is the arbiter
+      # of what readers see, not LaTeX. Quarto loads katex@latest from the CDN,
+      # so CI pins the 0.16 line for reproducible results; bump when it moves.
+      - name: Install KaTeX
+        run: npm install --prefix "$RUNNER_TEMP/katex" --no-save --no-audit --no-fund --loglevel=error katex@0.16.11
+
+      - name: Render every math chunk through KaTeX
+        env:
+          KATEX_DIR: ${{ runner.temp }}/katex/node_modules/katex
+        run: node scripts/check-math.cjs
+
+      # Same surface, different failure: KaTeX accepts a weight vector spelled
+      # w_t as happily as \mathbf{w}_t, and the reader is the one who notices.
+      - name: Check notation consistency
+        run: node scripts/lint-notation.cjs
+
+      # The notes are one heading per book section; lose the heading and the
+      # section is silently gone. --fail-under 100 pins the 121/121 that
+      # coverage.cjs currently reports, so any dropped section fails here.
+      - name: Check section coverage
+        run: node scripts/coverage.cjs --fail-under 100
+
   build:
+    needs: checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -85,7 +118,17 @@ jobs:
 
   deploy:
     needs: build
+    # Pull requests get the checks and the build, never a publish.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    # Scoped to the job, so a pull-request run cannot queue behind or in front
+    # of a real publish; only deploys serialise against each other.
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

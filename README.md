@@ -53,12 +53,11 @@ The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the froze
 
 ## Continuous Integration
 
-Three workflows share the pinned toolchain (Quarto 1.5.57, TinyTeX 2025.12 against frozen TeX Live 2025), and every action is pinned to a commit SHA rather than a tag, so a given commit always builds with the same inputs.
+Two workflows cover the book, and every action is pinned to a commit SHA rather than a tag, so a given commit always builds with the same inputs. `deploy.yml` is the one that matters day to day, and its steps are chained: the checks run first, the build only starts if they pass, and Pages only receives the artifact once the build succeeded — so a failing check stops the publish rather than running beside it.
 
 | Workflow | Runs on | What it does |
 |---|---|---|
-| `deploy.yml` | push to `main`, manual | Renders the book, fails if `_site/rl-notes.pdf` is missing or empty, publishes `_site/` to GitHub Pages |
-| `math-check.yml` | push, pull request, manual | Renders every math chunk through KaTeX and fails on a parse error, an unclosed `$$`, or a stray visible `$`; also runs the notation lint and the section coverage gate |
+| `deploy.yml` | push to `main`, pull request, manual | `checks` job: renders every math chunk through KaTeX (fails on a parse error, an unclosed `$$`, or a stray visible `$`), runs the notation lint and the section coverage gate. `build` job (`needs: checks`): renders the book, verifies the PDF and the Anki deck. `deploy` job (`needs: build`, skipped on pull requests): publishes `_site/` to GitHub Pages |
 | `tex-canary.yml` | 06:00 UTC on the 1st of each month, manual | Builds the PDF twice — pinned and current TinyTeX — then compares page count, page text and rasterised pages, warning (never failing the build) when the newer toolchain lays the book out differently |
 
 The canary is a warning by design: drift is information, not a broken build. Its report appears in the run's job summary, listing the pages that differ.
@@ -75,7 +74,7 @@ node scripts/export-anki.cjs       # build an Anki deck from the bullet points
 
 `coverage.cjs` compares the notes against `data/book-toc.json` — the 121 sections of the second edition, extracted from the official PDF's table of contents rather than typed by hand. Both lists are in book order, so it aligns them with dynamic programming and lets either side skip, which is what keeps a heading from being paired with the wrong section just because they share a word. Current result: **121/121 sections**. Add `--json` for the full pairing. CI runs it with `--fail-under 100`, so dropping a section fails the build.
 
-`lint-notation.cjs` holds the two rules the notes kept breaking: the weight vector is `\mathbf{w}` (not a bare `w_t`), and "is defined as" is `\doteq` (not `:=`). It reports `file:line` and exits non-zero, and `math-check.yml` runs it.
+`lint-notation.cjs` holds the two rules the notes kept breaking: the weight vector is `\mathbf{w}` (not a bare `w_t`), and "is defined as" is `\doteq` (not `:=`). It reports `file:line` and exits non-zero, and the `checks` job in `deploy.yml` runs it.
 
 `export-anki.cjs` turns every bullet that bolds a term into a cloze card — 420 cards from 1120 bullets — with the section path as the extra field and `rl::chNN::section` tags, written to `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze). The deploy workflow rebuilds it into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
 
@@ -106,12 +105,11 @@ RL-Sutton-Barto-notes/
 ├── references.bib               # BibTeX references
 ├── .github/
 │   └── workflows/
-│       ├── deploy.yml           # Render book (HTML + PDF), deploy to GitHub Pages
-│       ├── math-check.yml       # KaTeX-render every math chunk, fail on a parse error
+│       ├── deploy.yml           # Checks -> build -> Pages; a failed check stops the publish
 │       └── tex-canary.yml       # Monthly build with current TinyTeX, warn on layout drift
 ├── scripts/
-│   ├── check-math.cjs           # Used by math-check.yml
-│   ├── lint-notation.cjs        # Used by math-check.yml
+│   ├── check-math.cjs           # Used by the checks job in deploy.yml
+│   ├── lint-notation.cjs        # Used by the checks job in deploy.yml
 │   ├── coverage.cjs             # Section coverage against the book's TOC
 │   ├── export-anki.cjs          # Bullets -> Anki cloze deck
 │   └── compare-pdf.py           # Used by tex-canary.yml
