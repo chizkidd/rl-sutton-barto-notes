@@ -168,7 +168,7 @@ $$
 Generalized Policy Iteration.
 :::
 
-## Efficiency of Dynamic Programming {#sec-ch04-4-7}
+### Efficiency of Dynamic Programming {#sec-ch04-4-7}
 
 - DP may not be practical for very large problems, but are actually quite efficient compared with other methods.
 - DP is exponentially faster than any direct search in policy could be, because direct search has to be exhaustive.
