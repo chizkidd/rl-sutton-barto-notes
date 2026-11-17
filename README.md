@@ -57,10 +57,28 @@ Three workflows share the pinned toolchain (Quarto 1.5.57, TinyTeX 2025.12 again
 | Workflow | Runs on | What it does |
 |---|---|---|
 | `deploy.yml` | push to `main`, manual | Renders the book, fails if `_site/rl-notes.pdf` is missing or empty, publishes `_site/` to GitHub Pages |
-| `math-check.yml` | push, manual | Renders every math chunk through KaTeX and fails on a parse error, an unclosed `$$`, or a stray visible `$` |
+| `math-check.yml` | push, pull request, manual | Renders every math chunk through KaTeX and fails on a parse error, an unclosed `$$`, or a stray visible `$`; also runs the notation lint |
 | `tex-canary.yml` | 06:00 UTC on the 1st of each month, manual | Builds the PDF twice — pinned and current TinyTeX — then compares page count, page text and rasterised pages, warning (never failing the build) when the newer toolchain lays the book out differently |
 
 The canary is a warning by design: drift is information, not a broken build. Its report appears in the run's job summary, listing the pages that differ.
+
+## Study Tooling
+
+Three small scripts read the chapter sources; none of them are needed to build the book.
+
+```bash
+node scripts/coverage.cjs          # which sections of the book are covered
+node scripts/lint-notation.cjs     # fail on a symbol spelled two ways
+node scripts/export-anki.cjs       # build an Anki deck from the bullet points
+```
+
+`coverage.cjs` compares the notes against `data/book-toc.json` — the 121 sections of the second edition, extracted from the official PDF's table of contents rather than typed by hand. Both lists are in book order, so it aligns them with dynamic programming and lets either side skip, which is what keeps a heading from being paired with the wrong section just because they share a word. Current result: **121/121 sections**. Add `--json` for the full pairing or `--fail-under 100` to gate on it.
+
+`lint-notation.cjs` holds the two rules the notes kept breaking: the weight vector is `\mathbf{w}` (not a bare `w_t`), and "is defined as" is `\doteq` (not `:=`). It reports `file:line` and exits non-zero, and `math-check.yml` runs it.
+
+`export-anki.cjs` turns every bullet that bolds a term into a cloze card — 420 cards from 1120 bullets — with the section path as the extra field and `rl::chNN::section` tags, written to `dist/anki/rl-notes.tsv` for Anki's tab-separated import (note type: Cloze).
+
+Every figure also carries real alt text: the caption with its LaTeX flattened to words, in both `chapters/*.qmd` and `gallery.qmd`.
 
 ## Deployment
 
@@ -92,7 +110,12 @@ RL-Sutton-Barto-notes/
 │       └── tex-canary.yml       # Monthly build with current TinyTeX, warn on layout drift
 ├── scripts/
 │   ├── check-math.cjs           # Used by math-check.yml
+│   ├── lint-notation.cjs        # Used by math-check.yml
+│   ├── coverage.cjs             # Section coverage against the book's TOC
+│   ├── export-anki.cjs          # Bullets -> Anki cloze deck
 │   └── compare-pdf.py           # Used by tex-canary.yml
+├── data/
+│   └── book-toc.json            # The 2nd edition's 121 sections, from its PDF TOC
 ├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd
 │   ├── ch02-multi-armed-bandits.qmd
