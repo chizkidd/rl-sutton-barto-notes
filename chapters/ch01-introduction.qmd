@@ -15,7 +15,7 @@ Formally, RL is framed as the optimal control of an **incompletely-known Markov 
 
 - **Supervised learning** learns from labeled examples provided by an external supervisor. It's powerful, but in interactive settings you often can't get correct labeled examples for every situation the agent might face.
 - **Unsupervised learning** finds hidden structure in unlabeled data. RL isn't trying to find structure, instead it's trying to maximize a reward signal. The two are genuinely different objectives.
-- RL is therefore a **third paradigm**, distinct from both.
+- RL is therefore a **third paradigm**, distinct from both: no supervisor and no labels, only a reward signal from the environment.
 
 ### The Exploration-Exploitation Tradeoff
 
