@@ -33,7 +33,7 @@ The PDF covers all 13 chapters and is rebuilt with the site on every push to `ma
 | 12 | Eligibility Traces |
 | 13 | Policy Gradient Methods |
 
-Every chapter is written up; there are no placeholders.
+Every chapter is written up; there are no placeholders. (Temporary line, docs-only test branch.)
 
 ## Local Development
 
