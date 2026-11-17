@@ -57,7 +57,7 @@ Two workflows cover the book, and every action is pinned to a commit SHA rather 
 
 | Workflow | Runs on | What it does |
 |---|---|---|
-| `deploy.yml` | push to `main`, pull request, manual | `checks` job: renders every math chunk through KaTeX (fails on a parse error, an unclosed `$$`, or a stray visible `$`), runs the notation lint and the section coverage gate. `build` job (`needs: checks`): renders the book, verifies the PDF and the Anki deck. `deploy` job (`needs: build`, skipped on pull requests): publishes `_site/` to GitHub Pages |
+| `deploy.yml` | push to `main`, pull request, manual | `checks` job (every run): renders every math chunk through KaTeX (fails on a parse error, an unclosed `$$`, or a stray visible `$`), runs the notation lint and the section coverage gate. `changed` job (pull requests only): diffs the branch and reports whether it touched a build input. `build` job (`needs: [checks, changed]`): renders the book, verifies the PDF and the Anki deck — on a pull request only when that diff touched `chapters/`, `figures/`, `index.qmd`, `gallery.qmd`, `_quarto.yml`, `custom.scss`, `references.bib`, `sidebar-toggle.html` or `deploy.yml` itself. `deploy` job (`needs: build`, skipped on pull requests): publishes `_site/` to GitHub Pages |
 | `tex-canary.yml` | 06:00 UTC on the 1st of each month, manual | Builds the PDF twice — pinned and current TinyTeX — then compares page count, page text and rasterised pages, warning (never failing the build) when the newer toolchain lays the book out differently |
 
 The canary is a warning by design: drift is information, not a broken build. Its report appears in the run's job summary, listing the pages that differ.

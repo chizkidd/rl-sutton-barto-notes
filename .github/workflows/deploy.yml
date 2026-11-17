@@ -60,8 +60,41 @@ jobs:
       - name: Check section coverage
         run: node scripts/coverage.cjs --fail-under 100
 
+  # On a pull request, decide whether the render is worth four minutes. A README
+  # or script change still gets the checks but cannot break the book, so the
+  # build is skipped; anything the book is built from brings it back.
+  changed:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      relevant: ${{ steps.diff.outputs.relevant }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0 # need the base commit to diff against
+      - name: Does this pull request touch anything the book is built from?
+        id: diff
+        run: |
+          set -euo pipefail
+          files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}"...HEAD)
+          echo "changed files:"
+          echo "$files"
+          if echo "$files" | grep -qE '^(chapters/|figures/|_quarto\.yml|custom\.scss|references\.bib|sidebar-toggle\.html|index\.qmd|gallery\.qmd|\.github/workflows/deploy\.yml)'; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "relevant=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
-    needs: checks
+    needs: [checks, changed]
+    # always() keeps this alive when `changed` is skipped on a push; the two
+    # conditions then say: checks must have passed, and either this is a push
+    # to main or the pull request touched a build input.
+    if: |
+      always() &&
+      needs.checks.result == 'success' &&
+      (github.event_name != 'pull_request' || needs.changed.outputs.relevant == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -117,7 +150,7 @@ jobs:
           path: _site
 
   deploy:
-    needs: build
+    needs: [build]
     # Pull requests get the checks and the build, never a publish.
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
