@@ -70,6 +70,14 @@ jobs:
       - name: Verify PDF output
         run: test -s _site/rl-notes.pdf
 
+      # Built from the chapter sources after the render, so the deck served to
+      # readers is always the one that matches the published book.
+      - name: Build the Anki deck
+        run: node scripts/export-anki.cjs --out _site/rl-notes-anki.tsv
+
+      - name: Verify Anki deck output
+        run: test -s _site/rl-notes-anki.tsv
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
