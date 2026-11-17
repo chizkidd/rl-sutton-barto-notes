@@ -65,6 +65,7 @@ Each of these is a one-command tool; none of them run in CI.
 ```bash
 node scripts/export-anki.cjs       # bullets -> Anki cloze deck (dist/anki/rl-notes.tsv)
 python3 scripts/check-parity.py    # compare the built HTML and PDF for drift
+python3 scripts/check-epub.py      # epub XHTML well-formedness and dead chapter links
 node scripts/check-refs.cjs        # dead citations, figure refs and gallery anchors
 node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
@@ -76,6 +77,8 @@ python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
 **Figure gallery** — `gallery.qmd` renders an interactive grid of thumbnails for the HTML build and a plain figure list for the EPUB, which cannot follow links into pages that only exist as HTML. Only the grid is hand-written: `build-epub-gallery.py` regenerates the list from it (path, alt text, number and caption), so a caption is edited in one place. `--check` reports a stale list instead of writing.
 
 **Parity check** — `check-parity.py` compares section numbers and the full text of every figure caption between `_site/` and `rl-notes.pdf`, because the two formats are configured separately (`number-depth: 3` against `secnumdepth 2`) and drift silently. Captions are compared word for word, so changing a single word in a caption fails the check; math is dropped because the HTML holds TeX source and the PDF typeset glyphs.
+
+**EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter) or links to a `chapters/*.html` path, which exists only in the web build. Both render fine as HTML, so neither shows up until the book is opened in a reader.
 
 **Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, and all 84 gallery links against the chapter anchors.
 
