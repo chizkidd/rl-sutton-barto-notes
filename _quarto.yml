@@ -2,6 +2,10 @@
 project:
   type: book
   output-dir: _site
+  # Quarto and pandoc emit a few attributes that EPUB 3.3 rejects (alt on the
+  # figure div, displaystyle on mfrac, a blank date); this repairs them in the
+  # archive after every render so `quarto render` produces a conforming EPUB.
+  post-render: scripts/fix-epub.py
   # The gallery points at the WebP copies from raw <picture> markup, which the
   # resource scanner does not follow, so they have to be named here or they are
   # never copied into _site.

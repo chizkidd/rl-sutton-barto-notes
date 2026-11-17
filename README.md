@@ -70,6 +70,7 @@ python3 scripts/check-sources.py   # figures/SOURCES.md against the built book
 node scripts/check-refs.cjs        # dead citations, figure refs, gallery anchors, then linkcheck.py
 node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
+python3 scripts/fix-epub.py        # repair the epub's packaging (also a post-render step)
 python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
 python3 scripts/freeze-anchors.py  # write the built heading ids into the chapters
 ```
@@ -83,6 +84,8 @@ python3 scripts/freeze-anchors.py  # write the built heading ids into the chapte
 **EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter), if any `href` or `src` does not resolve to a file inside the archive (a `.qmd` source path or a `chapters/*.html` page looks fine on the web and is missing from the book), or if any `#fragment` names an id that the document it lands in does not have. None of those show up until the book is opened in a reader. The last two rules are `linkcheck.py`, the same code `check-refs.cjs` runs against `_site/`, so a link is judged the same way on the site and inside the archive; this script supplies only the documents and anchors of the zip.
 
 **Figure table check** — `check-sources.py` holds `figures/SOURCES.md` to the build. For every row it wants the PNG in `figures/`, a chapter link whose `{#fig-…}` anchor is really in that chapter and whose number belongs to it, a figure number the book still has, and the caption the book prints word for word — math included, since the comparison undoes the build's markup rather than dropping it. It also reports a figure in the book with no row, and a number with two. The captions come from `bookhtml.py`, the same reader `check-parity.py` uses, so "what the book says" is defined once.
+
+**EPUB conformance** — `check-epub.py` above is structural; it cannot tell you whether the archive is *valid*. EPUBCheck can, and the built EPUB now passes it with 0 fatals, 0 errors, 0 warnings, 0 infos (EPUB 3.3 rules). Reaching that took repairing what Quarto and pandoc emit: `alt` copied onto the figure `<div>` (33 of them), `displaystyle` on `<mfrac>` (15), a `dc:language` of `C` from the build locale, an empty `dc:date`, and a nav item using MathML without declaring it in the manifest. None of those break a reader, and every attribute dropped is one no renderer honours, so nothing looks different. `fix-epub.py` does it after each render — `_quarto.yml` lists it under `project: post-render` — and is idempotent. Doing it there rather than with `lang: en` is deliberate: `lang` also reaches LaTeX and repaginates the PDF. Running the audit yourself needs a JDK and the EPUBCheck jar (`java -jar epubcheck.jar _site/rl-notes.epub`); neither is in the repo or in CI.
 
 **Reference check** — `check-refs.cjs` verifies every `[@key]` citation against `references.bib`, every `@fig-` reference against its label, all 84 gallery links against the chapter anchors, and then every `href`/`src` of the 16 built pages in `_site/`, resolving each to a file and every `#fragment` to an id. The resolution is `linkcheck.py`, shared with the EPUB check above so the two cannot drift apart, and it covers same-page `#anchor` links too. That last part covers the generated pages — the notation index is written by `build-notation.cjs`, so a wrong path prefix in it never shows up in the sources; that is how 24 dead links once shipped. Links to the pdf, epub and Anki deck are skipped when those files are absent, because a `--to html` render does not produce them. This pass shells out to `python3 scripts/linkcheck.py`, so the check needs Python alongside Node.
 
@@ -131,6 +134,7 @@ RL-Sutton-Barto-notes/
 │   ├── linkcheck.py             # Shared link and anchor resolution: site pages and EPUB documents
 │   ├── build-notation.cjs       # Regenerates notation.qmd from the chapters
 │   ├── build-epub-gallery.py    # Regenerates the EPUB figure list from the gallery grid
+│   ├── fix-epub.py              # Post-render repair of the EPUB for EPUBCheck
 │   ├── make-webp.py             # WebP copies of the figures for the gallery
 │   └── freeze-anchors.py        # Freezes heading ids; fails if one is used twice
 ├── chapters/                    # One .qmd per chapter (13)
