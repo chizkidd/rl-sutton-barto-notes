@@ -6,3 +6,6 @@ _site/
 /.quarto/
 .preview/
 dist/
+
+__pycache__/
+*.pyc

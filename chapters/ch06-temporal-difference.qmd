@@ -68,7 +68,7 @@ $$
 - The TD target is an estimate because it samples the expected values in the equation above, and it uses the current estimate $V$ instead of the true $V_\pi$.
 - TD methods **combine** the sampling of MC with the bootstrapping of DP.
 
-### TD Error & its Relationship to MC Error
+### TD Error & its Relationship to MC Error {#td-error-its-relationship-to-mc-error}
 
 The TD error at each time is the error in the estimate **made at that time** because the TD error depends on the next state and next reward. If the array $V$ does not change during the episode (like in MC methods), then:
 
@@ -202,7 +202,7 @@ $$Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \gamma Q
 
 - Employs value iteration.
 
-### Off-policy Control with Q-learning
+### Off-policy Control with Q-learning {#off-policy-control-with-q-learning}
 
 - We improve both policies (target & behavior):
   - Improve target policy $\pi$ **greedily** w.r.t. $Q(s,a)$: 

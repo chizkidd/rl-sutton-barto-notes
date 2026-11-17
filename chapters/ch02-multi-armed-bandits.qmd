@@ -46,7 +46,7 @@ $$
 - As $\displaystyle\sum_{i=1}^{t-1} \mathbb{1}_{A_i=a} \to \infty$, by the law of large numbers, $Q_t(a)$ converges to $q_*(a)$.
 - Now that we can compute $Q_t(a)$, how do we use it to select actions?
 
-### Greedy Method
+### Greedy Method {#greedy-method}
 
 - Simplest action selection rule for no exploration.
 
@@ -119,7 +119,7 @@ $$
 
 $$\boxed{Q_{n+1} = (1-\alpha)^n Q_1 + \sum_{i=1}^{n} \alpha(1-\alpha)^{n-i} R_i}$$
 
-### Exponential recency-weighted average
+### Exponential recency-weighted average {#exponential-recency-weighted-average}
 - The weight given to $R_i$ depends on how many rewards ago $(n-i)$ it was observed. The more recent the rweard, the higher the weight assigned to it.
 - This is a **weighted average** , which gives priority/higher value to more recently acquired rewards.
 - It's called a weighted average because the sum of the weights is $1$.
@@ -140,7 +140,7 @@ Q_{n+1} &= (1-\alpha)^n Q_1 + \sum_{i=1}^{n} \alpha(1-\alpha)^{n-i} R_i \\
 \end{aligned}
 $$
 
-### Step-size Parameter
+### Step-size Parameter {#step-size-parameter}
 
 $$
 \begin{aligned}
@@ -175,7 +175,7 @@ Basically **optimistic initialization** encourages systematic exploration
 early on but can still lock onto suboptimal action.
 :::
 
-### Pros & Cons
+### Pros & Cons {#pros-cons}
 - (+) It is **effective on stationary problems,** but not a general approach
 - (-) It is **not good for nonstationary problems** because its drive for exploration is inherently temporary.
 
@@ -210,7 +210,7 @@ $c$ determining the confidence level.
 - Conversely, each time any other action is selected the uncertainty increases ($t$ increases while $N_t(a)$ does not).
 - Using $\ln t$ means the uncertainty bonus grows without bound but at a diminishing rate (increases get smaller over time), ensuring all actions are eventually selected while those with lower value estimates or higher selection counts are chosen with decreasing frequency over time.
 
-### Pros & Cons
+### Pros & Cons {#pros-cons-1}
 - (+) UCB usually performs better than $\varepsilon$-greedy 
 - (-) UCB is more difficult than $\varepsilon$-greedy to **extend beyond bandits** to the more general RL settings
 - (-) Difficulty in dealing with **nonstationary problems**
@@ -262,7 +262,7 @@ $$
 - If $R_t > \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\downarrow \quad \forall a \neq A_t$
 - If $R_t < \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\uparrow \quad \forall a \neq A_t$
 
-### Proof: The Bandit Gradient Algorithm as Stochastic Gradient Ascent
+### Proof: The Bandit Gradient Algorithm as Stochastic Gradient Ascent {#proof-the-bandit-gradient-algorithm-as-stochastic-gradient-ascent}
 
 #### Gradient ascent update
 

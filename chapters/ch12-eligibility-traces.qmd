@@ -94,7 +94,7 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha \!\left[G_t^\lambda - \ha
 
 - The $\lambda$-return allows us to smoothly move between MC and TD(0) methods, comparable to $n$-step returning.
 
-### Forward View
+### Forward View {#forward-view}
 
 - This approach is called the theoretical, forward view of a learning algorithm:
   - Update value function towards the $\lambda$-return.
@@ -144,7 +144,7 @@ and the weight vector update in TD($\lambda$) is proportional to the scalar TD e
 
 $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t\, \mathbf{z}_t}$$
 
-### Backward View
+### Backward View {#backward-view}
 
 - Forward view provides theory but backward view provides mechanism (practical) where we update online, every step, from incomplete sequences.
 - Keep an eligibility trace for every state $s$.
@@ -414,7 +414,7 @@ $$
 \end{aligned}
 $$
 
-### Takeaways
+### Takeaways {#ch12-takeaways}
 
 - The auxiliary vectors, $\mathbf{a}_t$ and $\mathbf{z}_t$, are updated on each time step $t < T$ and then, at time $T$ when $G$ is observed, they are used to compute:
 

@@ -51,7 +51,7 @@ $$\boxed{\overline{\text{VE}}(\mathbf{w}) \doteq \sum_{s \in S} \mu(s) \left[v_\
 - $\sqrt{\overline{\text{VE}}}$ tells us roughly how much the approximate values differ from the true values.
 - Often $\mu$ is chosen to be the fraction of time spent in $s$, called the **on-policy distribution** under on-policy training.
 
-### On-policy Distribution
+### On-policy Distribution {#on-policy-distribution}
 
 1. **Continuing tasks**: the on-policy distribution is the stationary distribution under $\pi$:
 
@@ -105,7 +105,7 @@ $$
 \end{aligned}
 $$
 
-### Performance Objective
+### Performance Objective {#performance-objective}
 
 - Although $\overline{\text{VE}}$ is a good starting point, it's not completely clear that it is the right performance objective.
 - The **ultimate goal** (reason for learning a value function) is to find a better policy.
@@ -119,7 +119,7 @@ $$\mathbf{w}^* \hspace{.5em} \text{for which} \hspace{.75em} \overline{\text{VE}
 
 ## Stochastic-Gradient & Semi-Gradient Methods {#sec-ch09-9-3}
 
-### Stochastic Gradient Descent (SGD)
+### Stochastic Gradient Descent (SGD) {#stochastic-gradient-descent-sgd}
 
 - SGD methods are among the most widely used of all function approximation methods and are well suited to online RL.
 - The function approximator is parameterized by a weight vector with a fixed number of real components (column vector):
@@ -149,7 +149,7 @@ $$\nabla f(\mathbf{w}) \doteq \left(\frac{\partial f(\mathbf{w})}{\partial w_1},
 - Gradient descent methods are called ***"stochastic"*** because the update is done on only a single example, which might have been selected stochastically.
 - If $\alpha$ decreases as expected in satisfaction of the standard stochastic approximation conditions, then SGD is guaranteed to converge to a local optimum.
 
-### True Value Estimates
+### True Value Estimates {#true-value-estimates}
 
 - When the true value function $v_\pi(S_t)$ is unknown, we can approximate it by substituting $U_t$ in place of $v_\pi(S_t)$.
 - This yields the following general SGD method for state-value prediction:
@@ -175,7 +175,7 @@ $$
 \end{aligned}
 $$
 
-### State Aggregation
+### State Aggregation {#state-aggregation}
 
 - A simple form of generalizing function approximation in which states are grouped together, with one estimated value (one component of the weight vector $\mathbf{w}$) for each group.
 - A special SGD case in which:
@@ -252,7 +252,7 @@ G_{t:t+n} &\doteq R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots + \gamma^
 \end{aligned}
 }$$
 
-### Bounded Expansion
+### Bounded Expansion {#bounded-expansion}
 
 - At the TD fixed point, $\overline{\text{VE}}$ is within a bounded expansion of the lowest possible error:
 
@@ -467,7 +467,7 @@ $$
 
 $$\boxed{\mathbf{w}_t \doteq \mathbf{\hat{A}_t}^{-1} \mathbf{\hat{b}_t}}$$
 
-### Computational Complexity
+### Computational Complexity {#ch09-computational-complexity}
 
 - The inverse of $\mathbf{\hat{A}_t}$ computation costs $O(d^3)$, but this can be reduced to $O(d^2)$ using the **Sherman-Morrison** formula:
 
@@ -541,13 +541,13 @@ $$k(s, s') = \mathbf{x}(s)^T \mathbf{x}(s')$$
 - So far we have treated all encountered states with equal importance, however it seems more likely that we often have more interest in some states than others.
 - For this scenario, we introduce 2 new concepts: **Interest** and **Emphasis**.
 
-### Interest
+### Interest {#interest}
 
 - Interest is the degree to which we value an accurate estimate of the values of a given state. How interested are we in the accurate valuation of a given state at time $t$?
 
 $$\mathcal{I}_t \in [0, 1]$$
 
-### Emphasis
+### Emphasis {#emphasis}
 
 - Emphasis is a non-negative scalar random variable that multiplies the learning update and thus emphasizes or de-emphasizes the learning done at time $t$.
 - The general $n$-step learning update is:

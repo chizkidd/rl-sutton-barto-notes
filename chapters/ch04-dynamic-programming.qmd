@@ -19,7 +19,7 @@ $$p(s', r | s, a) = \mathbb{P}\left[R_{t+1} = r,\, S_{t+1} = s' \mid S_t, A_t\ri
 - Show how DP can be used to compute the value functions
 - $v_*$ or $q_*$ that satisfy the **Bellman Optimality Equations** can then be used to easily obtain optimal policies $\pi_*$
 
-### Bellman Optimality Equations
+### Bellman Optimality Equations {#ch04-bellman-optimality-equations}
 
 $$\quad \forall s \in S,\, a \in A(s),\, s' \in S^+$$
 
@@ -65,7 +65,7 @@ v_{k+1}(s) &\doteq \mathbb{E}_\pi\left[R_{t+1} + \gamma v_k(S_{t+1}) \mid S_t = 
 \end{aligned}
 $$
 
-### Iterative Policy Evaluation
+### Iterative Policy Evaluation {#iterative-policy-evaluation}
 
 - Eventually $\{v_k\}$ sequence converges to $v_\pi$ as $k \to \infty$ under the same conditions that guarantee the existence of $v_\pi$. This is **iterative policy evaluation**.
 - At each iteration $k+1$, for all states $s \in S$, we update $v_{k+1}(s)$ from $v_k(s')$ where $s'$ is a successor state of $s$.

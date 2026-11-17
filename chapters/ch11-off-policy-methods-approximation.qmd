@@ -74,7 +74,7 @@ $$\text{where } \delta_t \text{ is the Expected Sarsa TD error defined earlier i
 - Now let's discuss the 2nd off-policy function approximation challenge.
 - We'll look at some instructive counterexamples where the semi-gradient algorithm diverges.
 
-### Example 1
+### Example 1 {#example-1}
 
 Consider part of a larger MDP with 2 states whose estimated values are $w$ and $2w$:
 
@@ -114,7 +114,7 @@ $$
 \end{aligned}
 $$
 
-### Example 2 (Baird's Counterexample)
+### Example 2 (Baird's Counterexample) {#example-2-bairds-counterexample}
 
 - Now let's look at an entire complete system with instability (divergence).
 - Consider the episodic 7-state, 2-action MDP shown below.
@@ -149,7 +149,7 @@ $$\mathbf{w}_{k+1} \doteq \mathbf{w}_k + \frac{\alpha}{\vert S \vert} \sum_s \le
   - <u>Simplest bootstrapping</u>: DP and TD.
   - <u>Simplest function approximation</u>: linear, semi-gradient descent method.
 
-### Example 3 (Tsitsiklis & Van Roy's Counterexample)
+### Example 3 (Tsitsiklis & Van Roy's Counterexample) {#example-3-tsitsiklis-van-roys-counterexample}
 
 This extends Example 1 with a terminal state and $R = 0$:
 
@@ -171,7 +171,7 @@ $$
 
 - The sequence $\{w_k\}$ diverges when $\gamma > \dfrac{5}{6 - 4\varepsilon}$ and $w_0 \neq 0$.
 
-### Takeaways
+### Takeaways {#ch11-takeaways}
 
 - Instability can be prevented by using special methods for function approximation.
 - These special methods guarantee stability because they do not extrapolate from the observed targets. They are called **averagers**.
@@ -211,7 +211,7 @@ $$
 **The Geometry of Linear Value-Function Approximation.** Shown is the 3D space of all value functions over three states, while shown as a plane is the subspace of all value functions representable by a linear function approximator with parameter $\mathbf{w} = (w_1, w_2)^T$. The true value function $v_\pi$ is in the larger space and can be projected down (into the subspace, using a projection operator $\Pi$) to its best approximation in the value error ($\text{VE}$) sense. The best approximators in the Bellman error ($\text{BE}$), projected Bellman error ($\text{PBE}$), and temporal difference error ($\text{TDE}$) senses are all potentially different and are shown in the lower right.
 :::
 
-### Projection Operation
+### Projection Operation {#projection-operation}
 
 - For the projection operation, the distance between value functions using the norm is:
 
@@ -238,7 +238,7 @@ $$
 
     $$v_\mathbf{w} = \mathbf{X}\mathbf{w}$$
 
-### TD Solutions
+### TD Solutions {#td-solutions}
 
 **Bellman Error**
 
@@ -282,7 +282,7 @@ $$\overline{\text{PBE}}(\mathbf{w}) = \lVert \Pi\, \bar{\delta}_\mathbf{w} \rVer
 
 - Let's apply the approach of SGD in dealing with the challenge of stability in off-policy learning.
 
-### TD Error (Naive Residual-Gradient Algorithm)
+### TD Error (Naive Residual-Gradient Algorithm) {#td-error-naive-residual-gradient-algorithm}
 
 - Let's take the minimization of the expected square of the TD error as the objective, TD(0):
 
@@ -311,7 +311,7 @@ $$
 - This is the same as the semi-gradient TD algorithm except for the additional final term.
 - This method is **naive** because it achieves temporal smoothing-like behavior rather than accurate prediction by penalizing all TD errors.
 
-### Bellman Error (Residual-Gradient Algorithm)
+### Bellman Error (Residual-Gradient Algorithm) {#bellman-error-residual-gradient-algorithm}
 
 - Consider the minimization of the Bellman error (if the exact values are learned, the Bellman error is zero everywhere).
 - This yields the **residual gradient algorithm**:
@@ -342,7 +342,7 @@ $$
 - Since the Bellman error objective cannot be learned from the observable data, this is the strongest reason not to seek it.
 - Examples of non-learnable Markov Reward Processes (MRPs):
 
-### Example 1
+### Example 1 {#example-1-1}
 
 ::: {#fig-115}
 ![](../figures/ch11-11-6-example1.png){fig-align="center" fig-alt="Value Error (VE) Learnability Counterexample. Deterministic MRP pair with an endless stream of 0s and 2s."} 
@@ -374,7 +374,7 @@ $$
 \clearpage
 ```
 
-### Example 2
+### Example 2 {#example-2}
 
 ::: {#fig-116}
 ![](../figures/ch11-11-6-example2.png){width=80% fig-align="center" fig-alt="Bellman Error (BE) Learnability Counterexample. Complex Deterministic MRP pair with same distribution but different minimizing parameter vector."} 
@@ -437,7 +437,7 @@ $$\nabla \overline{\text{PBE}}(\mathbf{w}) = 2\, \mathbb{E}\!\left[\rho_t\!\left
 - The 1st and last terms are not independent (**biased gradient estimate**).
 - Could estimate all 3 terms separately and combine (**unbiased gradient estimate**) but too computationally expensive.
 
-### Gradient-TD 
+### Gradient-TD {#gradient-td}
 
 - Estimate and store the product of the last 2 terms of $\nabla \overline{\text{PBE}}(\mathbf{w})$ (product of a $d \times d$ matrix and a $d$-vector yields a $d$-vector like $\mathbf{w}$ itself):
 
@@ -457,7 +457,7 @@ O(d) &\equiv \text{storage \& per-step computational complexity}
 \end{aligned}
 $$
 
-### GTD2
+### GTD2 {#gtd2}
 
 - With $\mathbf{v}_t$, we can update $\mathbf{w}_t$ using SGD:
 
@@ -473,7 +473,7 @@ $$
 
   where $O(d)$ per-step computational complexity of $(\mathbf{x}_t^T \mathbf{v}_t)$ is done first.
 
-### TD(0) with Gradient Correction (GTD(0) or TDC)
+### TD(0) with Gradient Correction (GTD(0) or TDC) {#td0-with-gradient-correction-gtd0-or-tdc}
 
 - Let's look at another analytical algorithm called TD(0) with gradient correction, **TDC**:
 
@@ -490,7 +490,7 @@ $$
 
   with $O(d)$ complexity if the final product $(\mathbf{x}_t^T \mathbf{v}_t)$ is done first.
 
-### Takeaways
+### Takeaways {#takeaways-1}
 
 - GTD2 and TDC both involve 2 learning processes: a primary one for $\mathbf{w}$ and a secondary one for $\mathbf{v}$.
 - Asymmetrical dependence ($\mathbf{w}$ depends on $\mathbf{v}$ but $\mathbf{v}$ does not depend on $\mathbf{w}$) is referred to as a **cascade**.

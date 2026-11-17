@@ -106,7 +106,7 @@ $$Q_{t+n}(s,a) = Q_{t+n-1}(s,a) \quad \forall s, a \quad \text{ s.t. } \quad s \
 
 $$\boxed{Q_{t+n}(S_t, A_t) \leftarrow Q_{t+n-1}(S_t, A_t) + \alpha\left[G_t^{(n)} - Q_{t+n-1}(S_t, A_t)\right]}$$
 
-### Expected Sarsa
+### Expected Sarsa {#expected-sarsa}
 
 - Similar to $n$-step Sarsa (linear string of sample actions and states), except that its last element is a branch over all action possibilities weighted by their probability under $\pi$.
 - The $n$-step return here is:
@@ -193,7 +193,7 @@ G_{h:h} &\doteq V_{h-1}(S_h)
   - The control variate does not change the expected update.
   - The importance sampling ratio has an expected value of 1 and is uncorrelated with the estimate, so the expected value of the control variate is zero.
 
-### For Action Values
+### For Action Values {#for-action-values}
 
 - For action values, the off-policy definition of the $n$-step return is a little different because the first action does not play a role in the importance sampling (it has already been taken).
 - The $n$-step on-policy return ending at horizon $h$ can be written recursively, and for action values the recursion ends with $G_{h:h} \doteq V_{h-1}(S_h)$. An off-policy form with control variates is:

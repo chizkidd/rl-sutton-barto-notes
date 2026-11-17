@@ -39,7 +39,7 @@ Recall that the value of a state is the **expected cumulative future discounted 
 
 $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\left[G_t - V(S_t)\right]}$$
 
-### First-Visit or Every-Visit Monte Carlo Policy Evaluation
+### First-Visit or Every-Visit Monte Carlo Policy Evaluation {#first-visit-or-every-visit-monte-carlo-policy-evaluation}
 
 - To evaluate state $s$
 - The first timestep or every timestep $t$ that state $s$ is visited in an episode
@@ -81,7 +81,7 @@ Generalized Policy Iteration.
 
   where $\xrightarrow{E}$ denotes a complete policy evaluation & $\xrightarrow{I}$ denotes a complete policy improvement.
 
-### Policy Improvement
+### Policy Improvement {#policy-improvement}
 
 - For $q_\pi$, the greedy policy $\forall s \in S$:
 
