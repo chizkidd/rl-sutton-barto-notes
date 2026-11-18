@@ -4,6 +4,8 @@ Every diagram in these notes, mapped to the chapter and figure number it appears
 
 The scanned handwritten pages themselves are not stored in this repo (they are large binary files that would permanently bloat the history). If a figure ever needs re-deriving, the original scan page is the fallback; the scans are kept offline and are not part of this repository.
 
+Figure 13.1 is the one figure with a generator instead of a scan behind it: `scripts/make-fig-13-1.py` redraws it at 300 dpi from the normal density formula, and `scripts/make-webp.py` then refreshes its gallery copy from the PNG.
+
 | PNG | Chapter | Figure | Caption | Referenced in |
 |:--|:--|:--|:--|:--|
 | [`ch03-3-1.png`](ch03-3-1.png) | 3 · Finite Markov Decision Processes | 3.1 | The agent-environment interaction in an MDP. | [`ch03-finite-mdps.qmd`](../chapters/ch03-finite-mdps.qmd#fig-31), [HTML](https://chizkidd.github.io/rl-sutton-barto-notes/chapters/ch03-finite-mdps.html#fig-31), gallery |

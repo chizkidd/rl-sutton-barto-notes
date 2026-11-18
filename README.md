@@ -102,6 +102,7 @@ RL-Sutton-Barto-notes/
 │   ├── build-epub-gallery.py    # Regenerates the EPUB figure list from the gallery grid
 │   ├── fix-epub.py              # Post-render repair of the EPUB for EPUBCheck
 │   ├── make-webp.py             # WebP copies of the figures for the gallery
+│   ├── make-fig-13-1.py         # Redraws figure 13.1 at 300 dpi from the formula
 │   └── freeze-anchors.py        # Freezes heading ids; fails if one is used twice
 ├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd

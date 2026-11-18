@@ -12,6 +12,7 @@ node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
 python3 scripts/fix-epub.py        # repair the epub's packaging (also a post-render step)
 python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
+python3 scripts/make-fig-13-1.py   # redraw figure 13.1 at 300 dpi
 python3 scripts/freeze-anchors.py  # write the built heading ids into the chapters
 ```
 
