@@ -33,3 +33,8 @@ python3 scripts/freeze-anchors.py  # write the built heading ids into the chapte
 
 **Image weight**: `figures/webp/` holds display-size WebP copies (1.2 MB against 14.7 MB of PNGs) that the gallery serves through `<picture>`, falling back to PNG. The PDF keeps the PNGs.
 
+## Continuous Integration
+
+One workflow, `.github/workflows/deploy.yml`: it renders the book and publishes `_site/` to GitHub Pages on every push to `main`. It fails only if the render fails or `_site/rl-notes.pdf` comes out empty, which are the two things that actually break the site.
+
+The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the frozen TeX Live 2025 package repository, and every action is pinned to a commit SHA, so every run gets identical inputs and the PDF lays out the same way each time. A newer local TeX Live is fine for writing, but it breaks some pages slightly differently from the published PDF, which is worth knowing before treating a local page-number difference as a regression.

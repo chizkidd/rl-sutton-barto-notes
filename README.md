@@ -50,17 +50,9 @@ quarto render    # full build into _site/ (HTML + PDF + EPUB)
 
 Rendered output lands in `_site/`, with the PDF at `_site/rl-notes.pdf` and the EPUB at `_site/rl-notes.epub`. All of it is gitignored.
 
-The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the frozen TeX Live 2025 package repository, so every run gets identical inputs. A newer local TeX Live is fine for writing, but it breaks some pages slightly differently from the published PDF, which is worth knowing before treating a local page-number difference as a regression.
-
-## Continuous Integration
-
-One workflow, `.github/workflows/deploy.yml`: it renders the book and publishes `_site/` to GitHub Pages on every push to `main`. It fails only if the render fails or `_site/rl-notes.pdf` comes out empty, which are the two things that actually break the site.
-
-The toolchain is pinned (Quarto 1.5.57, TinyTeX 2025.12 against the frozen TeX Live 2025 repository) and every action is pinned to a commit SHA, so the PDF lays out the same way on every run.
-
 ## Tooling
 
-Scripts, checks and build details live in [`EXTRAS.md`](EXTRAS.md); you do not need them to read the notes.
+Scripts, checks, CI and build details live in [`EXTRAS.md`](EXTRAS.md); you do not need them to read the notes.
 
 ## Anki Deck
 
