@@ -66,7 +66,7 @@ Each of these is a one-command tool. The checks and generators are local-only �
 node scripts/export-anki.cjs       # bullets -> Anki cloze deck (dist/anki/rl-notes.tsv)
 python3 scripts/check-parity.py    # compare the built HTML and PDF for drift
 python3 scripts/check-epub.py      # epub: XHTML, link and anchor resolution
-python3 scripts/check-sources.py   # figures/SOURCES.md against the built book
+python3 scripts/check-sources.py   # figures/SOURCES.md and the gallery grid against the built book
 node scripts/check-refs.cjs        # dead citations, figure refs, gallery anchors, then linkcheck.py
 node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
@@ -77,13 +77,13 @@ python3 scripts/freeze-anchors.py  # write the built heading ids into the chapte
 
 **Notation index** — `notation.qmd` maps 24 symbols to the section that defines them and counts the sections that use them. It is generated from the sources, so the locations cannot go stale; the descriptions are hand-written.
 
-**Figure gallery** — `gallery.qmd` renders an interactive grid of thumbnails for the HTML build and a plain figure list for the EPUB, which cannot follow links into pages that only exist as HTML. Only the grid is hand-written: `build-epub-gallery.py` regenerates the list from it (path, alt text, number and caption), so a caption is edited in one place. `--check` reports a stale list instead of writing.
+**Figure gallery** — `gallery.qmd` renders an interactive grid of thumbnails for the HTML build and a plain figure list for the EPUB, which cannot follow links into pages that only exist as HTML. Only the grid is hand-written: `build-epub-gallery.py` regenerates the list from it (path, alt text, number and caption), so a caption is edited in one place. `--check` reports a stale list instead of writing. Each card opens on the caption the chapter prints for that figure, word for word, and `check-sources.py` holds it to that.
 
 **Parity check** — `check-parity.py` compares section numbers and the full text of every figure caption between `_site/` and `rl-notes.pdf`, because the two formats are configured separately (`number-depth: 3` against `secnumdepth 2`) and drift silently. Captions are compared word for word, so changing a single word in a caption fails the check; math is dropped because the HTML holds TeX source and the PDF typeset glyphs.
 
 **EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter), if any `href` or `src` does not resolve to a file inside the archive (a `.qmd` source path or a `chapters/*.html` page looks fine on the web and is missing from the book), or if any `#fragment` names an id that the document it lands in does not have. None of those show up until the book is opened in a reader. The last two rules are `linkcheck.py`, the same code `check-refs.cjs` runs against `_site/`, so a link is judged the same way on the site and inside the archive; this script supplies only the documents and anchors of the zip.
 
-**Figure table check** — `check-sources.py` holds `figures/SOURCES.md` to the build. For every row it wants the PNG in `figures/`, a chapter link whose `{#fig-…}` anchor is really in that chapter and whose number belongs to it, a figure number the book still has, and the caption the book prints word for word — math included, since the comparison undoes the build's markup rather than dropping it. It also reports a figure in the book with no row, and a number with two. The captions come from `bookhtml.py`, the same reader `check-parity.py` uses, so "what the book says" is defined once.
+**Figure table check** — `check-sources.py` holds `figures/SOURCES.md` to the build. For every row it wants the PNG in `figures/`, a chapter link whose `{#fig-…}` anchor is really in that chapter and whose number belongs to it, a figure number the book still has, and the caption the book prints word for word — math included, since the comparison undoes the build's markup rather than dropping it. It also reports a figure in the book with no row, and a number with two. The same pass checks the gallery grid in `gallery.qmd`, which restates each caption's opening: every card must start with the book's own words for its figure, and a card the book has no figure for, two cards for one figure, or a figure with no card are all reported. The grid is read by `build-epub-gallery.py`'s parser, so the check and the EPUB list generator cannot disagree about what a card says. The captions come from `bookhtml.py`, the same reader `check-parity.py` uses, so "what the book says" is defined once.
 
 **EPUB conformance** — `check-epub.py` above is structural; it cannot tell you whether the archive is *valid*. EPUBCheck can, and the built EPUB now passes it with 0 fatals, 0 errors, 0 warnings, 0 infos (EPUB 3.3 rules). Reaching that took repairing what Quarto and pandoc emit: `alt` copied onto the figure `<div>` (33 of them), `displaystyle` on `<mfrac>` (15), a `dc:language` of `C` from the build locale, an empty `dc:date`, and a nav item using MathML without declaring it in the manifest. None of those break a reader, and every attribute dropped is one no renderer honours, so nothing looks different. `fix-epub.py` does it after each render — `_quarto.yml` lists it under `project: post-render` — and is idempotent. Doing it there rather than with `lang: en` is deliberate: `lang` also reaches LaTeX and repaginates the PDF. Running the audit yourself needs a JDK and the EPUBCheck jar (`java -jar epubcheck.jar _site/rl-notes.epub`); neither is in the repo or in CI.
 
@@ -127,7 +127,7 @@ RL-Sutton-Barto-notes/
 ├── scripts/
 │   ├── export-anki.cjs          # Bullets -> Anki cloze deck (also run by deploy.yml)
 │   ├── check-parity.py          # HTML vs PDF: section numbering and caption text
-│   ├── check-sources.py         # figures/SOURCES.md against the built HTML
+│   ├── check-sources.py         # figures/SOURCES.md and the gallery cards against the built HTML
 │   ├── check-epub.py            # EPUB: XHTML, link and anchor resolution
 │   ├── bookhtml.py              # Reads the built HTML's figure captions (shared)
 │   ├── check-refs.cjs           # Dead citations, @fig- labels, gallery anchors; linkcheck.py for _site/

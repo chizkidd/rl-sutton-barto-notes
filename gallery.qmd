@@ -18,11 +18,11 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch03-finite-mdps.html#fig-32" title="Open Figure 3.2 in Chapter 3"><picture><source srcset="figures/webp/ch03-3-5-v-pi.webp" type="image/webp" /><img src="figures/ch03-3-5-v-pi.png" alt="Backup Diagram for vπ." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch03-finite-mdps.html#fig-32" title="Open Figure 3.2 in Chapter 3">Figure 3.2</a> — Backup Diagram for v<sub>π</sub>.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch03-finite-mdps.html#fig-32" title="Open Figure 3.2 in Chapter 3">Figure 3.2</a> — Backup diagram for $v_\pi$.</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch03-finite-mdps.html#fig-33" title="Open Figure 3.3 in Chapter 3"><picture><source srcset="figures/webp/ch03-3-6-v-q-optimal.webp" type="image/webp" /><img src="figures/ch03-3-6-v-q-optimal.png" alt="Backup Diagrams for v and q." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch03-finite-mdps.html#fig-33" title="Open Figure 3.3 in Chapter 3">Figure 3.3</a> — Backup Diagrams for v<sub>&#42;</sub> and q<sub>&#42;</sub>.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch03-finite-mdps.html#fig-33" title="Open Figure 3.3 in Chapter 3">Figure 3.3</a> — Backup diagrams for $v_*$ and $q_*$.</figcaption>
   </figure>
 </div>
 
@@ -52,7 +52,7 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 <div class="figure-gallery">
   <figure>
     <a class="gallery-link" href="chapters/ch06-temporal-difference.html#fig-61" title="Open Figure 6.1 in Chapter 6"><picture><source srcset="figures/webp/ch06-6-1-td0.webp" type="image/webp" /><img src="figures/ch06-6-1-td0.png" alt="Backup diagram for TD(0)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch06-temporal-difference.html#fig-61" title="Open Figure 6.1 in Chapter 6">Figure 6.1</a> — Backup diagram for TD(0).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch06-temporal-difference.html#fig-61" title="Open Figure 6.1 in Chapter 6">Figure 6.1</a> — TD(0) backup diagram.</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch06-temporal-difference.html#fig-62" title="Open Figure 6.2 in Chapter 6"><picture><source srcset="figures/webp/ch06-6-4-episode.webp" type="image/webp" /><img src="figures/ch06-6-4-episode.png" alt="An episode." loading="lazy" /></picture></a>
@@ -60,7 +60,7 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch06-temporal-difference.html#fig-63" title="Open Figure 6.3 in Chapter 6"><picture><source srcset="figures/webp/ch06-6-4-sarsa.webp" type="image/webp" /><img src="figures/ch06-6-4-sarsa.png" alt="Backup diagram for SARSA." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch06-temporal-difference.html#fig-63" title="Open Figure 6.3 in Chapter 6">Figure 6.3</a> — Backup diagram for SARSA.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch06-temporal-difference.html#fig-63" title="Open Figure 6.3 in Chapter 6">Figure 6.3</a> — Sarsa backup diagram.</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch06-temporal-difference.html#fig-64" title="Open Figure 6.4 in Chapter 6"><picture><source srcset="figures/webp/ch06-6-4-policy-iteration.webp" type="image/webp" /><img src="figures/ch06-6-4-policy-iteration.png" alt="SARSA control." loading="lazy" /></picture></a>
@@ -68,7 +68,7 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch06-temporal-difference.html#fig-65" title="Open Figure 6.5 in Chapter 6"><picture><source srcset="figures/webp/ch06-6-5-q-learning.webp" type="image/webp" /><img src="figures/ch06-6-5-q-learning.png" alt="Backup diagram for Q-Learning." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch06-temporal-difference.html#fig-65" title="Open Figure 6.5 in Chapter 6">Figure 6.5</a> — Backup diagram for Q-Learning.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch06-temporal-difference.html#fig-65" title="Open Figure 6.5 in Chapter 6">Figure 6.5</a> — Q-learning backup diagram.</figcaption>
   </figure>
 </div>
 
@@ -112,15 +112,15 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch08-planning-learning.html#fig-83" title="Open Figure 8.3 in Chapter 8"><picture><source srcset="figures/webp/ch08-8-7-rtdp.webp" type="image/webp" /><img src="figures/ch08-8-7-rtdp.png" alt="Real-time Dynamic Programming (State space)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch08-planning-learning.html#fig-83" title="Open Figure 8.3 in Chapter 8">Figure 8.3</a> — Real-time Dynamic Programming (State space).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch08-planning-learning.html#fig-83" title="Open Figure 8.3 in Chapter 8">Figure 8.3</a> — State space diagram.</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch08-planning-learning.html#fig-84" title="Open Figure 8.4 in Chapter 8"><picture><source srcset="figures/webp/ch08-8-9-heuristic-search.webp" type="image/webp" /><img src="figures/ch08-8-9-heuristic-search.png" alt="Heuristic search." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch08-planning-learning.html#fig-84" title="Open Figure 8.4 in Chapter 8">Figure 8.4</a> — Heuristic search.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch08-planning-learning.html#fig-84" title="Open Figure 8.4 in Chapter 8">Figure 8.4</a> — Heuristic Search diagram (selective depth-first search).</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch08-planning-learning.html#fig-85" title="Open Figure 8.5 in Chapter 8"><picture><source srcset="figures/webp/ch08-8-11-mcts.webp" type="image/webp" /><img src="figures/ch08-8-11-mcts.png" alt="Monte-Carlo Tree Search (MCTS)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch08-planning-learning.html#fig-85" title="Open Figure 8.5 in Chapter 8">Figure 8.5</a> — Monte-Carlo Tree Search (MCTS).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch08-planning-learning.html#fig-85" title="Open Figure 8.5 in Chapter 8">Figure 8.5</a> — MCTS diagram.</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch08-planning-learning.html#fig-86" title="Open Figure 8.6 in Chapter 8"><picture><source srcset="figures/webp/ch08-8-13-summary-unified-rl.webp" type="image/webp" /><img src="figures/ch08-8-13-summary-unified-rl.png" alt="Unified view of RL depicting a slice through the space of RL methods." loading="lazy" /></picture></a>
@@ -142,11 +142,11 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch09-on-policy-prediction-approximation.html#fig-93" title="Open Figure 9.3 in Chapter 9"><picture><source srcset="figures/webp/ch09-9-5-5-1dim-rbf.webp" type="image/webp" /><img src="figures/ch09-9-5-5-1dim-rbf.png" alt="1-D Radial Basis Function." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch09-on-policy-prediction-approximation.html#fig-93" title="Open Figure 9.3 in Chapter 9">Figure 9.3</a> — 1-D Radial Basis Function.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch09-on-policy-prediction-approximation.html#fig-93" title="Open Figure 9.3 in Chapter 9">Figure 9.3</a> — 1-D RBF.</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch09-on-policy-prediction-approximation.html#fig-94" title="Open Figure 9.4 in Chapter 9"><picture><source srcset="figures/webp/ch09-9-7-ann.webp" type="image/webp" /><img src="figures/ch09-9-7-ann.png" alt="Generic ANN." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch09-on-policy-prediction-approximation.html#fig-94" title="Open Figure 9.4 in Chapter 9">Figure 9.4</a> — Generic ANN.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch09-on-policy-prediction-approximation.html#fig-94" title="Open Figure 9.4 in Chapter 9">Figure 9.4</a> — ANN.</figcaption>
   </figure>
 </div>
 
@@ -194,35 +194,35 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-tdlambda" title="Open Figure 12.2 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-1-td-lambda.webp" type="image/webp" /><img src="figures/ch12-12-1-td-lambda.png" alt="Backup Diagram for TD(λ)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-tdlambda" title="Open Figure 12.2 in Chapter 12">Figure 12.2</a> — Backup Diagram for TD(λ).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-tdlambda" title="Open Figure 12.2 in Chapter 12">Figure 12.2</a> — Backup Diagram for TD($\lambda$).</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-weighting" title="Open Figure 12.3 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-1-td-lambda-weighting-function.webp" type="image/webp" /><img src="figures/ch12-12-1-td-lambda-weighting-function.png" alt="TD(λ) Weighting." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-weighting" title="Open Figure 12.3 in Chapter 12">Figure 12.3</a> — TD(λ) Weighting.</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-weighting" title="Open Figure 12.3 in Chapter 12">Figure 12.3</a> — TD($\lambda$) Weighting.</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-forward-view" title="Open Figure 12.4 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-1-forward-view-td-lambda.webp" type="image/webp" /><img src="figures/ch12-12-1-forward-view-td-lambda.png" alt="Forward View TD(λ)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-forward-view" title="Open Figure 12.4 in Chapter 12">Figure 12.4</a> — Forward View TD(λ).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-1-forward-view" title="Open Figure 12.4 in Chapter 12">Figure 12.4</a> — Forward View TD($\lambda$).</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-2-backward-view" title="Open Figure 12.5 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-2-backward-view-td-lambda.webp" type="image/webp" /><img src="figures/ch12-12-2-backward-view-td-lambda.png" alt="Backward View of TD(λ)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-2-backward-view" title="Open Figure 12.5 in Chapter 12">Figure 12.5</a> — Backward View of TD(λ).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-2-backward-view" title="Open Figure 12.5 in Chapter 12">Figure 12.5</a> — Backward View of TD($\lambda$).</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-3-ttdlambda" title="Open Figure 12.6 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-3-truncated-td-lambda.webp" type="image/webp" /><img src="figures/ch12-12-3-truncated-td-lambda.png" alt="Backup Diagram for Truncated TD(λ)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-3-ttdlambda" title="Open Figure 12.6 in Chapter 12">Figure 12.6</a> — Backup Diagram for Truncated TD(λ).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-3-ttdlambda" title="Open Figure 12.6 in Chapter 12">Figure 12.6</a> — Backup Diagram for Truncated TD($\lambda$).</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-7-sarsa-lambda" title="Open Figure 12.7 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-7-sarsa-lambda.webp" type="image/webp" /><img src="figures/ch12-12-7-sarsa-lambda.png" alt="Backup Diagram for Sarsa(λ)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-7-sarsa-lambda" title="Open Figure 12.7 in Chapter 12">Figure 12.7</a> — Backup Diagram for Sarsa(λ).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-7-sarsa-lambda" title="Open Figure 12.7 in Chapter 12">Figure 12.7</a> — Backup Diagram for Sarsa($\lambda$).</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-10-watkins" title="Open Figure 12.8 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-10-watkins-q-lambda.webp" type="image/webp" /><img src="figures/ch12-12-10-watkins-q-lambda.png" alt="Backup Diagram for Watkins's Q(λ)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-10-watkins" title="Open Figure 12.8 in Chapter 12">Figure 12.8</a> — Backup Diagram for Watkins's Q(λ).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-10-watkins" title="Open Figure 12.8 in Chapter 12">Figure 12.8</a> — Backup Diagram for Watkins's Q($\lambda$).</figcaption>
   </figure>
   <figure>
     <a class="gallery-link" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-10-tree-backup" title="Open Figure 12.9 in Chapter 12"><picture><source srcset="figures/webp/ch12-12-10-tree-backup-q-lambda.webp" type="image/webp" /><img src="figures/ch12-12-10-tree-backup-q-lambda.png" alt="Backup Diagram for Tree-Backup(λ)." loading="lazy" /></picture></a>
-    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-10-tree-backup" title="Open Figure 12.9 in Chapter 12">Figure 12.9</a> — Backup Diagram for Tree-Backup(λ).</figcaption>
+    <figcaption><a class="fignum" href="chapters/ch12-eligibility-traces.html#fig-ch12-12-10-tree-backup" title="Open Figure 12.9 in Chapter 12">Figure 12.9</a> — Backup Diagram for Tree-Backup($\lambda$).</figcaption>
   </figure>
 </div>
 
@@ -248,11 +248,11 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 
 ![](figures/ch03-3-5-v-pi.png){fig-alt="Backup Diagram for vπ."}
 
-**Figure 3.2** — Backup Diagram for vπ.
+**Figure 3.2** — Backup diagram for $v_\pi$.
 
 ![](figures/ch03-3-6-v-q-optimal.png){fig-alt="Backup Diagrams for v and q."}
 
-**Figure 3.3** — Backup Diagrams for v&#42; and q&#42;.
+**Figure 3.3** — Backup diagrams for $v_*$ and $q_*$.
 
 ![](figures/ch04-4-6-GPI.png){fig-alt="Generalized Policy Iteration."}
 
@@ -264,7 +264,7 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 
 ![](figures/ch06-6-1-td0.png){fig-alt="Backup diagram for TD(0)."}
 
-**Figure 6.1** — Backup diagram for TD(0).
+**Figure 6.1** — TD(0) backup diagram.
 
 ![](figures/ch06-6-4-episode.png){fig-alt="An episode."}
 
@@ -272,7 +272,7 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 
 ![](figures/ch06-6-4-sarsa.png){fig-alt="Backup diagram for SARSA."}
 
-**Figure 6.3** — Backup diagram for SARSA.
+**Figure 6.3** — Sarsa backup diagram.
 
 ![](figures/ch06-6-4-policy-iteration.png){fig-alt="SARSA control."}
 
@@ -280,7 +280,7 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 
 ![](figures/ch06-6-5-q-learning.png){fig-alt="Backup diagram for Q-Learning."}
 
-**Figure 6.5** — Backup diagram for Q-Learning.
+**Figure 6.5** — Q-learning backup diagram.
 
 ![](figures/ch07-7-1-n-step-td.png){fig-alt="Backup diagrams for n-step methods."}
 
@@ -312,15 +312,15 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 
 ![](figures/ch08-8-7-rtdp.png){fig-alt="Real-time Dynamic Programming (State space)."}
 
-**Figure 8.3** — Real-time Dynamic Programming (State space).
+**Figure 8.3** — State space diagram.
 
 ![](figures/ch08-8-9-heuristic-search.png){fig-alt="Heuristic search."}
 
-**Figure 8.4** — Heuristic search.
+**Figure 8.4** — Heuristic Search diagram (selective depth-first search).
 
 ![](figures/ch08-8-11-mcts.png){fig-alt="Monte-Carlo Tree Search (MCTS)."}
 
-**Figure 8.5** — Monte-Carlo Tree Search (MCTS).
+**Figure 8.5** — MCTS diagram.
 
 ![](figures/ch08-8-13-summary-unified-rl.png){fig-alt="Unified view of RL depicting a slice through the space of RL methods."}
 
@@ -336,11 +336,11 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 
 ![](figures/ch09-9-5-5-1dim-rbf.png){fig-alt="1-D Radial Basis Function."}
 
-**Figure 9.3** — 1-D Radial Basis Function.
+**Figure 9.3** — 1-D RBF.
 
 ![](figures/ch09-9-7-ann.png){fig-alt="Generic ANN."}
 
-**Figure 9.4** — Generic ANN.
+**Figure 9.4** — ANN.
 
 ![](figures/ch11-11-2-example1.png){fig-alt="Simple Counterexample."}
 
@@ -376,35 +376,35 @@ Every diagram redrawn for these notes, numbered as it appears in the book (chapt
 
 ![](figures/ch12-12-1-td-lambda.png){fig-alt="Backup Diagram for TD(λ)."}
 
-**Figure 12.2** — Backup Diagram for TD(λ).
+**Figure 12.2** — Backup Diagram for TD($\lambda$).
 
 ![](figures/ch12-12-1-td-lambda-weighting-function.png){fig-alt="TD(λ) Weighting."}
 
-**Figure 12.3** — TD(λ) Weighting.
+**Figure 12.3** — TD($\lambda$) Weighting.
 
 ![](figures/ch12-12-1-forward-view-td-lambda.png){fig-alt="Forward View TD(λ)."}
 
-**Figure 12.4** — Forward View TD(λ).
+**Figure 12.4** — Forward View TD($\lambda$).
 
 ![](figures/ch12-12-2-backward-view-td-lambda.png){fig-alt="Backward View of TD(λ)."}
 
-**Figure 12.5** — Backward View of TD(λ).
+**Figure 12.5** — Backward View of TD($\lambda$).
 
 ![](figures/ch12-12-3-truncated-td-lambda.png){fig-alt="Backup Diagram for Truncated TD(λ)."}
 
-**Figure 12.6** — Backup Diagram for Truncated TD(λ).
+**Figure 12.6** — Backup Diagram for Truncated TD($\lambda$).
 
 ![](figures/ch12-12-7-sarsa-lambda.png){fig-alt="Backup Diagram for Sarsa(λ)."}
 
-**Figure 12.7** — Backup Diagram for Sarsa(λ).
+**Figure 12.7** — Backup Diagram for Sarsa($\lambda$).
 
 ![](figures/ch12-12-10-watkins-q-lambda.png){fig-alt="Backup Diagram for Watkins's Q(λ)."}
 
-**Figure 12.8** — Backup Diagram for Watkins's Q(λ).
+**Figure 12.8** — Backup Diagram for Watkins's Q($\lambda$).
 
 ![](figures/ch12-12-10-tree-backup-q-lambda.png){fig-alt="Backup Diagram for Tree-Backup(λ)."}
 
-**Figure 12.9** — Backup Diagram for Tree-Backup(λ).
+**Figure 12.9** — Backup Diagram for Tree-Backup($\lambda$).
 
 ![](figures/ch13-13-7-prob-density-function.png){fig-alt="Probability Density Function (PDF)."}
 
