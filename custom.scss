@@ -16,7 +16,7 @@ $code-color: #24292e;
 h1, h2, h3, h4 {
   font-family: Georgia, serif;
   font-weight: 600;
-  /* No hardcoded color — let the active theme (flatly/darkly) provide it */
+  /* No hardcoded color: let the active theme (flatly/darkly) provide it */
 }
 
 h2 {
@@ -106,7 +106,7 @@ table {
 }
 
 // thead {
-//   /* No hardcoded background — let flatly/darkly each provide theirs */
+//   /* No hardcoded background: let flatly/darkly each provide theirs */
 // }
 
 /* -- SVG figures ------------------------------------------- */
@@ -278,7 +278,7 @@ body.left-sidebar-hidden main.content {
   grid-column: screen-start-inset / body-content-end !important;
 }
 
-/* Both hidden — span almost the full grid width */
+/* Both hidden, span almost the full grid width */
 body.left-sidebar-hidden.right-sidebar-hidden main.content {
   grid-column: screen-start-inset / screen-end-inset !important;
 }

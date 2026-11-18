@@ -32,7 +32,7 @@ INTRO = (
 
 FIGURE = re.compile(r"<figure>(.*?)</figure>", re.S)
 IMG = re.compile(r'<img src="([^"]+)" alt="([^"]*)"')
-NUMBER = re.compile(r">Figure ([\d.]+)</a>\s*—\s*(.*?)</figcaption>", re.S)
+NUMBER = re.compile(r">Figure ([\d.]+)</a>\s*:\s*(.*?)</figcaption>", re.S)
 
 
 def grid_entries(text: str):
@@ -51,7 +51,7 @@ def grid_entries(text: str):
 def render(entries) -> str:
     lines = [EPUB_OPEN, "", INTRO, ""]
     for path, alt, number, caption in entries:
-        lines += [f'![]({path}){{fig-alt="{alt}"}}', "", f"**Figure {number}** — {caption}", ""]
+        lines += [f'![]({path}){{fig-alt="{alt}"}}', "", f"**Figure {number}**: {caption}", ""]
     lines += [":::", ""]
     return "\n".join(lines)
 

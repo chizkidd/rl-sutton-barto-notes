@@ -50,7 +50,7 @@ quarto render    # full build into _site/ (HTML + PDF + EPUB)
 
 Rendered output lands in `_site/`, with the PDF at `_site/rl-notes.pdf` and the EPUB at `_site/rl-notes.epub`. All of it is gitignored.
 
-The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the frozen TeX Live 2025 package repository, so every run gets identical inputs. A newer local TeX Live is fine for writing, but it breaks some pages slightly differently from the published PDF — worth knowing before treating a local page-number difference as a regression.
+The CI builds with **Quarto 1.5.57** and **TinyTeX 2025.12** pinned to the frozen TeX Live 2025 package repository, so every run gets identical inputs. A newer local TeX Live is fine for writing, but it breaks some pages slightly differently from the published PDF, which is worth knowing before treating a local page-number difference as a regression.
 
 ## Continuous Integration
 
@@ -123,7 +123,7 @@ RL-Sutton-Barto-notes/
 │   └── ch13-policy-gradient-methods.qmd
 └── figures/                     # 42 figure PNGs (the book's diagrams)
     ├── SOURCES.md               # Every figure: file, chapter, number and caption
-    ├── ch03-3-1.png             # chNN-N-N[-label].png — chapter NN, book figure N-N
+    ├── ch03-3-1.png             # chNN-N-N[-label].png = chapter NN, book figure N-N
     ├── ch06-6-4-sarsa.png
     ├── ch12-12-10-watkins-q-lambda.png
     ├── webp/                    # Same 42 figures as WebP, for the gallery
@@ -136,7 +136,7 @@ RL-Sutton-Barto-notes/
 
 The PNGs follow `chNN-N-N[-label].png` throughout, including chapter 7 (`ch07-7-1-n-step-td.png`). The five `.svg` files in chapter 7 keep the older `figNN_slug.svg` name; they are the superseded attempts described below.
 
-Chapter 7 also keeps five SVG attempts next to its PNGs. They are commented out in the chapter source and are not part of the build, so `figures/SOURCES.md` — which maps every image to its chapter, figure number and caption — lists the 42 PNGs that actually appear.
+Chapter 7 also keeps five SVG attempts next to its PNGs. They are commented out in the chapter source and are not part of the build, so `figures/SOURCES.md`, which maps every image to its chapter, figure number and caption, lists the 42 PNGs that actually appear.
 
 ## Reference
 

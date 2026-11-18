@@ -33,8 +33,8 @@ The notes cover the core ideas, equations, and algorithms from each chapter, tra
 
 ## Downloads
 
-- [PDF edition](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf) — the whole book, 13 chapters, built from the same sources on every push.
-- [Anki deck](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes-anki.tsv) — cloze cards, one per bolded term, tagged by chapter and section. Import it with Anki's *File → Import* (tab-separated, note type *Cloze*).
+- [PDF edition](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf): the whole book, 13 chapters, built from the same sources on every push.
+- [Anki deck](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes-anki.tsv): cloze cards, one per bolded term, tagged by chapter and section. Import it with Anki's *File → Import* (tab-separated, note type *Cloze*).
 
 ## How to Read These Notes
 

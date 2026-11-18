@@ -56,7 +56,7 @@ The Caption column is the text the book prints, not a summary: it is copied from
 ## Adding or replacing a figure
 
 1. Drop the PNG in `figures/`, named `chNN-C-F-slug.png` (`NN` = chapter, `C` = chapter number, `F` = figure number).
-2. Reference it from the chapter as a numbered figure div with an id — `{#fig-61}` in most chapters, `{#fig-ch12-12-1-compound}` in chapter 12 — and a caption whose bold title ends with a period.
+2. Reference it from the chapter as a numbered figure div with an id (`{#fig-61}` in most chapters, `{#fig-ch12-12-1-compound}` in chapter 12) and a caption whose bold title ends with a period.
 3. Add a WebP copy (`python3 scripts/make-webp.py`) and add the figure to the HTML grid in `gallery.qmd` with the same `Figure N.F` number, a thumbnail link back to the chapter anchor, and a card caption that starts with the words the chapter's caption starts with.
 4. Regenerate the EPUB's figure list from that grid: `python3 scripts/build-epub-gallery.py` (its `--check` mode reports a stale list).
 5. Add a row to the table above with the caption the book actually prints, then run `python3 scripts/check-sources.py` to confirm the row matches the build.
