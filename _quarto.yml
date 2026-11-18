@@ -107,25 +107,14 @@ format:
         \setlength{\columnsep}{18pt}
         \setcounter{secnumdepth}{2}
         % --- pagination: no one-line spills, no headings stranded at a page foot
+        % The widow/club penalties do the second part on their own: LaTeX never
+        % breaks between a heading and the lines under it (\@afterheading), so a
+        % heading cannot end a page. A \NeedSpace wrapper around \section used to
+        % sit here; it fired whenever \pagetotal was already past \pagegoal, which
+        % broke the page at the heading and left a near-blank page at section 1.5.
         \widowpenalty=10000
         \clubpenalty=10000
         \displaywidowpenalty=10000
-        \makeatletter
-        \newcommand{\NeedSpace}[1]{%
-          \par\begingroup
-          \dimen@=#1\relax
-          \ifdim\pagegoal<\maxdimen
-            \advance\dimen@ by \pagetotal
-            \ifdim\dimen@>\pagegoal \vfil\break \fi
-          \fi
-          \endgroup}
-        \makeatother
-        \let\PlainSection\section
-        \let\PlainSubsection\subsection
-        \let\PlainSubsubsection\subsubsection
-        \renewcommand*{\section}{\NeedSpace{8\baselineskip}\PlainSection}
-        \renewcommand*{\subsection}{\NeedSpace{8\baselineskip}\PlainSubsection}
-        \renewcommand*{\subsubsection}{\NeedSpace{6\baselineskip}\PlainSubsubsection}
         \renewcommand*{\captionformat}{\ }
 
   epub:
