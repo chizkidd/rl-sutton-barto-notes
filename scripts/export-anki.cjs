@@ -10,7 +10,9 @@
 //   default output: dist/anki/rl-notes.tsv
 //
 // The file is tab separated with the header lines Anki understands, so
-// File -> Import accepts it directly (note type: Cloze).
+// File -> Import accepts it directly. #notetype:Cloze presets the built-in
+// Cloze note type, which is what turns the {{c1::…}} markers into clozes;
+// left to itself the import screen picks Basic and they stay literal text.
 
 const fs = require('fs');
 const path = require('path');
@@ -180,7 +182,10 @@ function main() {
   const body = rows
     .map((r) => [r.text, r.extra, r.tags].map((f) => f.replace(/\t/g, ' ').replace(/\n/g, '<br>')).join('\t'))
     .join('\n');
-  fs.writeFileSync(out, `#separator:tab\n#html:true\n#tags column:3\n${body}\n`);
+  fs.writeFileSync(
+    out,
+    `#separator:tab\n#html:true\n#notetype:Cloze\n#tags column:3\n${body}\n`
+  );
 
   console.log(`export-anki: ${rows.length} cards from ${bullets} bullets in ${sources.length} files`);
   console.log(`  written to ${out}`);
