@@ -60,7 +60,7 @@ The toolchain is pinned (Quarto 1.5.57, TinyTeX 2025.12 against the frozen TeX L
 
 ## Extras
 
-Each of these is a one-command tool. The checks and generators are local-only — none of them run in CI; the deploy workflow runs `export-anki.cjs` so the downloadable deck matches the book.
+Each of these is a one-command tool. The checks are local-only — none of them run in CI. Two of the generators do: the deploy workflow runs `export-anki.cjs` so the downloadable deck matches the book, and `_quarto.yml` runs `fix-epub.py` after every render.
 
 ```bash
 node scripts/export-anki.cjs       # bullets -> Anki cloze deck (dist/anki/rl-notes.tsv)
@@ -81,7 +81,7 @@ python3 scripts/freeze-anchors.py  # write the built heading ids into the chapte
 
 **Parity check** — `check-parity.py` compares section numbers and the full text of every figure caption between `_site/` and `rl-notes.pdf`, because the two formats are configured separately (`number-depth: 3` against `secnumdepth 2`) and drift silently. Captions are compared word for word, so changing a single word in a caption fails the check; math is dropped because the HTML holds TeX source and the PDF typeset glyphs.
 
-**EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter), if any `href` or `src` does not resolve to a file inside the archive (a `.qmd` source path or a `chapters/*.html` page looks fine on the web and is missing from the book), or if any `#fragment` names an id that the document it lands in does not have. None of those show up until the book is opened in a reader. The last two rules are `linkcheck.py`, the same code `check-refs.cjs` runs against `_site/`, so a link is judged the same way on the site and inside the archive; this script supplies only the documents and anchors of the zip. It also fails on the five packaging defects `fix-epub.py` repairs — `alt` on a `<div>`, `displaystyle` on `<mfrac>`, a blank `dc:date`, a `dc:language` that is not a language tag, and a document using MathML whose manifest item omits `properties="mathml"` — reported as INVALID rather than BROKEN, since a reader ignores all five. That way a regression is caught by the one Python command, with no JDK or EPUBCheck jar.
+**EPUB check** — `check-epub.py` unzips `_site/rl-notes.epub` and fails if any chapter is not well-formed XHTML (an unclosed `<br>`, `<img>` or `<source>` makes readers show an error page instead of the chapter), if any `href` or `src` does not resolve to a file inside the archive (a `.qmd` source path or a `chapters/*.html` page looks fine on the web and is missing from the book), or if any `#fragment` names an id that the document it lands in does not have. None of those show up until the book is opened in a reader. The last two rules are `linkcheck.py`, the same code `check-refs.cjs` runs against `_site/`, so a link is judged the same way on the site and inside the archive; this script supplies only the documents and anchors of the zip. It also fails on the five packaging defects `fix-epub.py` repairs — `alt` on a `<div>`, `displaystyle` on `<mfrac>`, a blank or missing `dc:date`, a `dc:language` that is not a language tag, and a document using MathML whose manifest item omits `properties="mathml"` — reported as INVALID rather than BROKEN, since a reader ignores all five. That way a regression is caught by the one Python command, with no JDK or EPUBCheck jar.
 
 **Figure table check** — `check-sources.py` holds `figures/SOURCES.md` to the build. For every row it wants the PNG in `figures/`, a chapter link whose `{#fig-…}` anchor is really in that chapter and whose number belongs to it, a figure number the book still has, and the caption the book prints word for word — math included, since the comparison undoes the build's markup rather than dropping it. It also reports a figure in the book with no row, and a number with two. The same pass checks the gallery grid in `gallery.qmd`, which restates each caption's opening: every card must start with the book's own words for its figure, and a card the book has no figure for, two cards for one figure, or a figure with no card are all reported. The grid is read by `build-epub-gallery.py`'s parser, so the check and the EPUB list generator cannot disagree about what a card says. The captions come from `bookhtml.py`, the same reader `check-parity.py` uses, so "what the book says" is defined once.
 
@@ -113,7 +113,7 @@ First-time setup:
 RL-Sutton-Barto-notes/
 ├── README.md                    # This file
 ├── LICENSE                      # MIT license
-├── .gitignore                   # Ignores _site/, .quarto/, .preview/, locks, __pycache__, .DS_Store
+├── .gitignore                   # Ignores _site/, .quarto/, .preview/, dist/, locks, __pycache__, .DS_Store
 ├── _quarto.yml                  # Book config: chapter order, theme, PDF settings
 ├── index.qmd                    # Preface: coverage table + notation table
 ├── gallery.qmd                  # Figure gallery: every diagram by chapter
@@ -152,6 +152,7 @@ RL-Sutton-Barto-notes/
 │   ├── ch12-eligibility-traces.qmd
 │   └── ch13-policy-gradient-methods.qmd
 └── figures/                     # 42 figure PNGs (the book's diagrams)
+    ├── SOURCES.md               # Every figure: file, chapter, number and caption
     ├── ch03-3-1.png             # chNN-N-N[-label].png — chapter NN, book figure N-N
     ├── ch06-6-4-sarsa.png
     ├── ch12-12-10-watkins-q-lambda.png
