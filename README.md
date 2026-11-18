@@ -56,7 +56,11 @@ Scripts, checks, CI and build details live in [`EXTRAS.md`](EXTRAS.md); you do n
 
 ## Anki Deck
 
-`node scripts/export-anki.cjs` turns every bullet that bolds a term into a cloze card, tagged by chapter and section, and writes `dist/anki/rl-notes.tsv` for Anki's tab-separated import. The file's `#notetype:Cloze` header presets the Cloze note type, so File → Import needs no note-type choice; importing as Basic leaves the `{{c1::…}}` markers as literal text. The deploy workflow runs the same script into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
+`node scripts/export-anki.cjs` turns every bullet that bolds a term into a cloze card, tagged by chapter and section, and writes `dist/anki/rl-notes.tsv` for Anki's tab-separated import. The deploy workflow runs the same script into `_site/rl-notes-anki.tsv`, so the download on the site always matches the published book.
+
+**How to import:** download `rl-notes-anki.tsv`, then File → Import in Anki and choose a deck. The file's `#notetype:Cloze` header presets the Cloze note type, so the `{{c1::…}}` markers become real clozes with no note-type choice to make.
+
+If you already imported the deck as Basic, delete those notes in Browse and import the file again. Anki cannot convert an existing note to another note type, so those cards keep the `{{c1::…}}` markers as literal text until they are imported as Cloze.
 
 ## Deployment
 
