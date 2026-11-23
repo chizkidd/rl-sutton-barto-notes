@@ -116,6 +116,11 @@ format:
         \clubpenalty=10000
         \displaywidowpenalty=10000
         \renewcommand*{\captionformat}{\ }
+        % --- table of contents: the last entry (Notation Index) was pushed onto a
+        % fifth page by one line. The class leaves 1em before each chapter entry;
+        % tightening that to 6pt pulls the entry back onto the fourth page without
+        % changing the toc's type, alignment or dot leaders.
+        \DeclareTOCStyleEntry[beforeskip=8pt]{tocline}{chapter}
 
   epub:
     toc: true
