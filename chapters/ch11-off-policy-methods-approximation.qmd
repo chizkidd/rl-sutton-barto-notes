@@ -3,29 +3,27 @@ title: "Off-Policy Methods with Approximation"
 number-sections: true
 ---
 
-- Let's discuss the extension of off-policy methods from the tabular case (Ch. 6 & 7) to function approximation.
-- We'll explore the convergence problems, the theory of linear function approximation, the notion of learnability, and stronger convergence off-policy algorithms.
-- Off-policy learning with function approximation has 2 challenges:
-  1. Finding the target of the update.
-  2. The off-policy distribution of updates does not match that of the on-policy distribution.
+- Extending off-policy algorithms from tabular lookup tables (Chapters 6 and 7) to parameterized function approximation turns out to be dramatically harder than the on-policy case.
+- Rather than converging reliably with small step sizes, standard bootstrapped off-policy updates can become unstable and send parameter weights off to infinity, even in linear settings.
+- Two distinct difficulties emerge when combining off-policy data with function approximation:
+  1. **Target mismatch**: The update target must reflect the target policy $\pi$ even though transitions were collected under a different behavior policy $b$.
+  2. **Distribution mismatch**: The visitation frequencies of states and actions encountered under $b$ do not align with the stationary distribution induced by $\pi$.
 
 ## Semi-gradient Methods {#sec-ch11-11-1}
 
-- Let's discuss the extension of previous off-policy methods to function approximation as semi-gradient methods.
-- This is how we find the update target (or change it) to address the first challenge.
-
-- Recall the semi-gradient update:
+- Adapting tabular off-policy algorithms to function approximation starts by converting their update targets into **semi-gradient updates**, addressing the target-mismatch problem directly.
+- Recall the general semi-gradient rule that nudges the parameter vector $\mathbf{w}$ toward a target $U_t$:
 
 $$\mathbf{w}_{t+1} = \mathbf{w}_t + \alpha\!\left[U_t - \hat{v}(S_t, \mathbf{w}_t)\right] \nabla \hat{v}(S_t, \mathbf{w}_t)$$
 
 $$U_t = R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t)$$
 
-- In the tabular case, we update the array ($V$ or $Q$), but now we update the weight vector $\mathbf{w}$.
-- Many off-policy algorithms use the per-step importance sampling ratio:
+- Unlike tabular learning where each state or state-action entry sits in an independent array cell, all updates now modify a shared weight vector $\mathbf{w}$.
+- To correct for actions sampled from $b$ instead of $\pi$, many state-value algorithms weight each step by the **per-step importance sampling ratio**:
 
 $$\rho_t \doteq \rho_{t:t} = \frac{\pi(A_t \vert S_t)}{b(A_t \vert S_t)}$$
 
-- The off-policy, semi-gradient **TD(0)** is same as that of the on-policy TD(0) except for the addition of the $\rho_t$ term:
+- **Off-policy semi-gradient TD(0)**: Adjusts weights along the value gradient just like the on-policy variant, multiplying the step by $\rho_t$:
 
 $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha \rho_t\, \delta_t \nabla \hat{v}(S_t, \mathbf{w}_t)}$$
 
@@ -36,7 +34,7 @@ $$
 \end{aligned}
 $$
 
-- For action values, the off-policy, semi-gradient **Expected Sarsa** update rule is (no importance sampling):
+- **Off-policy semi-gradient Expected Sarsa**: Evaluates action values without any importance sampling factor because the target expectation sums explicitly over next-step actions under $\pi$:
 
 $$\boxed{\mathbf{w}_{t+1} = \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{q}(S_t, A_t, \mathbf{w}_t)}$$
 
@@ -47,8 +45,8 @@ $$
 \end{aligned}
 $$
 
-- The lack of use of importance sampling in Expected Sarsa is an unclear choice since we might want to weight different state-action pairs **differently** once they all contribute to the same overall approximation. This issue can only be properly resolved by more thorough understanding of the **theory of function approximation** in RL.
-- In the multi-step generalizations of the algorithms, both the state-value and action-value algorithms involve importance sampling. For example, the off-policy, semi-gradient $\mathbf{n}$**-step Sarsa** update is:
+- Omitting importance sampling in Expected Sarsa is subtly open to debate once weights are shared across state-action pairs, because each sample alters predictions for neighboring pairs as well. Settling how samples ought to be weighted demands deeper **function approximation theory**.
+- Moving beyond one-step backups introduces importance sampling into action-value methods too. **Off-policy semi-gradient $n$-step Sarsa** multiplies the next $n$ policy ratios:
 
 $$\boxed{\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha \rho_{t+1} \cdots \rho_{t+n}\!\left[G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1})}$$
 
@@ -61,7 +59,7 @@ $$
 
 $$\text{where } \rho_k = 1 \quad \text{ for } k \geq T \quad \text{and} \quad G_{t:t+n} = G_t \quad \text{ if } t+n \geq T$$
 
-- The off-policy, semi-gradient $\mathbf{n}$**-step backup tree** (no importance sampling) algorithm is:
+- **Off-policy semi-gradient $n$-step tree backup**: Avoids importance sampling altogether by propagating expected TD errors weighted by target-policy probabilities along the trajectory:
 
 $$\boxed{\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1})}$$
 
@@ -71,21 +69,14 @@ $$\text{where } \delta_t \text{ is the Expected Sarsa TD error defined earlier i
 
 ## Examples of Off-Policy Divergence {#sec-ch11-11-2}
 
-- Now let's discuss the 2nd off-policy function approximation challenge.
-- We'll look at some instructive counterexamples where the semi-gradient algorithm diverges.
+- Addressing target mismatch alone is insufficient because the second obstacle, distribution mismatch, can destabilize semi-gradient updates.
+- Three classic counterexamples illustrate exactly how linear semi-gradient bootstrapping blows up under off-policy sampling (see Sutton & Barto, 2018, §11.2, for the transition diagrams of these MDPs).
 
 ### Example 1 {#example-1}
 
-Consider part of a larger MDP with 2 states whose estimated values are $w$ and $2w$:
-
-::: {#fig-111}
-![](../figures/ch11-11-2-example1.png){fig-align="center" fig-alt="Simple Counterexample. 2-state part of an MDP."} 
-
-**Simple Counterexample.** 2-state part of an MDP.
-:::
-
-- $w$ updates will diverge to infinity, since the transition will always look good (higher next-state estimated value than current state estimated value).
-- The TD error on a transition between the 2 states is:
+- Imagine an isolated two-state fragment embedded inside a larger MDP (Sutton & Barto, 2018, §11.2): a single deterministic transition with reward $R = 0$ moves from a state valued at $w$ to a second state valued at $2w$, sharing the same scalar parameter $w$.
+- Suppose off-policy updates repeatedly sample only this transition with $\rho_t = 1$. Whenever $w > 0$ and the discount factor is sufficiently large, the destination state looks strictly better than the origin, pushing $w$ upward without bound.
+- The resulting TD error along the transition is:
 
 $$
 \begin{aligned}
@@ -95,7 +86,7 @@ $$
 \end{aligned}
 $$
 
-- The off-policy, semi-gradient TD(0) update is:
+- Substituting $\delta_t$ into off-policy semi-gradient TD(0) yields a geometric recurrence:
 
 $$
 \begin{aligned}
@@ -114,52 +105,35 @@ $$
 \end{aligned}
 $$
 
+- For any $\gamma > 0.5$ and any positive step size $\alpha > 0$, the multiplier exceeds $1$, driving $w$ to $\pm\infty$.
+
 ### Example 2 (Baird's Counterexample) {#example-2-bairds-counterexample}
 
-- Now let's look at an entire complete system with instability (divergence).
-- Consider the episodic 7-state, 2-action MDP shown below.
-
-::: {#fig-112}
-![](../figures/ch11-11-2-bairds-counterexample.png){fig-align="center" fig-alt="Baird's Counterexample. Episodic 7-state, 2-action MDP."} 
-
-**Baird's Counterexample.** Episodic 7-state, 2-action MDP.
-:::
-
-- **Assumptions/knowns:**
-  - $b(\text{dashed}\,\vert\,\cdot) = 6/7$
-  - $b(\text{solid}\,\vert\,\cdot) = 1/7$
-  - $\pi(a\,\vert\,\cdot) = \pi(\text{solid}\,\vert\,\cdot) = 1$
-  - $R = 0$ (on all transitions)
-  - $\gamma = 0.99$
-  - The state values are estimated via linear parametrization.
-
-- The estimated value of the leftmost state is $2w_1 + w_8$, which corresponds to a feature vector for the 1st state being:
+- To show that divergence occurs in a self-contained MDP rather than an isolated fragment, **Baird's counterexample** constructs a complete 7-state, 2-action star-shaped MDP (diagrammed in Sutton & Barto, 2018, §11.2).
+- **Problem setup**:
+  - **Behavior policy**: Picks the dashed action with probability $b(\text{dashed}\,\vert\,\cdot) = 6/7$ (transitioning uniformly among the six top nodes) and the solid action with $b(\text{solid}\,\vert\,\cdot) = 1/7$ (entering the single bottom node deterministically).
+  - **Target policy**: Always picks the solid action, $\pi(\text{solid}\,\vert\,\cdot) = 1$, keeping the agent permanently in the lower state.
+  - **Rewards and discounting**: Every transition yields $R = 0$ with discount factor $\gamma = 0.99$.
+  - **Linear value approximation**: Each of the six upper states $i \in \{1, \dots, 6\}$ has value $2w_i + w_8$, while the seventh (lower) state has value $w_7 + 2w_8$.
+- For instance, the first upper state corresponds to the 8-dimensional feature vector:
 
 $$\mathbf{x}(1) = (2, 0, 0, 0, 0, 0, 0, 1)^T$$
 
 $$R = 0 \quad \therefore\quad v_\pi(s) = 0 \; \forall s, \text{ which can be exactly approximated if } \mathbf{w} = \mathbf{0}$$
 
-- Since there are 8 components of the weight vector (more than the 7 non-terminal states), there exist many solutions.
-- Applying semi-gradient TD(0) to this problem will cause the weights to diverge to infinity. This also applies for the dynamic programming (DP) case.
-- The semi-gradient DP update is:
+- Although the parameter space is overparameterized (8 weights for 7 states) and admits exact zero-error solutions, semi-gradient TD(0) still diverges to infinity for every positive step size $\alpha > 0$.
+- Even exact expected updates suffer the same fate: **semi-gradient dynamic programming (DP)** sweeps uniformly across all states and still diverges:
 
 $$\mathbf{w}_{k+1} \doteq \mathbf{w}_k + \frac{\alpha}{\vert S \vert} \sum_s \left(\mathbb{E}_\pi\!\left[R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_k) \mid S_t = s\right] - \hat{v}(s, \mathbf{w}_k)\right) \nabla \hat{v}(s, \mathbf{w}_k)$$
 
-- This example shows that even the simplest combination of bootstrapping and function approximation can be unstable in the off-policy case.
-  - <u>Simplest bootstrapping</u>: DP and TD.
-  - <u>Simplest function approximation</u>: linear, semi-gradient descent method.
+- Baird's star MDP proves that instability arises from the most elementary ingredients imaginable:
+  - **Minimal bootstrapping**: One-step TD or synchronous DP backups.
+  - **Minimal approximation**: Linear features updated by semi-gradient descent.
 
 ### Example 3 (Tsitsiklis & Van Roy's Counterexample) {#example-3-tsitsiklis-van-roys-counterexample}
 
-This extends Example 1 with a terminal state and $R = 0$:
-
-::: {#fig-113}
-![](../figures/ch11-11-2-tsitsiklis-van-roy-counterexample.png){width=78% fig-align="center" fig-alt="Tsitsiklis and Van Roy's Counterexample. Extension of Example 1 with probability of transitioning to the terminal state (shaded)."} 
-
-**Tsitsiklis & Van Roy's Counterexample.** Extension of Example 1 with probability $\varepsilon$ of transitioning to the terminal state (shaded).
-:::
-
-- Let's find $w_{k+1}$ at each step that minimizes the $\overline{\text{VE}}$ between the estimated value and the expected one-step return:
+- **Tsitsiklis and Van Roy's counterexample** shows that even exact least-squares projection at every DP iteration can fail (Sutton & Barto, 2018, §11.2). It modifies Example 1 by adding a terminal state reached from the $2w$ state with probability $\varepsilon$ (and self-looping with probability $1 - \varepsilon$), with all rewards equal to $0$.
+- Choosing the next scalar weight $w_{k+1}$ to minimize squared value error $\overline{\text{VE}}$ against the current one-step Bellman targets gives:
 
 $$
 \begin{aligned}
@@ -169,51 +143,44 @@ w_{k+1} &= \arg\min_{w \in \mathbb{R}} \sum_{s \in S} \left(\hat{v}(s, w) - \mat
 \end{aligned}
 $$
 
-- The sequence $\{w_k\}$ diverges when $\gamma > \dfrac{5}{6 - 4\varepsilon}$ and $w_0 \neq 0$.
+- Whenever $\gamma > \dfrac{5}{6 - 4\varepsilon}$ and $w_0 \neq 0$, the multiplier exceeds $1$ and the sequence $\{w_k\}$ grows exponentially without bound.
 
 ### Takeaways {#ch11-takeaways}
 
-- Instability can be prevented by using special methods for function approximation.
-- These special methods guarantee stability because they do not extrapolate from the observed targets. They are called **averagers**.
-- Averagers include:
-  1. Nearest neighbor
-  2. Locally weighted regression
-  3. Tile coding
-  4. Artificial neural networks (ANNs)
+- Stability can be restored by restricting function approximation to architectures that never extrapolate outside the range of observed targets.
+- **Averagers**: Function approximators whose predictions are always convex combinations (weighted averages) of observed target values; because they are non-expansive, they guarantee stability under off-policy DP and TD.
+  - **Guaranteed averagers**: Non-parametric interpolators such as $k$-nearest neighbors and kernel-weighted local regression meet this non-expansive property.
+  - **Non-averagers**: General linear approximators (including tile coding with overlapping tilings) and artificial neural networks can extrapolate beyond observed targets and therefore do not automatically prevent divergence.
 
 ## The Deadly Triad {#sec-ch11-11-3}
 
-- The danger of instability and divergence arises when we combine these 3 elements, which make up the **deadly triad**:
-  - Function approximation
-  - Bootstrapping
-  - Off-policy training
-
-- Instability can be avoided if one of the elements is absent:
-  - Function approximation cannot be given up (needed for large-scale problems).
-  - Bootstrapping can be given up but at the cost of computational and data efficiency.
-  - Off-policy can be given up (replace Q-learning with Sarsa).
-  - There is no perfect solution as we still need off-policy for planning and parallel learning.
+- **The deadly triad**: Divergence and unbounded oscillations become a genuine risk whenever three mechanisms operate simultaneously:
+  1. **Function approximation**: Generalizing across large state spaces via a compact parameter vector whose dimension is far smaller than $\vert \mathcal{S} \vert$.
+  2. **Bootstrapping**: Constructing update targets from existing value estimates instead of waiting for complete empirical returns.
+  3. **Off-policy training**: Learning about $\pi$ from trajectories sampled under a distinct exploratory policy $b$, creating a mismatch in state visitation.
+- Removing any single leg of the triad eliminates this specific instability mode, yet each leg serves a vital role:
+  - **Cannot drop function approximation**: Tabular lookup tables cannot scale to high-dimensional or continuous domains.
+  - **Dropping bootstrapping is costly**: Pure Monte Carlo avoids instability but sacrifices sample efficiency and online computational convenience.
+  - **Dropping off-policy learning limits generality**: Switching from Q-learning to Sarsa restores on-policy stability, yet off-policy updates remain essential for learning multiple predictions in parallel, reusing replay buffers, and planning.
 
 ## Linear Value-Function Geometry {#sec-ch11-11-4}
 
-- To better understand the stability challenge of off-policy learning, let's think about value-function approximation **more abstractly and independently** of how learning is done.
-- Let's consider the case with 3 states $S = \{s_1, s_2, s_3\}$ and 2 parameters $\mathbf{w} = (w_1, w_2)^T$.
-  - All value functions exist in a 3-D space, however the parameters provide a 2-D subspace.
-  - Any weight vector $\mathbf{w} = (w_1, w_2)^T$ is a point in the 2-D subspace and thus also a complete value function $v_\mathbf{w}$ that assigns values to all 3 states.
-  - In linear value-function approximation, the subspace is a simple plane.
-- How do we represent $v_\pi$ in the $d$-dimensional space?
-  - We need to perform a projection operation.
-  - TD methods present other solutions.
+- To diagnose why off-policy updates drift and which objectives are actually achievable, it helps to view value functions geometrically as vectors in $\mathbb{R}^{\vert \mathcal{S} \vert}$, separate from any particular update rule.
+- Picture a tiny 3-state MDP ($\mathcal{S} = \{s_1, s_2, s_3\}$) approximated linearly with 2 weights $\mathbf{w} = (w_1, w_2)^T$:
+  - Every possible state-value function corresponds to a point in 3D Euclidean space.
+  - Varying $\mathbf{w}$ sweeps out a 2D flat plane (linear subspace) embedded inside that 3D space.
+  - Typically, the true value vector $v_\pi$ lies off this plane and cannot be represented exactly.
+- Different learning algorithms effectively choose different points inside the representable plane to stand in for $v_\pi$, depending on which error geometry they minimize (@fig-114).
 
 ::: {#fig-114}
-![](../figures/ch11-11-4-linear-value-func-approx-geometry.png){fig-align="center" fig-alt="The Geometry of Linear Value-Function Approximation. A 2D linear subspace inside a 3D value-function space, comparing projections for VE, BE, PBE, and TDE objectives."}
+![](../figures/ch11-linear-projection.png){width=85% fig-align="center" fig-alt="Geometric diagram of linear value-function approximation showing v_pi projected onto the linear subspace alongside VE, PBE, BE, and TDE solutions."}
 
-**The Geometry of Linear Value-Function Approximation.** Value functions over three states form a 3D ambient space, while a 2-parameter linear approximator $\mathbf{w} = (w_1, w_2)^T$ spans a 2D plane within it. Projecting the true value vector $v_\pi$ onto this plane via $\Pi$ yields the minimum-$\text{VE}$ solution, whereas minimizing $\text{BE}$, $\text{PBE}$, or $\text{TDE}$ generally lands on distinct points in the plane.
+**Geometry of linear value-function approximation.** The true value vector $v_\pi$ lies outside the representable linear plane; orthogonal projection $\Pi v_\pi$ minimizes $\overline{\text{VE}}$, whereas the TD fixed point ($\overline{\text{PBE}} = 0$), minimum $\overline{\text{BE}}$, and minimum $\overline{\text{TDE}}$ generally differ.
 :::
 
 ### Projection Operation {#projection-operation}
 
-- For the projection operation, the distance between value functions using the norm is:
+- **Weighted Euclidean norm**: Distances in value space are measured relative to the state-weighting distribution $\mu(s)$, defining both the Mean Squared Value Error $\overline{\text{VE}}$ and the **projection operator** $\Pi$:
 
 $$
 \begin{aligned}
@@ -224,26 +191,20 @@ $$
 \end{aligned}
 $$
 
-- The representable value function that is closest to the true value function $V_\pi$ is its projection $\Pi V_\pi$ (MC method asymptotic solution).
+- **Best linear approximation**: The closest representable vector to $v_\pi$ under $\lVert \cdot \rVert_\mu$ is its orthogonal projection $\Pi v_\pi$, which is the asymptotic fixed point of linear Monte Carlo methods.
+- **Projection matrix**: Let $\mathbf{D}$ be the $\vert S \vert \times \vert S \vert$ diagonal matrix with entries $\mu(s)$ along the diagonal, and let $\mathbf{X}$ be the $\vert S \vert \times d$ feature matrix stacking each row $\mathbf{x}(s)^T$. Then $\Pi$ takes the closed form:
 
-- **Projection matrix**: with $\mathbf{D} \equiv \vert S \vert \times \vert S \vert$ diagonal matrix with $\mu(s)$ on the diagonal and $\mathbf{X} \equiv \vert S \vert \times d$ matrix whose rows are the feature vectors $\mathbf{x}(s)^T$:
+$$\Pi \doteq \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}$$
 
-    $$\Pi \doteq \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}$$
+- Whenever $\mathbf{X}^T \mathbf{D} \mathbf{X}$ is singular, the Moore-Penrose pseudoinverse replaces the ordinary inverse. In matrix notation, the weighted squared norm and linear value vector compactly read:
 
-    If the inverse does not exist, the pseudoinverse is substituted. Using these matrices, the squared norm of a vector can be written as:
+$$\lVert v \rVert_\mu^2 = v^T \mathbf{D}\, v$$
 
-    $$\lVert v \rVert_\mu^2 = v^T \mathbf{D}\, v$$
-
-    and the approximate linear value function written as:
-
-    $$v_\mathbf{w} = \mathbf{X}\mathbf{w}$$
+$$v_\mathbf{w} = \mathbf{X}\mathbf{w}$$
 
 ### TD Solutions {#td-solutions}
 
-**Bellman Error**
-
-- The true value function $v_\pi$ solves the Bellman equation exactly.
-- The **Bellman error** shows how far off $v_\mathbf{w}$ is from $v_\pi$. The Bellman error at state $s$ is:
+- **Bellman error**: While $v_\pi$ satisfies the Bellman equation with zero discrepancy everywhere, an approximate vector $v_\mathbf{w}$ generally incurs a non-zero residual at each state $s$:
 
 $$
 \begin{aligned}
@@ -252,13 +213,12 @@ $$
 \end{aligned}
 $$
 
-- The Bellman error is the expectation of the TD error.
-- The vector of all the Bellman errors, at all states, $\bar{\delta}_\mathbf{w} \in \mathbb{R}^{\vert S \vert}$, is called the **Bellman error vector** ($\text{BE}$).
-- The overall size of $\text{BE}$ is the **Mean Squared Bellman Error**, $\overline{\text{BE}}$:
+- **Bellman error vector ($\text{BE}$)**: Stacking the expected TD errors $\bar{\delta}_\mathbf{w}(s)$ across all states produces $\bar{\delta}_\mathbf{w} \in \mathbb{R}^{\vert S \vert}$.
+- **Mean Squared Bellman Error ($\overline{\text{BE}}$)**: Measures the $\mu$-weighted squared length of the Bellman error vector:
 
 $$\overline{\text{BE}}(\mathbf{w}) = \lVert \bar{\delta}_\mathbf{w} \rVert_\mu^2$$
 
-- The **Bellman operator** $B_\pi : \mathbb{R}^{\vert S \vert} \to \mathbb{R}^{\vert S \vert}$ is defined by:
+- **Bellman operator ($B_\pi$)**: Maps any value vector $v \in \mathbb{R}^{\vert S \vert}$ through one full expected policy backup, expressing both the Bellman error and fixed-point condition cleanly:
 
 $$
 \begin{aligned}
@@ -268,27 +228,27 @@ v_\pi &= B_\pi v_\pi
 \end{aligned}
 $$
 
-- The projection of the Bellman error vector back into the representable space creates the **Projected Bellman Error $(\text{PBE})$** vector:
+- Because $B_\pi v_\mathbf{w}$ generally leaves the representable linear plane, the **Projected Bellman Error ($\text{PBE}$)** projects the Bellman error vector back onto the subspace:
 
 $$\text{PBE} = \Pi\, \bar{\delta}_\mathbf{w}$$
 
-- The size of $\text{PBE}$, in the norm, is another measure of error in the approximate value function, called the **Mean Square Projected Bellman Error**, $\overline{\text{PBE}}$:
+- **Mean Squared Projected Bellman Error ($\overline{\text{PBE}}$)**: Evaluates the squared norm of that projected residual:
 
 $$\overline{\text{PBE}}(\mathbf{w}) = \lVert \Pi\, \bar{\delta}_\mathbf{w} \rVert_\mu^2$$
 
-- With linear function approximation, there always exists an approximate value function (within the subspace) with zero $\overline{\text{PBE}}$; this is the TD fixed point $\mathbf{w}_\text{TD}$.
+- **TD fixed point ($\mathbf{w}_\text{TD}$)**: Under linear function approximation, there always exists a weight vector inside the subspace where $\overline{\text{PBE}}(\mathbf{w}_\text{TD}) = 0$, meaning the Bellman error is purely orthogonal to the feature plane.
 
 ## Gradient Descent in the Bellman Error {#sec-ch11-11-5}
 
-- Let's apply the approach of SGD in dealing with the challenge of stability in off-policy learning.
+- Because semi-gradient updates ignore how parameter changes alter the bootstrapped target, an appealing alternative is to perform true stochastic gradient descent (SGD) on a well-defined scalar error objective.
 
 ### TD Error (Naive Residual-Gradient Algorithm) {#td-error-naive-residual-gradient-algorithm}
 
-- Let's take the minimization of the expected square of the TD error as the objective, TD(0):
+- A first candidate loss penalizes the average squared magnitude of single-step TD residuals, where:
 
 $$\delta_t = R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t)$$
 
-- Using the TD error, we can find the Mean Squared TD error, the objective function $\overline{\text{TDE}}$:
+- **Mean Squared TD Error ($\overline{\text{TDE}}$)**: Averaging $\delta_t^2$ under the target policy (and rewriting via importance sampling under $b$) yields:
 
 $$
 \begin{aligned}
@@ -298,7 +258,7 @@ $$
 \end{aligned}
 $$
 
-- Following the standard SGD approach, the per-step update based on a sample of this expected value:
+- **Naive residual-gradient update**: Differentiating $\rho_t \delta_t^2$ directly with respect to $\mathbf{w}$ produces a genuine SGD step:
 
 $$
 \begin{aligned}
@@ -308,13 +268,12 @@ $$
 \end{aligned}
 $$
 
-- This is the same as the semi-gradient TD algorithm except for the additional final term.
-- This method is **naive** because it achieves temporal smoothing-like behavior rather than accurate prediction by penalizing all TD errors.
+- Compared to semi-gradient TD(0), this rule adds the negative bootstrapped gradient term $-\gamma \nabla \hat{v}(S_{t+1}, \mathbf{w}_t)$, guaranteeing convergence as true SGD.
+- **Why it is naive**: Minimizing raw sample-by-sample $\delta_t^2$ punishes stochastic reward and transition variance just as harshly as prediction bias, smoothing values across time rather than recovering true expected returns (even in tabular stochastic chains).
 
 ### Bellman Error (Residual-Gradient Algorithm) {#bellman-error-residual-gradient-algorithm}
 
-- Consider the minimization of the Bellman error (if the exact values are learned, the Bellman error is zero everywhere).
-- This yields the **residual gradient algorithm**:
+- **Residual-gradient algorithm**: Instead of squaring individual sample errors, true SGD on $\overline{\text{BE}}$ differentiates the squared *expected* TD error:
 
 $$
 \begin{aligned}
@@ -326,40 +285,31 @@ $$
 \end{aligned}
 $$
 
-- Two ways to make the residual-gradient algorithm work:
-  - In the case of deterministic environments.
-  - Obtain 2 independent samples of the next state $S_{t+1}$ from $S_t$.
-- In both ways above, the algorithm is guaranteed to converge to a minimum of the $\overline{\text{BE}}$ under the usual conditions on the step-size parameter.
-
-- However, there are at least 3 ways in which the convergence of the residual-gradient algorithm is unsatisfactory:
-  - Very slow.
-  - Converges to the wrong values.
-  - A problem with the $\overline{\text{BE}}$ objective covered in the next section.
+- **Double-sampling problem**: Because the gradient involves a product of two expectations over $S_{t+1}$, plugging a single observed transition into both factors introduces bias (reverting to the naive algorithm). Unbiased updates require one of two conditions:
+  1. **Deterministic transitions**: The next state is unique, so both expectations collapse to a single sample.
+  2. **Two independent samples**: A simulator or model is queried twice from the exact same state $S_t$ to obtain independent draws of $S_{t+1}$.
+- When either condition holds and step sizes decay appropriately, residual-gradient converges reliably to a minimum of $\overline{\text{BE}}$.
+- **Three major shortcomings**:
+  - **Sluggish convergence**: Learning progresses far more slowly than semi-gradient TD in practice.
+  - **Poor value estimates**: Even on simple problems with function approximation, minimizing $\overline{\text{BE}}$ can converge to less accurate predictions than the TD fixed point.
+  - **Fundamental non-learnability**: As shown next, the $\overline{\text{BE}}$ objective itself cannot be identified from trajectory data alone.
 
 ## The Bellman Error is Not Learnable {#sec-ch11-11-6}
 
-- The Bellman error is not learnable from the observed sequence of feature vectors, actions, and rewards.
-- Since the Bellman error objective cannot be learned from the observable data, this is the strongest reason not to seek it.
-- Examples of non-learnable Markov Reward Processes (MRPs):
+- **Learnability**: An objective (or its optimal parameter vector) is learnable only if it is uniquely determined by the observable stream of feature vectors, actions, and rewards, without peering inside the underlying MDP states.
+- The strongest argument against pursuing $\overline{\text{BE}}$ in model-free RL is that neither $\overline{\text{BE}}$ nor its minimizer is learnable from experience alone.
+- Two pairs of indistinguishable Markov Reward Processes (MRPs) demonstrate this distinction cleanly (see Sutton & Barto, 2018, §11.6, for the full state-transition diagrams).
 
 ### Example 1 {#example-1-1}
 
-::: {#fig-115}
-![](../figures/ch11-11-6-example1.png){fig-align="center" fig-alt="Value Error (VE) Learnability Counterexample. Deterministic MRP pair with an endless stream of 0s and 2s."} 
-
-**Value Error (VE) Learnability Counterexample.** Deterministic MRP pair with an endless stream of $0$s and $2$s.
-:::
-
-- These MRPs have a deterministic reward with observable data of an endless stream of 0s and 2s.
-- We cannot learn if the MRP has one state or two, or is stochastic or deterministic.
-- The pair of MRPs shows that the $\overline{\text{VE}}$ objective is not learnable:
+- Consider two distinct MRPs that share identical feature representations (all states map to the same constant feature) and emit the exact same endless alternating stream of rewards $0, 2, 0, 2, \ldots$ (Sutton & Barto, 2018, §11.6): one has a single state with a $50/50$ random reward of $0$ or $2$, while the other deterministically cycles through two indistinguishable states yielding $0$ and $2$.
+- From the agent's observations alone, no amount of infinite data can tell whether the environment has one stochastic state or two deterministic states.
+- Consequently, the **Mean Squared Value Error** ($\overline{\text{VE}}$) itself cannot be estimated from data, because $v_\pi(s)$ differs between the two MRPs:
 
 $$\overline{\text{VE}}(\mathbf{w}) \doteq \sum_{s \in S} \mu(s)\!\left[v_\pi(s) - \hat{v}(s, \mathbf{w})\right]^2$$
 
-- The $\overline{\text{VE}}$ is not learnable, but the parameter that optimizes it is!
-- We introduce a learnable natural objective function that is always observable. This is the error between the value estimate at each time and the return from that time, called the **return error**. The **Mean Square Return Error** $(\overline{\text{RE}})$ is the expectation, under $\mu$, of the square of this return error.
-
-- $\overline{\text{RE}}$ in the on-policy case is:
+- Crucially, however, the *minimizing parameter vector* of $\overline{\text{VE}}$ IS learnable! Both MRPs have the exact same optimal weight vector.
+- **Return error and $\overline{\text{RE}}$**: Replacing the unobservable true value $v_\pi(S_t)$ with the observable Monte Carlo return $G_t$ defines the **Mean Squared Return Error** ($\overline{\text{RE}}$), which differs from $\overline{\text{VE}}$ only by a constant independent of $\mathbf{w}$:
 
 $$
 \begin{aligned}
@@ -368,56 +318,40 @@ $$
 \end{aligned}
 $$
 
-- The $\overline{\text{BE}}$ can be computed from knowledge of the MDP but is not learnable from data, and its minimum solution is not learnable.
-
-```{=latex}
-\clearpage
-```
+- Thus $\overline{\text{RE}}$ is directly learnable from data and shares the exact same minimizer as $\overline{\text{VE}}$. By contrast, $\overline{\text{BE}}$ can only be evaluated with full knowledge of the MDP dynamics, and its minimizer cannot be recovered from data.
 
 ### Example 2 {#example-2}
 
-::: {#fig-116}
-![](../figures/ch11-11-6-example2.png){width=80% fig-align="center" fig-alt="Bellman Error (BE) Learnability Counterexample. Complex Deterministic MRP pair with same distribution but different minimizing parameter vector."} 
-
-**Bellman Error (BE) Learnability Counterexample.** Complex Deterministic MRP pair with same distribution but different minimizing parameter vector.
-:::
-
-- The example above serves as a counterexample to the learnability of the Bellman error.
-- The 2 MRPs generate the same data distribution but have different minimizing parameter vectors, proving that the optimal parameter vector is not a function of the data and thus cannot be learned from it.
-- Other bootstrapping objectives, like $\overline{\text{PBE}}$ and $\overline{\text{TDE}}$, are learnable from data and yield optimal solutions different from each other and that of $\overline{\text{BE}}$.
-- $\overline{\text{BE}}$ is limited to model-based settings, therefore $\overline{\text{PBE}}$ is preferred.
-
-::: {#fig-117}
-![](../figures/ch11-11-6-causal-relationships-mdps-datadistr-errors.png){width=80% fig-align="center" fig-alt="Causal Relationships among the data distribution, MDPs and various objectives. Monte-Carlo and Bootstrapping objectives."} 
-
-**Causal Relationships among the data distribution, MDPs & various objectives.** Monte-Carlo & Bootstrapping objectives.
-:::
+- A slightly richer pair of deterministic MRPs with aliased features (Sutton & Barto, 2018, §11.6) proves that $\overline{\text{BE}}$ fails even the weaker test of optimal-parameter learnability.
+- Both MRPs generate identical observable distributions over feature sequences and rewards, yet they possess *different* $\overline{\text{BE}}$-minimizing weight vectors.
+- Because the optimal $\mathbf{w}$ is not a function of the data distribution, no model-free algorithm can possibly learn the $\overline{\text{BE}}$ solution from interaction data alone.
+- **Learnable bootstrapping alternatives**: Both $\overline{\text{PBE}}$ and $\overline{\text{TDE}}$ depend solely on the observable data distribution, making them genuinely learnable; their optimal parameter vectors generally differ from one another and from the unlearnable $\overline{\text{BE}}$ minimizer (see Sutton & Barto, 2018, §11.6, for the causal dependency diagram relating MDPs, data distributions, and error objectives).
+- Since $\overline{\text{BE}}$ is restricted to model-based settings with access to environment dynamics, **$\overline{\text{PBE}}$** serves as the preferred bootstrapping objective for stable model-free off-policy learning.
 
 ## Gradient-TD Methods {#sec-ch11-11-7}
 
-- Let's consider SGD methods for minimizing the $\overline{\text{PBE}}$.
-- True SGD methods, **Gradient-TD methods**, have robust convergence properties even under off-policy training and nonlinear function approximation.
-- In the linear case, there exists an exact solution, the TD fixed point $\mathbf{w}_\text{TD}$, at which the $\overline{\text{PBE}}$ is zero.
-- This solution via **least-squares** methods yields a $O(d^2)$ complexity; however, we want an SGD method with $O(d)$ that converges robustly.
-- Let's derive an SGD method for the $\overline{\text{PBE}}$ assuming linear function approximation:
+- **Gradient-TD methods**: True stochastic gradient descent algorithms designed to minimize the learnable $\overline{\text{PBE}}$ objective, retaining stability even under off-policy sampling and nonlinear architectures.
+- With linear features, there exists an exact fixed point $\mathbf{w}_\text{TD}$ where $\overline{\text{PBE}}$ vanishes completely.
+- Exact least-squares TD (LSTD) finds $\mathbf{w}_\text{TD}$ directly at $O(d^2)$ cost per step; Gradient-TD achieves $O(d)$ memory and per-step computation via incremental SGD.
+- Rewriting $\overline{\text{PBE}}(\mathbf{w})$ in matrix form for linear approximation gives:
 
-  $$
-  \begin{aligned}
-  \overline{\text{PBE}}(\mathbf{w}) &= \lVert \Pi\, \bar{\delta}_\mathbf{w} \rVert_\mu^2 \\
-  &= \left(\Pi\, \bar{\delta}_\mathbf{w}\right)^T \mathbf{D}\, \Pi\, \bar{\delta}_\mathbf{w} \\
-  &= \bar{\delta}_\mathbf{w}^T \Pi^T \mathbf{D}\, \Pi\, \bar{\delta}_\mathbf{w} \\
-  &= \bar{\delta}_\mathbf{w}^T \mathbf{D} \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w} \\
-  &= \left(\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right)^T \!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \!\left(\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right)
-  \end{aligned}
-  $$
+$$
+\begin{aligned}
+\overline{\text{PBE}}(\mathbf{w}) &= \lVert \Pi\, \bar{\delta}_\mathbf{w} \rVert_\mu^2 \\
+&= \left(\Pi\, \bar{\delta}_\mathbf{w}\right)^T \mathbf{D}\, \Pi\, \bar{\delta}_\mathbf{w} \\
+&= \bar{\delta}_\mathbf{w}^T \Pi^T \mathbf{D}\, \Pi\, \bar{\delta}_\mathbf{w} \\
+&= \bar{\delta}_\mathbf{w}^T \mathbf{D} \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w} \\
+&= \left(\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right)^T \!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \!\left(\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right)
+\end{aligned}
+$$
 
-   $\quad \left(\text{using } \Pi = \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D} \text{ and the identity } \Pi^T \mathbf{D} \Pi = \mathbf{D} \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}\right)$
+$\quad \left(\text{using } \Pi = \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D} \text{ and the identity } \Pi^T \mathbf{D} \Pi = \mathbf{D} \mathbf{X}\!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \mathbf{X}^T \mathbf{D}\right)$
 
-- The gradient of the $\overline{\text{PBE}}$ w.r.t $\mathbf{w}$ is:
+- Differentiating $\overline{\text{PBE}}(\mathbf{w})$ with respect to $\mathbf{w}$ yields a product of three factors:
 
 $$\nabla \overline{\text{PBE}}(\mathbf{w}) = 2\, \nabla\!\left[\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right]^T \!\left(\mathbf{X}^T \mathbf{D} \mathbf{X}\right)^{-1} \!\left(\mathbf{X}^T \mathbf{D}\, \bar{\delta}_\mathbf{w}\right)$$
 
-- Let's turn this into an SGD method via converting the 3 factors above into **expectations** under this distribution:
+- Each of those three matrix factors can be rewritten as an expectation under the behavior distribution:
 
 $$
 \begin{aligned}
@@ -430,23 +364,22 @@ $$
 \end{aligned}
 $$
 
-Substituting these expectations for the three factors into $\nabla \overline{\text{PBE}}$:
+- Plugging all three expectations back into $\nabla \overline{\text{PBE}}(\mathbf{w})$ gives:
 
 $$\nabla \overline{\text{PBE}}(\mathbf{w}) = 2\, \mathbb{E}\!\left[\rho_t\!\left(\gamma \mathbf{x}_{t+1} - \mathbf{x}_t\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]$$
 
-- The 1st and last terms are not independent (**biased gradient estimate**).
-- Could estimate all 3 terms separately and combine (**unbiased gradient estimate**) but too computationally expensive.
+- Sampling all three factors from the same transition creates a **biased gradient estimate** because the first and third factors correlate, while maintaining separate matrix estimates would revert to $O(d^2)$ cost.
 
 ### Gradient-TD {#gradient-td}
 
-- Estimate and store the product of the last 2 terms of $\nabla \overline{\text{PBE}}(\mathbf{w})$ (product of a $d \times d$ matrix and a $d$-vector yields a $d$-vector like $\mathbf{w}$ itself):
+- **Secondary weight vector ($\mathbf{v}$)**: Rather than inverting a $d \times d$ covariance matrix, Gradient-TD maintains an auxiliary $d$-dimensional vector $\mathbf{v}$ that tracks the product of the last two terms:
 
 $$\mathbf{v} \approx \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]$$
 
-- In linear supervised learning, this is the solution to a linear least-squares problem for $\rho_t\, \delta_t$ approximation from the features.
-- The standard SGD method for incrementally finding $\mathbf{v}$ that minimizes the expected squared error $\left(\mathbf{v}^T \mathbf{x}_t - \rho_t\, \delta_t\right)^2$ is known as the **Least Mean Square (LMS)** rule:
+- Notice that this expression is simply the linear least-squares regression solution predicting $\rho_t \delta_t$ from $\mathbf{x}_t$.
+- **Least Mean Square (LMS) update**: Minimizing the expected squared regression error $\left(\mathbf{v}^T \mathbf{x}_t - \rho_t \delta_t\right)^2$ incrementally updates $\mathbf{v}$ in $O(d)$ time per step:
 
-$$\mathbf{v}_{t+1} \doteq \mathbf{v}_t + \beta\, \delta_t\!\left(\delta_t - \mathbf{v}_t^T \mathbf{x}_t\right) \mathbf{x}_t$$
+$$\mathbf{v}_{t+1} \doteq \mathbf{v}_t + \beta \rho_t\!\left(\delta_t - \mathbf{v}_t^T \mathbf{x}_t\right) \mathbf{x}_t$$
 
 $$
 \begin{aligned}
@@ -459,60 +392,55 @@ $$
 
 ### GTD2 {#gtd2}
 
-- With $\mathbf{v}_t$, we can update $\mathbf{w}_t$ using SGD:
+- **GTD2**: Substituting the running estimate $\mathbf{v}_t$ for the final two expectations in $-\tfrac{1}{2}\alpha \nabla \overline{\text{PBE}}(\mathbf{w}_t)$ yields a direct $O(d)$ update for $\mathbf{w}_t$:
 
-  $$
-  \begin{aligned}
-  \mathbf{w}_{t+1} &= \mathbf{w}_t - \tfrac{1}{2}\alpha \nabla \overline{\text{PBE}}(\mathbf{w}_t) \\
-  &= \mathbf{w}_t - \tfrac{1}{2}\alpha\!\left(2\, \mathbb{E}\!\left[\rho_t\!\left(\gamma \mathbf{x}_{t+1} - \mathbf{x}_t\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]\right) \\
-  &= \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
-  &\approx \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbf{v}_t \\
-  &\approx \mathbf{w}_t + \alpha \rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T \mathbf{v}_t
-  \end{aligned}
-  $$
+$$
+\begin{aligned}
+\mathbf{w}_{t+1} &= \mathbf{w}_t - \tfrac{1}{2}\alpha \nabla \overline{\text{PBE}}(\mathbf{w}_t) \\
+&= \mathbf{w}_t - \tfrac{1}{2}\alpha\!\left(2\, \mathbb{E}\!\left[\rho_t\!\left(\gamma \mathbf{x}_{t+1} - \mathbf{x}_t\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]\right) \\
+&= \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
+&\approx \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbf{v}_t \\
+&\approx \mathbf{w}_t + \alpha \rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T \mathbf{v}_t
+\end{aligned}
+$$
 
-  where $O(d)$ per-step computational complexity of $(\mathbf{x}_t^T \mathbf{v}_t)$ is done first.
+- Evaluating the scalar inner product $(\mathbf{x}_t^T \mathbf{v}_t)$ first keeps per-step computation strictly $O(d)$.
 
 ### TD(0) with Gradient Correction (GTD(0) or TDC) {#td0-with-gradient-correction-gtd0-or-tdc}
 
-- Let's look at another analytical algorithm called TD(0) with gradient correction, **TDC**:
+- **TDC (GTD(0))**: Rearranging the algebra before inserting $\mathbf{v}_t$ cancels $\mathbb{E}[\mathbf{x}_t \mathbf{x}_t^T]$ against its inverse on the first term, producing standard TD(0) plus a stabilizing gradient-correction term:
 
-  $$
-  \begin{aligned}
-  \mathbf{w}_{t+1} &= \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
-  &= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\rho_t\, \mathbf{x}_t\, \mathbf{x}_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right]\right) \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
-  &= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right]\right) \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
-  &= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \rho_t\, \delta_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]\right) \\
-  &\approx \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \rho_t\, \delta_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right] \mathbf{v}_t\right) \\
-  &\approx \mathbf{w}_t + \alpha \rho_t\!\left(\delta_t\, \mathbf{x}_t - \gamma \mathbf{x}_{t+1}\, \mathbf{x}_t^T \mathbf{v}_t\right)
-  \end{aligned}
-  $$
+$$
+\begin{aligned}
+\mathbf{w}_{t+1} &= \mathbf{w}_t + \alpha\, \mathbb{E}\!\left[\rho_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right) \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
+&= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\rho_t\, \mathbf{x}_t\, \mathbf{x}_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right]\right) \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
+&= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right]\right) \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right] \\
+&= \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \rho_t\, \delta_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right] \mathbb{E}\!\left[\mathbf{x}_t\, \mathbf{x}_t^T\right]^{-1} \mathbb{E}\!\left[\rho_t\, \delta_t\, \mathbf{x}_t\right]\right) \\
+&\approx \mathbf{w}_t + \alpha\!\left(\mathbb{E}\!\left[\mathbf{x}_t\, \rho_t\, \delta_t\right] - \gamma\, \mathbb{E}\!\left[\rho_t\, \mathbf{x}_{t+1}\, \mathbf{x}_t^T\right] \mathbf{v}_t\right) \\
+&\approx \mathbf{w}_t + \alpha \rho_t\!\left(\delta_t\, \mathbf{x}_t - \gamma \mathbf{x}_{t+1}\, \mathbf{x}_t^T \mathbf{v}_t\right)
+\end{aligned}
+$$
 
-  with $O(d)$ complexity if the final product $(\mathbf{x}_t^T \mathbf{v}_t)$ is done first.
+- As with GTD2, computing $(\mathbf{x}_t^T \mathbf{v}_t)$ first ensures $O(d)$ cost per time step, and TDC typically learns noticeably faster than GTD2 in practice.
 
 ### Takeaways {#takeaways-1}
 
-- GTD2 and TDC both involve 2 learning processes: a primary one for $\mathbf{w}$ and a secondary one for $\mathbf{v}$.
-- Asymmetrical dependence ($\mathbf{w}$ depends on $\mathbf{v}$ but $\mathbf{v}$ does not depend on $\mathbf{w}$) is referred to as a **cascade**.
-- Gradient-TD methods are the most well-understood and widely used stable off-policy methods.
-- Extensions of GTD methods include to:
-  1. Action values and control: **GQ [Maei et al., 2010]**
-  2. Eligibility traces: **GTD($\lambda$), GQ($\lambda$) [Maei, 2011; Maei & Sutton, 2010]**
-  3. Nonlinear function approximation **[Maei et al., 2009]**
-- Hybrid algorithms include:
-  1. Midway between semi-gradient TD and gradient TD **[Hackman, 2012; White & White, 2016]**
-  2. GTD + proximal methods & control variates **[Mahadevan et al., 2014; Du et al., 2017]**
+- **Cascade structure**: Both GTD2 and TDC pair two coupled learners: primary value weights $\mathbf{w}$ rely on secondary weights $\mathbf{v}$, whereas $\mathbf{v}$ tracks the TD error for the current $\mathbf{w}$ at its own step size $\beta$.
+- Gradient-TD algorithms remain among the best-analyzed $O(d)$ stable off-policy estimators, with broad extensions across RL:
+  1. **Action-value control**: GQ (Maei et al., 2010).
+  2. **Eligibility traces**: GTD($\lambda$) and GQ($\lambda$) (Maei, 2011; Maei & Sutton, 2010).
+  3. **Nonlinear approximation**: Smooth nonlinear value functions (Maei et al., 2009).
+- **Hybrid and saddle-point variants**:
+  1. Blending classical semi-gradient updates with gradient-corrected steps to recover standard TD speed on-policy (Hackman, 2012; White & White, 2016).
+  2. Reformulating the objective as a convex-concave saddle point solved with proximal steps and variance-reducing control variates (Mahadevan et al., 2014; Du et al., 2017).
 
 ## Emphatic-TD Methods {#sec-ch11-11-8}
 
-- Let's explore a major strategy for obtaining a cheap and efficient off-policy learning method with function approximation.
-- Recall that linear semi-gradient TD methods are stable when trained under the on-policy distribution .
-- The match between the on-policy state distribution $\mu_\pi$ and the state-transition probabilities $p(s' \vert s, a)$ under the target policy does not exist in off-policy learning.
-- **Mismatch Fix**: 
-  - Re-weight the states, emphasizing some and de-emphasizing others, so as to return the distribution of the updates to the on-policy distribution. 
-  - Then there would be a match, and convergence and stability would be achieved. This is the idea of **Emphatic-TD methods**.
-
-- The **one-step Emphatic-TD algorithm** for learning episodic state values is defined by:
+- A fundamentally different strategy restores stability without adding a second weight vector or abandoning semi-gradient updates.
+- Linear semi-gradient TD converges reliably whenever states are updated in proportion to the on-policy visitation distribution $\mu_\pi$, because those state weights balance the transition probabilities under $\pi$.
+- Off-policy experience breaks that balance: states arrive according to $b$ rather than $\pi$.
+- **Emphatic-TD**: Re-weights each transition dynamically, amplifying underrepresented states and down-weighting overrepresented ones, until the effective update distribution mirrors the on-policy steady state and restores convergence guarantees.
+- **One-step Emphatic-TD** (episodic state values) scales the semi-gradient TD(0) update by a recursively accumulated scalar emphasis $M_t$:
 
 $$\delta_t = R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t)$$
 
@@ -528,40 +456,36 @@ M_t &\equiv \text{the emphasis} \quad (M_{-1} = 0)
 \end{aligned}
 $$
 
-- Applying Emphatic TD to Baird's counterexample yields very high variance results (impossible to get consistent results in experiments).
-- We focus on how we reduce the variance in all these algorithms in the next section.
+- Here the non-negative **interest** $\mathcal{I}_t$ lets the designer specify how strongly accuracy matters at state $S_t$, while the **emphasis** $M_t$ accumulates discounted importance-weighted past interest along trajectories leading into $S_t$.
+- Although Emphatic-TD converges in expectation on Baird's counterexample, its multiplicative chain of importance ratios can generate extreme variance, making empirical runs noisy without dedicated variance-reduction techniques.
 
 ## Reducing Variance {#sec-ch11-11-9}
 
-- Off-policy learning is inherently of greater variance than on-policy learning.
-- The raison d'être of off-policy learning is to enable generalization to the vast number of related-but-not-identical policies.
-- Why is variance control critical in off-policy learning based on importance sampling? 
-  - Recall importance sampling involves products of policy ratios:
+- Off-policy learning naturally exhibits higher variance than on-policy learning because it attempts to evaluate a policy using trajectories produced by a different one.
+- Despite that statistical penalty, off-policy estimation is indispensable for reusing past experience and simultaneously evaluating many target policies from a single stream of behavior.
+- **Why importance sampling amplifies variance**:
+  - Multi-step off-policy estimators multiply per-step policy ratios along the trajectory:
 
   $$\rho_{t:T-1} = \prod_{k=t}^{T-1} \frac{\pi(A_k \vert S_k)}{b(A_k \vert S_k)}$$
 
-  - The policy ratios always have an expected value of 1, but their actual values might be high or as low as 0:
+  - Each individual ratio averages to $1$ under $b$, yet individual realizations can drop to $0$ or spike to huge numbers:
 
   $$\mathbb{E}\!\left[\frac{\pi(A_k \vert S_k)}{b(A_k \vert S_k)}\right] \doteq \sum_a b(a \vert S_k) \frac{\pi(a \vert S_k)}{b(a \vert S_k)} = \sum_a \pi(a \vert S_k) = 1$$
 
-  - Successive ratios are uncorrelated, so their products are always 1 in expected value, but they can be of high variance.
-  - These ratios multiply the step size in SGD methods, so their high variance is problematic for SGD because of the occasional huge steps.
-
-- How can we alleviate the effects of high variance via small step-size settings that are enough to ensure the expected step taken by SGD is small? Some approaches:
-  - Momentum
-  - Polyak-Ruppert averaging
-  - Methods for adaptively setting separate step sizes for different components of the parameter vector
-  - "Importance weight aware" updates of **Karampatziakis & Langford (2015)**
-  - Weighted importance sampling, which is well-behaved with lower variance updates than ordinary importance sampling, but adapting it to function approximation is challenging **[Mahmood & Sutton, 2015]**
-  - Tree backup algorithm (off-policy, without importance sampling)
-  - Allow the target policy $\pi$ to be determined partly by the behavior policy $b$ to limit creating large importance sampling ratios
+  - Because sequential ratios are uncorrelated, their product retains an expectation of $1$ while its variance can grow exponentially with horizon length.
+  - Inside SGD, a massive importance ratio effectively multiplies the step size on a single update, threatening to knock the parameters far off course.
+- **Practical variance-reduction strategies**:
+  - **Optimizer stabilization**: Momentum, Polyak-Ruppert iterate averaging, and per-parameter adaptive step-size schedules dampen occasional huge steps.
+  - **Importance-weight-aware updates**: Rescaling nonlinearly for large ratios prevents overshooting (Karampatziakis & Langford, 2015).
+  - **Weighted importance sampling**: Normalizing by cumulative weights sharply reduces variance relative to ordinary importance sampling, though integrating it cleanly into general function approximation remains nontrivial (Mahmood & Sutton, 2015).
+  - **Ratio-free backups**: Tree-backup methods avoid importance sampling altogether by computing target expectations over actions.
+  - **Behavior-aware targets**: Keeping the target policy $\pi$ reasonably close to the behavior policy $b$ caps the worst-case magnitude of $\rho_t$.
 
 ## Summary {#sec-ch11-11-10}
 
-- While tabular off-policy algorithms (Q-learning, Expected Sarsa, tree backup) behave reliably, adding even linear function approximation introduces severe stability hazards.
-- Two separate obstacles arise: correcting update targets for the mismatch between behavior policy $b$ and target policy $\pi$, and stabilizing updates when the sampled state distribution no longer matches the on-policy distribution.
-- Combining **function approximation, off-policy learning, and bootstrapping** forms the **deadly triad**, where parameter weights can diverge even on tiny MDPs.
-- Minimizing Bellman error ($\overline{\text{BE}}$) directly via SGD fails because $\overline{\text{BE}}$ is not identifiable from observable trajectories alone.
-- **Gradient-TD** methods instead minimize the learnable projected Bellman error ($\overline{\text{PBE}}$) in $O(d)$ time per step, while **Emphatic-TD** re-weights updates to recover an on-policy-like state distribution.
-- High variance from products of importance-sampling ratios remains a practical bottleneck, mitigated via conservative step sizes, variance-aware optimizers, control variates, or tree-backup style updates.
-
+- Tabular off-policy learners such as Q-learning, Expected Sarsa, and tree backup converge reliably, yet introducing even linear function approximation unlocks severe divergence hazards.
+- Two distinct challenges must be addressed: adjusting update targets from $b$ to $\pi$, and stabilizing parameter dynamics when the sampled visitation distribution disagrees with the target policy's on-policy distribution.
+- **The deadly triad**: Combining **function approximation**, **bootstrapping**, and **off-policy updates** can send weights to infinity even on minimal MDPs like Baird's counterexample.
+- Direct SGD on **Mean Squared Bellman Error ($\overline{\text{BE}}$)** fails in model-free RL because $\overline{\text{BE}}$ and its minimizing parameter vector are not learnable from observable trajectory data.
+- **Gradient-TD** algorithms (GTD2, TDC) achieve $O(d)$ stable off-policy learning by minimizing the learnable **Projected Bellman Error ($\overline{\text{PBE}}$)**, whereas **Emphatic-TD** restores stability by re-weighting state updates toward an on-policy distribution.
+- Multiplicative importance-sampling ratios still inject severe variance, motivating conservative step sizes, variance-aware optimization, weighted ratios, or tree-backup style updates.

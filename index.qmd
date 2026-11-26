@@ -2,7 +2,7 @@
 
 These are independent personal study notes accompanying *Reinforcement Learning: An Introduction* by Richard S. Sutton and Andrew G. Barto (2nd Edition, MIT Press, 2018; [book homepage](http://incompleteideas.net/book/the-book-2nd.html)). The textbook is distributed by its authors under the [Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Generic (CC BY-NC-ND 2.0)](https://creativecommons.org/licenses/by-nc-nd/2.0/) license.
 
-These notes are an independent companion for study and review, not a substitute for the textbook. Mathematical notation follows standard reinforcement learning conventions from the book, and backup diagrams are included as figures.
+These notes are an independent companion for study and review, not a substitute for the textbook. Explanations are written in original prose, algorithms are accompanied by original Python implementations, and all figures are generated programmatically from scripts in this repository.
 
 
 ## Coverage {.unnumbered}

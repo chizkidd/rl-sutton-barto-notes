@@ -2,7 +2,7 @@
   "title": "Study Notes on Reinforcement Learning: An Introduction (2nd Ed.)",
   "upload_type": "publication",
   "publication_type": "other",
-  "description": "<p>Independent personal study notes accompanying Richard S. Sutton and Andrew G. Barto's <em>Reinforcement Learning: An Introduction</em> (2nd ed., MIT Press, 2018, licensed CC BY-NC-ND 2.0).</p><p>Covers Chapters 1 through 13 across tabular and approximate solution methods, built with Quarto as HTML, PDF, EPUB 3.3, and an Anki cloze deck. Intended as a personal companion for study and review, not a substitute for the textbook.</p>",
+  "description": "<p>Independent personal study notes accompanying Richard S. Sutton and Andrew G. Barto's <em>Reinforcement Learning: An Introduction</em> (2nd ed., MIT Press, 2018, licensed CC BY-NC-ND 2.0).</p><p>Written in original prose across Chapters 1 through 13 with original Python algorithm implementations and 9 programmatically generated diagrams, built with Quarto as HTML, PDF, EPUB 3.3, and a native MathJax Anki cloze deck. Intended as a companion for study and review, not a substitute for the textbook.</p>",
   "creators": [
     {
       "name": "Obasi, Chizoba"
@@ -16,7 +16,7 @@
     "temporal-difference learning",
     "policy gradient methods"
   ],
-  "license": "cc-by-nc-sa-4.0",
+  "license": "cc-by-4.0",
   "access_right": "open",
   "language": "eng",
   "related_identifiers": [
@@ -31,5 +31,5 @@
       "scheme": "url"
     }
   ],
-  "notes": "Independent companion study notes; license applies solely to original content by the author and does not extend to textbook material from Sutton & Barto (2018)."
+  "notes": "Original independent study notes and programmatically generated diagrams (CC BY 4.0); scripts and Python snippets licensed MIT. Does not include textbook prose, figures, or algorithm listings from Sutton & Barto (2018)."
 }

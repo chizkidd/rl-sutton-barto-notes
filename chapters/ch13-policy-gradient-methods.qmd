@@ -3,15 +3,14 @@ title: "Policy Gradient Methods"
 number-sections: true
 ---
 
-- Almost all the algorithms/methods covered so far have been **action-value methods** (except gradient-bandit algorithms, [Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8)).
-- Action-value methods learn the values of actions and then derive the policy thereafter to select actions based on their estimated action values.
-- Here, we explicitly learn a **parametrized policy** that can select actions without consulting a value function.
-- A value function is not required for action selection, but still could be used to learn the policy parameters $\boldsymbol{\theta}$.
-- The parametrized policy $\pi(a \vert s, \boldsymbol{\theta})$ is now the probability that action $a$ is taken at time $t$ given that the environment is in state $s$ at time $t$ with parameter $\boldsymbol{\theta} \in \mathbb{R}^{d'}$:
+- Aside from gradient bandits ([Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8)), every control algorithm studied up to this point belongs to the family of **action-value methods**, which estimate action values first and derive a behavior rule indirectly (such as $\varepsilon$-greedy selection).
+- **Policy gradient methods** flip that architecture: they optimize a **parametrized policy** directly so actions can be sampled without querying an action-value table or network at decision time.
+- A learned value function is optional during action selection, though pairing a policy with a value estimator often accelerates parameter updates dramatically.
+- Letting $\boldsymbol{\theta} \in \mathbb{R}^{d'}$ denote the policy parameter vector, the stochastic policy specifies the probability of picking action $a$ in state $s$:
 
 $$\pi(a \vert s, \boldsymbol{\theta}) = \Pr\{A_t = a \vert S_t = s,\ \boldsymbol{\theta}_t = \boldsymbol{\theta}\}$$
 
-- We will consider methods for learning $\boldsymbol{\theta}$ based on the gradient of some scalar performance measure $J(\boldsymbol{\theta})$ w.r.t. $\boldsymbol{\theta}$. The goal is to **maximize** performance, hence the use of gradient ascent:
+- **Stochastic gradient ascent**: Given a scalar performance objective $J(\boldsymbol{\theta})$, policy gradient algorithms push $\boldsymbol{\theta}$ uphill along an unbiased (or approximately unbiased) stochastic estimate of its gradient:
 
 $$\boldsymbol{\theta}_{t+1} = \boldsymbol{\theta}_t + \alpha \widehat{\nabla J(\boldsymbol{\theta}_t)}$$
 
@@ -23,39 +22,34 @@ $$
 \end{aligned}
 $$
 
-- This general methodology applies to **policy gradient methods**.
-- Methods that learn approximations to both policy & value functions are often called **Actor-Critic methods**:
-  - **Actor** refers to the learned policy.
-  - **Critic** refers to the learned value function (state-value function).
+- **Actor-critic methods**: Algorithms that simultaneously learn both a parameterized policy and a parameterized value estimator:
+  - **Actor**: The parameterized policy $\pi(a \vert s, \boldsymbol{\theta})$ responsible for choosing actions.
+  - **Critic**: The learned state-value estimator $\hat{v}(s, \mathbf{w})$ that scores transitions to guide the actor's updates.
 
 ## Policy Approximation & Its Advantages {#sec-ch13-13-1}
 
-- In policy gradient methods, the policy can be parametrized in any way, as long as $\pi(a \vert s, \boldsymbol{\theta})$ is differentiable w.r.t. $\boldsymbol{\theta}$ (essentially the partial derivatives' column vector exists and is finite):
+- Any smooth parametric family can represent a policy, provided $\pi(a \vert s, \boldsymbol{\theta})$ is differentiable with finite partial derivatives everywhere in parameter space:
 
 $$\nabla \pi(a \vert s, \boldsymbol{\theta}) \text{ exists and is finite for all } s \in S,\ a \in A(s),\ \boldsymbol{\theta} \in \mathbb{R}^{d'}$$
 
-- If the action-space is **discrete** and not too large, then a natural & common kind of parametrization is to form parametrized **numerical preferences** $h(s, a, \boldsymbol{\theta}) \in \mathbb{R}$ for each $(s, a)$ pair.
-- The actions with the highest preferences in each state are given the highest probabilities of being selected, for example, according to an exponential soft-max distribution:
+- **Softmax in action preferences**: For manageable discrete action spaces, a standard construction assigns a real-valued scalar preference $h(s, a, \boldsymbol{\theta}) \in \mathbb{R}$ to every state-action pair and maps those scores into probabilities through the exponential softmax transform:
 
 $$\boxed{\pi(a \vert s, \boldsymbol{\theta}) \doteq \frac{e^{h(s,a,\boldsymbol{\theta})}}{\sum_b e^{h(s,b,\boldsymbol{\theta})}}}$$
 
-- This kind of policy parametrization is called **softmax in action preferences**.
-- The action preferences can be parametrized arbitrarily, they can be computed by a deep artificial neural network (ANN) or could simply be **linear** in features:
+- Action preferences themselves may come from a deep neural network or a simple linear feature model:
 
 $$h(s, a, \boldsymbol{\theta}) = \boldsymbol{\theta}^T \mathbf{x}(s, a)$$
 
-**Advantages of softmax in action preferences policy parametrization:**
-
-- The approx. policy can approach a **deterministic policy**, unlike $\varepsilon$-greedy action selection.
-- It enables the selection of actions with **arbitrary probabilities**, which is useful for cases that require near-optimal stochastic policy (e.g. significant function approximation).
-  - E.g. useful in environments with imperfect information (e.g., card games) where it is optimal to act stochastically, such as when **bluffing in Poker**; it is important to do so randomly to unnerve/confuse an opponent.
-- The policy from policy parametrization may be a **simpler function to approximate** than the action-value function.
-- Often the most important reason for using a policy-based learning method is that it is a good way to **inject prior knowledge** about the desired form of the policy into the RL system.
+- **Key advantages of direct policy parametrization over $\varepsilon$-greedy value control**:
+  - **Smooth convergence to determinism**: Preference gaps can grow arbitrarily large so the policy approaches a deterministic optimum asymptotically, whereas fixed $\varepsilon$-greedy policies always retain $\varepsilon$ exploratory noise.
+  - **Arbitrary stochastic policies**: Some partially observable or adversarial tasks demand genuinely randomized optima (for instance, mixing bluffs in imperfect-information card games like poker), which deterministic greedy policies cannot express.
+  - **Simpler functional form**: In many domains, the optimal decision boundary is far easier to represent directly than the exact numerical value of every state-action pair.
+  - **Natural injection of domain knowledge**: Choosing the policy family directly lets engineers embed structural priors about reasonable control laws into the agent.
 
 ## The Policy Gradient Theorem {#sec-ch13-13-2}
 
-- Policy-gradient methods have stronger convergence guarantees compared to action-value methods due to **smooth continuity** in change of action probabilities as a function of the learned parameter (gradient ascent).
-- Let's consider the **episodic** performance measure, which is the value of the start state of the episode:
+- Because action probabilities vary smoothly with $\boldsymbol{\theta}$, small parameter nudges produce small policy shifts and smooth changes in state visitation, giving policy-gradient ascent stronger local convergence guarantees than value-based control where tiny value perturbations can abruptly flip greedy actions.
+- In the **episodic setting**, we judge a policy $\pi_{\boldsymbol{\theta}}$ by the expected return achieved from a fixed starting state $s_0$:
 
 $$J(\boldsymbol{\theta}) \doteq v_{\pi_{\boldsymbol{\theta}}}(s_0)$$
 
@@ -67,9 +61,8 @@ s_0 &\equiv \text{some non-random state}
 \end{aligned}
 $$
 
-- How can we estimate the performance gradient w.r.t. the policy parameter when the gradient depends on the unknown effect of policy changes on the state distribution?
-  - The theoretical answer is the **policy gradient theorem**.
-- The policy gradient theorem, which provides an analytic expression for the performance gradient w.r.t. the policy parameter, for the episodic case establishes that:
+- **Core theoretical obstacle**: Perturbing $\boldsymbol{\theta}$ alters not only which actions are taken in each state, but also the resulting distribution of visited states across the MDP, which depends on unknown environment dynamics.
+- **Policy gradient theorem**: Remarkably, the analytic ascent direction of $J(\boldsymbol{\theta})$ avoids differentiating state visitation frequencies altogether; for episodic tasks it takes the form:
 
 $$\boxed{\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a q_\pi(s,a)\, \nabla\pi(a \vert s, \boldsymbol{\theta})}$$
 
@@ -88,9 +81,9 @@ $$
 ::: {.callout-note}
 ## Proof: Policy Gradient Theorem (Episodic Case) {#sec-ch13-proof-episodic}
 
-Let's prove the policy gradient theorem from first principles using elementary calculus.
+We derive the episodic policy gradient theorem directly via the product rule and Bellman expansion.
 
-**Note:** To keep the notation simple, we leave it implicit in all cases that $\pi = f(\boldsymbol{\theta})$ and all gradients $\nabla[\ldots]$ are also implicit w.r.t. $\boldsymbol{\theta}$.
+**Notation:** Throughout this derivation, the dependence $\pi = \pi(\cdot \vert \cdot, \boldsymbol{\theta})$ and differentiation with respect to $\boldsymbol{\theta}$ are left implicit.
 
 $$
 \begin{aligned}
@@ -103,7 +96,7 @@ $$
 \end{aligned}
 $$
 
-Unrolling this recursion:
+Repeatedly expanding $\nabla v_\pi(\cdot)$ across all future steps $k = 0, 1, 2, \dots$ collects multi-step transition probabilities:
 
 $$\boxed{\nabla v_\pi(s) = \sum_{x \in \mathcal{S}} \sum_{k=0}^{\infty} \Pr(s \to x, k, \pi) \sum_a \nabla\pi(a \vert x)\, q_\pi(x,a)}$$
 
@@ -113,7 +106,7 @@ $$
 \end{aligned}
 $$
 
-Then:
+Evaluating at the start state $s_0$ and normalizing expected visit counts $\eta(s)$ into the on-policy distribution $\mu(s)$ yields:
 
 $$
 \begin{aligned}
@@ -130,12 +123,8 @@ $$\boxed{\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \nabla\pi(a 
 
 ## REINFORCE: Monte Carlo Policy Gradient {#sec-ch13-13-3}
 
-- REINFORCE is our first policy gradient algorithm.
-- The goal/strategy is to find a way to get samples such that the expectation of the sample gradient is proportional to the actual performance gradient as a function of the parameters.
-- The sample gradients need to only be proportional to the performance gradient because any proportionality constant can be absorbed into the step size $\alpha$.
-- The policy gradient theorem gives **an exact expression proportional to the gradient**; so all that is needed is a way of sampling whose expectation equals or approximates this expression.
-
-- Recall the RHS of the policy gradient theorem is a sum over states weighted by how often the states occur under the target policy $\pi$:
+- **REINFORCE** turns the policy gradient theorem into a practical Monte Carlo optimization algorithm by constructing a per-step random vector whose expectation matches $\nabla J(\boldsymbol{\theta})$ up to a positive constant factor (any constant scale simply folds into the step size $\alpha$).
+- Because the outer sum in the policy gradient theorem weights states by $\mu(s)$, it immediately rewrites as an on-policy expectation over visited states $S_t$:
 
 $$
 \begin{aligned}
@@ -144,7 +133,7 @@ $$
 \end{aligned}
 $$
 
-- We get REINFORCE by replacing the sum over the random variable's possible values by an expectation under $\pi$, and then sampling the expectation:
+- **Score-function (log-derivative) trick**: Multiplying and dividing inside the action sum by $\pi(a \vert S_t, \boldsymbol{\theta})$ converts the deterministic sum over all actions into an expectation over the sampled action $A_t \sim \pi$, and substituting the empirical return $G_t$ for its conditional expectation $q_\pi(S_t, A_t)$ gives an unbiased sample gradient:
 
 $$
 \begin{aligned}
@@ -154,88 +143,116 @@ $$
 \end{aligned}
 $$
 
-- The last expression is the required expression; a quantity that can be sampled on each time step whose expectation is proportional to the gradient. This leads to the **REINFORCE update**:
+- Using the calculus identity $\nabla \ln \pi(A_t \vert S_t, \boldsymbol{\theta}) = \dfrac{\nabla \pi(A_t \vert S_t, \boldsymbol{\theta})}{\pi(A_t \vert S_t, \boldsymbol{\theta})}$ produces the **REINFORCE update rule**:
 
 $$\boxed{\boldsymbol{\theta}_{t+1} \doteq \boldsymbol{\theta}_t + \alpha G_t \frac{\nabla\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}{\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}}$$
 
-- This update is intuitively coherent:
-  - The gradient term represents the direction in parameter space that most increases the probability of repeating/taking again the same action $A_t$ in the future.
-  - The update moves the parameter the most in the directions that favour actions that yield the highest return.
-  - The update ensures a balancing act (lower impact) of frequently selected actions with lower returns.
-- REINFORCE has good convergence properties but may be of high variance and slow learning as a MC method.
+- **Intuition behind the step**:
+  - $\nabla \pi(A_t \vert S_t, \boldsymbol{\theta}_t)$ points in parameter space toward increasing the likelihood of choosing $A_t$ again in state $S_t$.
+  - Scaling by the observed return $G_t$ pushes parameters more strongly toward actions that led to lucrative outcomes.
+  - Dividing by $\pi(A_t \vert S_t, \boldsymbol{\theta}_t)$ counteracts sampling frequency bias so common, mediocre actions do not drown out rarer, higher-paying alternatives.
+- While REINFORCE enjoys sound asymptotic convergence as a stochastic gradient method, relying on complete Monte Carlo returns induces high variance and slow finite-sample learning.
 
-### Pseudocode: REINFORCE (Episodic) for estimating $\pi_*$
+### Implementation: REINFORCE (Episodic)
 
-$$
-\boxed{
-\begin{aligned}
-&\textbf{Input: } \text{a differentiable policy parametrization } \pi(a \vert s, \boldsymbol{\theta}) \\
-&\textbf{Algorithm parameter: } \text{step size } \alpha > 0 \\
-&\textbf{Initialize } \text{policy parameter } \boldsymbol{\theta} \in \mathbb{R}^{d'} \text{ (e.g., to } \mathbf{0}\text{)} \\
-&\textbf{Loop forever } \text{(for each episode):} \\
-&\quad \text{Generate an episode } S_0, A_0, R_1, \ldots, S_{T-1}, A_{T-1}, R_T \text{ following } \pi(\cdot \vert \cdot, \boldsymbol{\theta}) \\
-&\quad \textbf{Loop for each step of the episode } t = 0, 1, 2, \ldots, T-1\text{:} \\
-&\qquad G \leftarrow \sum_{k=t+1}^{T} \gamma^{k-t-1} R_k \\
-&\qquad \boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha\gamma^t G\, \nabla \ln \pi(A_t \vert S_t, \boldsymbol{\theta})
-\end{aligned}
-}
-$$
+```python
+import numpy as np
+
+
+def reinforce(env, policy, theta_init, num_episodes, alpha, gamma=1.0):
+    """Episodic Monte Carlo policy gradient ascent."""
+    theta = np.array(theta_init, dtype=float, copy=True)
+
+    for _ in range(num_episodes):
+        trajectory, state, done = [], env.reset(), False
+        while not done:
+            action = policy.sample(state, theta)
+            next_state, reward, done = env.step(action)
+            trajectory.append((state, action, reward))
+            state = next_state
+
+        g_t, returns = 0.0, []
+        for _, _, reward in reversed(trajectory):
+            g_t = reward + gamma * g_t
+            returns.append(g_t)
+
+        discount = 1.0
+        for (state, action, _), g_val in zip(trajectory, reversed(returns)):
+            theta += alpha * discount * g_val * policy.grad_log_prob(state, action, theta)
+            discount *= gamma
+
+    return theta
+```
 
 ## REINFORCE with Baseline {#sec-ch13-13-4}
 
-- The policy gradient theorem can be generalized to include a comparison of the action value to an arbitrary **baseline** $b(s)$:
+- **Baseline subtraction**: The policy gradient theorem allows subtracting any action-independent **baseline** $b(s)$ from $q_\pi(s, a)$ without introducing bias:
 
 $$\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \!\left[q_\pi(s,a) - b(s)\right] \nabla\pi(a \vert s, \boldsymbol{\theta})$$
 
-- The baseline can be any function that is not dependent on the action $a$:
+- Because $b(s)$ does not vary with $a$, its contribution to the gradient expectation vanishes identically:
 
 $$\sum_a b(s)\, \nabla\pi(a \vert s, \boldsymbol{\theta}) = b(s)\, \nabla \sum_a \pi(a \vert s, \boldsymbol{\theta}) = b(s)\, \nabla 1 = 0$$
 
-- Now the REINFORCE update with baseline is:
+- Incorporating $b(S_t)$ produces the **REINFORCE with baseline** update:
 
 $$\boxed{\boldsymbol{\theta}_{t+1} \doteq \boldsymbol{\theta}_t + \alpha \!\left[G_t - b(S_t)\right] \frac{\nabla\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}{\pi(A_t \vert S_t, \boldsymbol{\theta}_t)}}$$
 
-- The Baseline REINFORCE update **reduces the variance** despite leaving the expected update value unchanged, which speeds up learning.
-- One natural choice for the baseline is an estimate of the state value $\hat{v}(S_t, \mathbf{w})$.
-- Since REINFORCE is a Monte Carlo method for learning the policy parameter $\boldsymbol{\theta}$, it's natural to also use a Monte Carlo method to learn the state-value weights $\mathbf{w}$.
+- **Variance reduction**: Although the expected gradient remains identical, centering returns around a state-dependent baseline dramatically shrinks gradient variance and accelerates convergence.
+- **Learned state-value baseline**: A natural choice is $b(S_t) = \hat{v}(S_t, \mathbf{w})$, where the value weights $\mathbf{w}$ are trained alongside $\boldsymbol{\theta}$ using Monte Carlo regression on the same episode returns.
 
-### Pseudocode: REINFORCE with Baseline (Episodic), for estimating $\pi_{\boldsymbol{\theta}} \approx \pi_*$
+### Implementation: REINFORCE with Baseline (Episodic)
 
-$$
-\boxed{
-\begin{aligned}
-&\textbf{Input: } \text{a differentiable policy parametrization } \pi(a \vert s, \boldsymbol{\theta}) \\
-&\textbf{Input: } \text{a differentiable state-value function parametrization } \hat{v}(s, \mathbf{w}) \\
-&\textbf{Algorithm parameters: } \text{step sizes } \alpha^{\boldsymbol{\theta}} > 0,\ \alpha^{\mathbf{w}} > 0 \\
-&\textbf{Initialize } \text{policy parameter } \boldsymbol{\theta} \in \mathbb{R}^{d'} \text{ and state-value weights } \mathbf{w} \in \mathbb{R}^d \text{ (e.g., to } \mathbf{0}\text{)} \\
-&\textbf{Loop forever } \text{(for each episode):} \\
-&\quad \text{Generate an episode } S_0, A_0, R_1, \ldots, S_{T-1}, A_{T-1}, R_T \text{ following } \pi(\cdot \vert \cdot, \boldsymbol{\theta}) \\
-&\quad \textbf{Loop for each step of the episode } t = 0, 1, \ldots, T-1\text{:} \\
-&\qquad G \leftarrow \sum_{k=t+1}^{T} \gamma^{k-t-1} R_k \\
-&\qquad \delta \leftarrow G - \hat{v}(S_t, \mathbf{w}) \\
-&\qquad \mathbf{w} \leftarrow \mathbf{w} + \alpha^{\mathbf{w}}\, \delta\, \nabla \hat{v}(S_t, \mathbf{w}) \\
-&\qquad \boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}} \gamma^t\, \delta\, \nabla \ln \pi(A_t \vert S_t, \boldsymbol{\theta})
-\end{aligned}
-}
-$$
+```python
+import numpy as np
 
-- This algorithm has 2 step sizes $\alpha^{\boldsymbol{\theta}}$ and $\alpha^{\mathbf{w}}$.
-- Choosing $\alpha^{\mathbf{w}}$ is relatively easy; in the linear case a good rule of thumb is (see [Section 9.6](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-6)):
+
+def reinforce_with_baseline(
+    env, policy, value_fn, theta_init, w_init, num_episodes, alpha_theta, alpha_w, gamma=1.0
+):
+    """Episodic REINFORCE using a learned state-value baseline."""
+    theta = np.array(theta_init, dtype=float, copy=True)
+    w = np.array(w_init, dtype=float, copy=True)
+
+    for _ in range(num_episodes):
+        trajectory, state, done = [], env.reset(), False
+        while not done:
+            action = policy.sample(state, theta)
+            next_state, reward, done = env.step(action)
+            trajectory.append((state, action, reward))
+            state = next_state
+
+        g_t, returns = 0.0, []
+        for _, _, reward in reversed(trajectory):
+            g_t = reward + gamma * g_t
+            returns.append(g_t)
+
+        discount = 1.0
+        for (state, action, _), g_val in zip(trajectory, reversed(returns)):
+            delta = g_val - value_fn.predict(state, w)
+            w += alpha_w * delta * value_fn.grad(state, w)
+            theta += alpha_theta * discount * delta * policy.grad_log_prob(state, action, theta)
+            discount *= gamma
+
+    return theta, w
+```
+
+- Adding a baseline introduces two separate learning rates, $\alpha^{\mathbf{w}}$ and $\alpha^{\boldsymbol{\theta}}$:
+  - **Value step size ($\alpha^{\mathbf{w}}$)**: Straightforward to calibrate; for linear value features, a reliable heuristic (see [Section 9.6](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-6)) scales inversely with average squared feature norm:
 
 $$\alpha^{\mathbf{w}} = \frac{0.1}{\mathbb{E}\!\left[\|\nabla \hat{v}(S_t, \mathbf{w})\|_\mu^2\right]}$$
 
-- Choosing $\alpha^{\boldsymbol{\theta}}$ is much less clear since its best value depends on the range of variation of the rewards and on the policy parametrization.
+  - **Policy step size ($\alpha^{\boldsymbol{\theta}}$)**: Harder to pick analytically because its ideal scale depends on both reward magnitudes and the curvature of the chosen policy parametrization.
 
 ## Actor-Critic Methods {#sec-ch13-13-5}
 
-- REINFORCE with baseline cannot be used to evaluate actions because its state-value function **only estimates the value of the 1st state** of each state transition (1st state to 2nd state), which serves as a baseline of what to expect for the subsequent return to be, prior to the actual transition's action.
-- **Actor-critic methods, however, apply the state-value function to the 2nd state** of the transition thereby estimating its value and thus **evaluating the action**.
-- The policy is the **actor** that maps states to actions, while the state-value function used to assess actions in this way is the **critic**.
-- The estimated value of the 2nd state, when discounted & added to the reward, yields the **one-step return**, $G_{t:t+1}$.
+- **Baseline vs. critic**: Even though REINFORCE with baseline learns a state-value approximator $\hat{v}(s, \mathbf{w})$, it is *not* an actor-critic method. It queries $\hat{v}$ strictly at the origin state $S_t$ to establish an expectation prior to acting, rather than bootstrapping from the destination state $S_{t+1}$ to critique the action just executed.
+- **True actor-critic architecture**: Applying $\hat{v}(S_{t+1}, \mathbf{w})$ to the transition's *next* state forms a bootstrapped return $G_{t:t+1} = R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w})$, letting the learned value function actively judge whether action $A_t$ turned out better or worse than expected.
+- Under this division of labor, the policy **actor** drives behavior while the value **critic** supplies low-variance TD feedback to refine both itself and the actor.
 
 ### One-Step Actor-Critic Methods {#sec-ch13-13-5-1}
 
-- One-step actor-critic methods replace the REINFORCE full return with the one-step return and use a learned state-value function as the baseline as follows:
+- **One-step actor-critic**: Swaps the full Monte Carlo return $G_t$ in REINFORCE with baseline for the one-step bootstrapped return $G_{t:t+1}$, turning the advantage factor directly into the one-step TD error $\delta_t$:
 
 $$
 \begin{aligned}
@@ -245,68 +262,84 @@ $$
 \end{aligned}
 $$
 
-- The semi-gradient TD(0) could serve as the natural state-value function learning method.
-- **PROS:** simple, fully online & incremental.
-- It is analogous to TD(0), Sarsa(0) & Q-learning.
+- Semi-gradient TD(0) pairs naturally as the critic learner, producing a fully online, step-by-step algorithm analogous to TD(0), Sarsa(0), and Q-learning.
+- Bootstrapping introduces modest bias whenever the critic is imperfect, yet the substantial variance reduction usually speeds up learning markedly.
 
-### Pseudocode: One-Step Actor-Critic (Episodic), for estimating $\pi_{\boldsymbol{\theta}} \approx \pi_*$
+### Implementation: One-Step Actor-Critic (Episodic)
 
-$$
-\boxed{
-\begin{aligned}
-&\textbf{Inputs: } \text{a differentiable policy } \pi(a \vert s, \boldsymbol{\theta}) \text{ and state-value function } \hat{v}(s, \mathbf{w}) \text{ parametrization} \\
-&\textbf{Parameters: } \text{step sizes } \alpha^{\boldsymbol{\theta}} > 0,\ \alpha^{\mathbf{w}} > 0 \\
-&\textbf{Initialize } \text{policy parameter } \boldsymbol{\theta} \in \mathbb{R}^{d'} \text{ and state-value weights } \mathbf{w} \in \mathbb{R}^d \text{ (e.g., to } \mathbf{0}\text{)} \\
-&\textbf{Loop forever } \text{(for each episode):} \\
-&\quad \text{Initialize } S \text{ (1st state of episode)} \\
-&\quad I \leftarrow 1 \\
-&\quad \textbf{Loop while } S \text{ is not terminal (for each time step):} \\
-&\qquad A \sim \pi(\cdot \vert S, \boldsymbol{\theta}) \\
-&\qquad \text{Take action } A\text{, observe } S', R \\
-&\qquad \delta \leftarrow R + \gamma \hat{v}(S', \mathbf{w}) - \hat{v}(S, \mathbf{w}) \quad \text{(if } S' \text{ is terminal, then } \hat{v}(S', \mathbf{w}) \doteq 0\text{)} \\
-&\qquad \mathbf{w} \leftarrow \mathbf{w} + \alpha^{\mathbf{w}}\, \delta\, \nabla \hat{v}(S, \mathbf{w}) \\
-&\qquad \boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}} I\, \delta\, \nabla \ln \pi(A \vert S, \boldsymbol{\theta}) \\
-&\qquad I \leftarrow \gamma I \\
-&\qquad S \leftarrow S'
-\end{aligned}
-}
-$$
+```python
+import numpy as np
+
+
+def one_step_actor_critic(
+    env, policy, value_fn, theta_init, w_init, num_episodes, alpha_theta, alpha_w, gamma=1.0
+):
+    """Online episodic one-step actor-critic using TD(0) for the critic."""
+    theta = np.array(theta_init, dtype=float, copy=True)
+    w = np.array(w_init, dtype=float, copy=True)
+
+    for _ in range(num_episodes):
+        state = env.reset()
+        discount = 1.0
+        done = False
+
+        while not done:
+            action = policy.sample(state, theta)
+            next_state, reward, done = env.step(action)
+            v_next = 0.0 if done else value_fn.predict(next_state, w)
+            delta = reward + gamma * v_next - value_fn.predict(state, w)
+
+            w += alpha_w * delta * value_fn.grad(state, w)
+            theta += alpha_theta * discount * delta * policy.grad_log_prob(state, action, theta)
+            discount *= gamma
+            state = next_state
+
+    return theta, w
+```
 
 ### Actor-Critic with Eligibility Traces {#sec-ch13-13-5-2}
 
-- We generalize to the forward view of $n$-step methods and then to a $\lambda$-return algorithm.
-- We replace the one-step return $G_{t:t+1}$ by $G_{t:t+n}$ or $G_t^\lambda$ respectively for either $n$-step or $\lambda$-return.
-- The backward view of the $\lambda$-return algorithm uses **eligibility traces** for the actor and the critic.
+- Just as one-step TD generalizes through $n$-step returns to TD($\lambda$), one-step actor-critic generalizes by replacing $G_{t:t+1}$ with an $n$-step target $G_{t:t+n}$ or a $\lambda$-return $G_t^\lambda$.
+- **Dual eligibility traces**: In the online backward view, separate trace vectors $\mathbf{z}^{\mathbf{w}}$ and $\mathbf{z}^{\boldsymbol{\theta}}$ with independent decay rates $\lambda^{\mathbf{w}}, \lambda^{\boldsymbol{\theta}} \in [0, 1]$ propagate the single scalar TD error $\delta_t$ simultaneously through both the critic and the actor.
 
-### Pseudocode: Actor-Critic with ET (Episodic), for estimating $\pi_{\boldsymbol{\theta}} \approx \pi_*$
+### Implementation: Actor-Critic with Eligibility Traces (Episodic)
 
-$$
-\boxed{
-\begin{aligned}
-&\textbf{Inputs: } \text{a differentiable policy and state-value function parametrization: } \pi(a \vert s, \boldsymbol{\theta}),\ \hat{v}(s, \mathbf{w}) \\
-&\textbf{Parameters: } \text{trace-decay rates } \lambda^{\boldsymbol{\theta}} \in [0,1],\ \lambda^{\mathbf{w}} \in [0,1]\text{; step sizes } \alpha^{\boldsymbol{\theta}} > 0,\ \alpha^{\mathbf{w}} > 0 \\
-&\textbf{Initialize } \text{policy parameter } \boldsymbol{\theta} \in \mathbb{R}^{d'} \text{ and state-value weights } \mathbf{w} \in \mathbb{R}^d \text{ (e.g., to } \mathbf{0}\text{)} \\
-&\textbf{Loop forever } \text{(for each episode):} \\
-&\quad \text{Initialize } S \text{ (1st state of episode)} \\
-&\quad \mathbf{z}^{\boldsymbol{\theta}} \leftarrow \mathbf{0} \quad \text{($d'$-component eligibility trace vector)} \\
-&\quad \mathbf{z}^{\mathbf{w}} \leftarrow \mathbf{0} \quad \text{($d$-component eligibility trace vector)} \\
-&\quad \textbf{Loop while } S \text{ is not terminal (for each time step):} \\
-&\qquad A \sim \pi(\cdot \vert S, \boldsymbol{\theta}) \\
-&\qquad \text{Take action } A\text{, observe } S', R \quad \text{(if } S' \text{ is terminal, then } \hat{v}(S', \mathbf{w}) \doteq 0\text{)} \\
-&\qquad \delta \leftarrow R + \gamma \hat{v}(S', \mathbf{w}) - \hat{v}(S, \mathbf{w}) \\
-&\qquad \mathbf{z}^{\mathbf{w}} \leftarrow \gamma\lambda^{\mathbf{w}} \mathbf{z}^{\mathbf{w}} + \nabla \hat{v}(S, \mathbf{w}) \\
-&\qquad \mathbf{z}^{\boldsymbol{\theta}} \leftarrow \gamma\lambda^{\boldsymbol{\theta}} \mathbf{z}^{\boldsymbol{\theta}} + I\, \nabla \ln \pi(A \vert S, \boldsymbol{\theta}) \\
-&\qquad \mathbf{w} \leftarrow \mathbf{w} + \alpha^{\mathbf{w}}\, \delta\, \mathbf{z}^{\mathbf{w}} \\
-&\qquad \boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}\, \delta\, \mathbf{z}^{\boldsymbol{\theta}} \\
-&\qquad I \leftarrow \gamma I \\
-&\qquad S \leftarrow S'
-\end{aligned}
-}
-$$
+```python
+import numpy as np
+
+
+def actor_critic_traces_episodic(
+    env, policy, value_fn, theta_init, w_init, num_episodes,
+    alpha_theta, alpha_w, lam_theta, lam_w, gamma=1.0,
+):
+    """Episodic actor-critic with separate actor and critic eligibility traces."""
+    theta = np.array(theta_init, dtype=float, copy=True)
+    w = np.array(w_init, dtype=float, copy=True)
+
+    for _ in range(num_episodes):
+        state, discount, done = env.reset(), 1.0, False
+        z_theta, z_w = np.zeros_like(theta), np.zeros_like(w)
+
+        while not done:
+            action = policy.sample(state, theta)
+            next_state, reward, done = env.step(action)
+            v_next = 0.0 if done else value_fn.predict(next_state, w)
+            delta = reward + gamma * v_next - value_fn.predict(state, w)
+
+            z_w = gamma * lam_w * z_w + value_fn.grad(state, w)
+            grad_log = policy.grad_log_prob(state, action, theta)
+            z_theta = gamma * lam_theta * z_theta + discount * grad_log
+            w += alpha_w * delta * z_w
+            theta += alpha_theta * delta * z_theta
+            discount *= gamma
+            state = next_state
+
+    return theta, w
+```
 
 ## Policy Gradient for Continuing Problems {#sec-ch13-13-6}
 
-- From [Section 10.3](ch10-on-policy-control-approximation.qmd#sec-ch10-10-3) on continuing problems, lack of episode boundaries requires a new performance measure definition in terms of the **average rate of reward per time step**:
+- For continuing environments without episode resets ([Section 10.3](ch10-on-policy-control-approximation.qmd#sec-ch10-10-3)), performance is measured by the long-run **average reward per step** $r(\pi)$:
 
 $$
 \begin{aligned}
@@ -326,7 +359,7 @@ $$
 
 $$\sum_s \mu(s) \sum_a \pi(a \vert s, \boldsymbol{\theta})\, p(s' \vert s,a) = \mu(s') \quad \text{for all } s' \in S \quad \text{(ergodicity)}$$
 
-- In the continuing case, we define values $v_\pi(s) \doteq \mathbb{E}_\pi[G_t \vert S_t = s]$ and $q_\pi(s,a) \doteq \mathbb{E}_\pi[G_t \vert S_t = s, A_t = a]$ w.r.t. the **differential return**:
+- **Differential return and values**: State and action values $v_\pi(s) \doteq \mathbb{E}_\pi[G_t \vert S_t = s]$ and $q_\pi(s, a) \doteq \mathbb{E}_\pi[G_t \vert S_t = s, A_t = a]$ are defined relative to the **differential return**, which subtracts the average reward $r(\pi)$ from every step:
 
 $$G_t \doteq R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + R_{t+3} - r(\pi) + \ldots$$
 
@@ -339,7 +372,7 @@ $$G_t \doteq R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + R_{t+3} - r(\pi) + \ldots$$
 \small
 ```
 
-Leave the notation implicit in all cases that $\pi = f(\boldsymbol{\theta})$ and that the gradients $\nabla[\ldots]$ are w.r.t. $\boldsymbol{\theta}$. In the continuing case $J(\boldsymbol{\theta}) = r(\pi)$, and $v_\pi$ & $q_\pi$ denote values w.r.t. the **differential return**.
+Again leaving the parameter dependence $\pi = \pi(\cdot \vert \cdot, \boldsymbol{\theta})$ and differentiation with respect to $\boldsymbol{\theta}$ implicit, let $J(\boldsymbol{\theta}) = r(\pi)$ with $v_\pi$ and $q_\pi$ defined via the **differential return**.
 
 $$
 \begin{aligned}
@@ -350,9 +383,11 @@ $$
 \end{aligned}
 $$
 
+Isolating $\nabla r(\boldsymbol{\theta})$ gives an identity valid at every state $s \in \mathcal{S}$:
+
 $$\nabla r(\boldsymbol{\theta}) = \sum_a \!\left[\nabla\pi(a \vert s)\, q_\pi(s,a) + \pi(a \vert s) \sum_{s'} p(s' \vert s,a)\, \nabla v_\pi(s')\right] - \nabla v_\pi(s)$$
 
-Since $\nabla J(\boldsymbol{\theta})$ does not depend on $s$, we sum over all $s \in \mathcal{S}$ weighted by $\mu(s)$ (because $\sum_s \mu(s) = 1$):
+Averaging both sides over the stationary distribution $\mu(s)$ (where $\sum_s \mu(s) = 1$) invokes stationarity to cancel the $\nabla v_\pi$ terms cleanly:
 
 $$
 \begin{aligned}
@@ -365,33 +400,42 @@ $$
 $$
 :::
 
-### Pseudocode: Actor-Critic with ET (Continuing), for estimating $\pi_{\boldsymbol{\theta}} \approx \pi_*$
+### Implementation: Actor-Critic with Eligibility Traces (Continuing)
 
-$$
-\boxed{
-\begin{aligned}
-&\textbf{Inputs: } \pi(a \vert s, \boldsymbol{\theta}),\ \hat{v}(s, \mathbf{w}) \\
-&\textbf{Parameters: } \lambda^{\mathbf{w}} \in [0,1],\ \lambda^{\boldsymbol{\theta}} \in [0,1],\ \alpha^{\mathbf{w}} > 0,\ \alpha^{\boldsymbol{\theta}} > 0,\ \alpha^{\bar{R}} > 0 \\
-&\textbf{Initialize } \bar{R} \in \mathbb{R} \text{ (e.g., to 0)},\ \mathbf{w} \in \mathbb{R}^d\ \&\ \boldsymbol{\theta} \in \mathbb{R}^{d'} \text{ (e.g., to } \mathbf{0}\text{)},\ S \in \mathcal{S} \text{ (e.g., to } s_0\text{)} \\
-&\mathbf{z}^{\mathbf{w}} \leftarrow \mathbf{0};\ \mathbf{z}^{\boldsymbol{\theta}} \leftarrow \mathbf{0} \\
-&\textbf{Loop forever } \text{(for each time step):} \\
-&\quad A \sim \pi(\cdot \vert S, \boldsymbol{\theta}) \\
-&\quad \text{Take action } A\text{, observe } S', R \\
-&\quad \delta \leftarrow R - \bar{R} + \hat{v}(S', \mathbf{w}) - \hat{v}(S, \mathbf{w}) \\
-&\quad \bar{R} \leftarrow \bar{R} + \alpha^{\bar{R}}\, \delta \\
-&\quad \mathbf{z}^{\mathbf{w}} \leftarrow \lambda^{\mathbf{w}} \mathbf{z}^{\mathbf{w}} + \nabla \hat{v}(S, \mathbf{w}) \\
-&\quad \mathbf{z}^{\boldsymbol{\theta}} \leftarrow \lambda^{\boldsymbol{\theta}} \mathbf{z}^{\boldsymbol{\theta}} + \nabla \ln \pi(A \vert S, \boldsymbol{\theta}) \\
-&\quad \mathbf{w} \leftarrow \mathbf{w} + \alpha^{\mathbf{w}}\, \delta\, \mathbf{z}^{\mathbf{w}} \\
-&\quad \boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \alpha^{\boldsymbol{\theta}}\, \delta\, \mathbf{z}^{\boldsymbol{\theta}} \\
-&\quad S \leftarrow S'
-\end{aligned}
-}
-$$
+```python
+import numpy as np
+
+
+def actor_critic_traces_continuing(
+    env, policy, value_fn, theta_init, w_init, num_steps,
+    alpha_theta, alpha_w, alpha_r, lam_theta, lam_w,
+):
+    """Continuing-task average-reward actor-critic with eligibility traces."""
+    theta = np.array(theta_init, dtype=float, copy=True)
+    w = np.array(w_init, dtype=float, copy=True)
+    z_theta, z_w = np.zeros_like(theta), np.zeros_like(w)
+    avg_reward, state = 0.0, env.reset()
+
+    for _ in range(num_steps):
+        action = policy.sample(state, theta)
+        next_state, reward = env.step(action)[:2]
+        v_s = value_fn.predict(state, w)
+        delta = reward - avg_reward + value_fn.predict(next_state, w) - v_s
+        avg_reward += alpha_r * delta
+
+        z_w = lam_w * z_w + value_fn.grad(state, w)
+        z_theta = lam_theta * z_theta + policy.grad_log_prob(state, action, theta)
+        w += alpha_w * delta * z_w
+        theta += alpha_theta * delta * z_theta
+        state = next_state
+
+    return theta, w, avg_reward
+```
 
 ## Policy Parametrization for Continuous Actions {#sec-ch13-13-7}
 
-- Policy gradient methods enable us to handle large (and even continuous) action spaces by learning the statistics of the probability distribution instead of computing learned probabilities for each of the many actions.
-- The probability density function for the normal distribution is conventionally written as:
+- **Continuous action spaces**: Rather than enumerating probabilities for every discrete choice, policy gradient methods scale effortlessly to continuous control by outputting the parameters of a continuous probability density.
+- **Gaussian (normal) density**: For scalar continuous controls, a classic parametric choice draws actions according to the bell-shaped Gaussian curve characterized by center $\mu$ and spread $\sigma > 0$:
 
 $$p(x) \doteq \frac{1}{\sigma\sqrt{2\pi}} \exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)$$
 
@@ -404,15 +448,13 @@ $$
 $$
 
 ::: {#fig-ch13-13-7-pdf}
-![](../figures/ch13-13-7-prob-density-function.png){fig-align="center" fig-alt="Probability Density Function (PDF). The probability density functions for several different means and standard deviations are shown above."}
+![](../figures/ch13-13-7-prob-density-function.png){width=85% fig-align="center" fig-alt="Plot of normal probability density curves illustrating how mean mu shifts center and standard deviation sigma controls spread."}
 
-**Probability Density Function (PDF).** The probability density functions for several different means and standard deviations are shown above.
+**Gaussian probability density functions.** Continuous action policies parametrize the mean $\mu$ and standard deviation $\sigma$, shifting location and controlling exploration spread.
 :::
 
-- $p(x)$ is the **density** of the probability at $x$, and not the probability. It can be greater than 1; it is the total area under the graph that must sum to 1.
-- To get the probability of $x$ falling within a range, take the integral under $p(x)$ for that specific range of $x$ values.
-
-- The policy parametrization, defining the policy as the normal probability density over a real-valued scalar action $a$ with mean & standard deviation given by state-dependent, parametric function approximators, is as follows:
+- **Density vs. probability**: The value $p(x)$ represents probability *density* rather than a probability mass; it can exceed $1$ for narrow curves, while its integral over $(-\infty, \infty)$ equals $1$, and integrating $p(x)$ over an interval gives the probability of sampling an action inside that interval (@fig-ch13-13-7-pdf).
+- **Gaussian policy parametrization**: Making both location and scale state-dependent parametric functions yields a differentiable continuous policy:
 
 $$\pi(a \vert s, \boldsymbol{\theta}) \doteq \frac{1}{\sigma(s, \boldsymbol{\theta})\sqrt{2\pi}} \exp\!\left(-\frac{(a - \mu(s, \boldsymbol{\theta}))^2}{2\sigma(s, \boldsymbol{\theta})^2}\right)$$
 
@@ -424,8 +466,7 @@ $$
 \end{aligned}
 $$
 
-- The approximators need a representation form, so we split the policy's parameter vector into 2 parts, $\boldsymbol{\theta} = [\boldsymbol{\theta}_{\mu}, \boldsymbol{\theta}_{\sigma}]^T$, one for mean approximation and the other for standard deviation approximation.
-- The mean can be approximated as a linear function while the standard deviation can be approximated as the exponential of a linear function:
+- **Split parameter vector**: Partitioning $\boldsymbol{\theta} = [\boldsymbol{\theta}_{\mu}, \boldsymbol{\theta}_{\sigma}]^T$ separates mean estimation from spread control. A common linear-feature choice models $\mu$ directly as an inner product while exponentiating a linear score for $\sigma$ to enforce positivity strictly:
 
 $$
 \begin{aligned}
@@ -436,8 +477,7 @@ $$
 
 ## Summary {#sec-ch13-13-8}
 
-- **Parametrized policy methods** select actions directly from $\pi(a \mid s, \boldsymbol{\theta})$ rather than deriving a policy indirectly from action-value estimates, adjusting $\boldsymbol{\theta}$ along estimated ascent directions of performance $J(\boldsymbol{\theta})$.
-- Key advantages over $\varepsilon$-greedy value-based control include representing genuinely stochastic optimal policies, smoothly annealing toward deterministic behavior, handling continuous action spaces naturally, and enjoying stronger convergence guarantees via the **policy gradient theorem**.
-- **REINFORCE** pairs the policy gradient theorem with full Monte Carlo returns; subtracting a learned state-value **baseline** cuts gradient variance substantially without adding bias.
-- When a learned value function bootstraps to evaluate transitions directly, it acts as a **critic** guiding the policy **actor** (**actor-critic methods**). Bootstrapping adds some bias, but the sharp drop in variance typically accelerates learning much as TD improves upon Monte Carlo.
-
+- **Direct policy optimization**: Policy gradient algorithms learn a differentiable policy $\pi(a \mid s, \boldsymbol{\theta})$ directly by ascending stochastic estimates of $\nabla J(\boldsymbol{\theta})$, avoiding indirect action-value argmax steps during execution.
+- **Advantages over value-based control**: Smooth policy families naturally express stochastic optima, anneal seamlessly toward deterministic control, generalize directly to continuous action spaces via parametric densities, and enjoy stronger local convergence properties through the **policy gradient theorem**.
+- **REINFORCE and baselines**: Combining the policy gradient theorem with full Monte Carlo returns yields REINFORCE; subtracting a learned state-value **baseline** preserves unbiasedness while cutting gradient variance sharply.
+- **Actor-critic methods**: Using a learned state-value **critic** to bootstrap from successor states evaluates actions online at every step; trading a small amount of approximation bias for steep variance reduction typically accelerates learning just as TD improves on Monte Carlo, and extends cleanly to eligibility traces and average-reward continuing tasks.

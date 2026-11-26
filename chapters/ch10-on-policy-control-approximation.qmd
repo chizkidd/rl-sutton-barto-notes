@@ -3,27 +3,25 @@ title: "On-Policy Control with Approximation"
 number-sections: true
 ---
 
-- Let's dive into the control problem now with parametric approximation of the action-value function $\hat{q}(s, a, \mathbf{w}) \approx q_{*}(s, a)$, where $\mathbf{w} \in \mathbb{R}^d$ is a **finite-dimensional weight vector.**
-- We'll focus on **semi-gradient Sarsa**, the natural extension of semi-gradient TD(0) to action values and to on-policy control.
-- We'll look at this extension in both the episodic and continuing case.
-- We'll look at $n$-step linear Sarsa.
+- **On-policy control with approximation**: shifts from estimating state values to approximating optimal action values $\hat{q}(s, a, \mathbf{w}) \approx q_{*}(s, a)$ using a finite-dimensional **weight vector** $\mathbf{w} \in \mathbb{R}^d$.
+- The core algorithm developed here is **semi-gradient Sarsa**, extending Chapter 9's semi-gradient TD(0) to action values and online policy improvement.
+- We cover both episodic tasks (one-step and $n$-step semi-gradient Sarsa) and continuing tasks, where discounting runs into fundamental problems and gives way to the **average-reward** formulation.
 
 ## Episodic Semi-gradient Control {#sec-ch10-10-1}
 
-- The extension of the semi-gradient prediction methods of Chapter 9 to action values is straightforward.
-- It is the approximate action-value function, $\hat{q} \approx q_\pi$, that is represented as a parametrized functional form with weight vector $\mathbf{w}$.
-- Before, the training examples had the form $S_t \mapsto U_t$; now the examples have the form $S_t, A_t \mapsto U_t$.
-- The update target $U_t$ can be any approximation of $q_\pi(S_t, A_t)$, including the usual backed-up values such as the full Monte Carlo (MC) return $G_t$ or any $n$-step Sarsa return $G_{t:t+n}$.
-- The general gradient-descent update for action-value prediction is:
+- **Action-value parameterization**: moving from prediction to control replaces $\hat{v}(s, \mathbf{w})$ with a parameterized action-value estimator $\hat{q}(s, a, \mathbf{w}) \approx q_\pi(s, a)$.
+- Individual backup examples now map state-action pairs to scalar targets, $(S_t, A_t) \mapsto U_t$, rather than states alone.
+- The target $U_t$ can be any return estimate for $q_\pi(S_t, A_t)$, such as the complete Monte Carlo return $G_t$ or a truncated $n$-step Sarsa backup $G_{t:t+n}$.
+- **General semi-gradient action-value update**:
 
 $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[U_t - \hat{q}(S_t, A_t, \mathbf{w}_t)\right] \nabla \hat{q}(S_t, A_t, \mathbf{w}_t)$$
 
-- The update for the one-step Sarsa method is:
+- Plugging in the one-step bootstrapped target gives **episodic semi-gradient one-step Sarsa**:
 
 $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[R_{t+1} + \gamma \hat{q}(S_{t+1}, A_{t+1}, \mathbf{w}_t) - \hat{q}(S_t, A_t, \mathbf{w}_t)\right] \nabla \hat{q}(S_t, A_t, \mathbf{w}_t)}$$
 
-- This method is called **episodic semi-gradient one-step Sarsa**. For a constant policy, this method converges in the same way that TD(0) does with the same kind of error bound.
-- **Control** = action-value prediction + policy improvement & action selection:
+- With a fixed policy and linear features, semi-gradient Sarsa mirrors TD(0)'s convergence behavior and satisfies the same bounded-expansion guarantee on value error.
+- **Control loop (GPI with approximation)**: couples action-value updates with immediate greedy evaluation and $\varepsilon$-greedy exploration at every step:
 
 $$
 \boxed{
@@ -34,13 +32,13 @@ a, S_{t+1} &\longrightarrow \hat{q}(S_{t+1}, a, \mathbf{w}_t) \longrightarrow A^
 }
 $$
 
-- Linear function approximation for the action-value function is:
+- **Linear action-value approximation**: computes the inner product of weights with state-action features $\mathbf{x}(s, a)$:
 
 $$\hat{q}(s, a, \mathbf{w}) \doteq \mathbf{w}^T \mathbf{x}(s, a) = \sum_{i=1}^{d} w_i \cdot x_i(s, a)$$
 
 ## Semi-gradient $n$-step Sarsa {#sec-ch10-10-2}
 
-- We use an $n$-step return as the update target for episodic semi-gradient $n$-step Sarsa. The $n$-step return generalizes from its tabular form to a function approximation form:
+- **Approximate $n$-step Sarsa return**: replaces the tabular table lookup at step $t+n$ with the parameterized estimate $\hat{q}(S_{t+n}, A_{t+n}, \mathbf{w}_{t+n-1})$:
 
 $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n \hat{q}(S_{t+n}, A_{t+n}, \mathbf{w}_{t+n-1}), \quad t+n < T$$
 
@@ -50,19 +48,18 @@ $$\text{with } G_{t:t+n} \doteq G_t \text{ if } t+n \geq T$$
 \newpage
 ```
 
-- The $n$-step update equation is:
+- **Episodic semi-gradient $n$-step Sarsa update**:
 
 $$\boxed{\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{q}(S_t, A_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T}$$
 
-- Performance is best if an intermediate level of bootstrapping is used ($n > 1$).
+- Across benchmark control problems (such as Mountain Car), intermediate bootstrapping horizons ($n > 1$) typically outperform both one-step TD ($n = 1$) and full Monte Carlo rollouts by balancing faster credit propagation against lower target variance.
 
 ## Average Reward: A New Problem Setting for Continuing Tasks {#sec-ch10-10-3}
 
-- Average reward applies to continuing problems for goal formulation in MDPs.
-- Average reward uses **no discounting**; the agent has the same level of care for immediate and delayed rewards.
-- Average reward setting is more commonly considered in dynamic programming and less commonly in reinforcement learning (RL).
-- The discounted setting is problematic with function approximation, hence the need for average reward to replace it.
-- In the average-reward setting, the quality of a policy $\pi$ is defined as the average rate of reward, or simply **average reward**, while following that policy, denoted as $r(\pi)$:
+- **Average-reward formulation**: an alternative objective tailored to non-terminating (continuing) MDPs without artificial resets.
+- **No discounting**: rewards earned far in the future carry the exact same weight as immediate rewards.
+- Historically studied more heavily in dynamic programming than in RL, average reward becomes essential once function approximation enters continuing control because the discounted formulation breaks down.
+- **Average reward rate ($r(\pi)$)**: scores a policy $\pi$ by its long-run mean reward per time step:
 
 $$
 \begin{aligned}
@@ -72,24 +69,22 @@ r(\pi) &\doteq \lim_{h \to \infty} \frac{1}{h} \sum_{t=1}^{h} \mathbb{E}\!\left[
 \end{aligned}
 $$
 
-- The expectations in the above equations are conditioned on the initial state $S_0$, and on the subsequent actions $A_0, A_1, \ldots, A_{t-1}$, being taken according to $\pi$.
-- The 2nd and 3rd equations above hold if the MDP is **ergodic**, i.e., if the steady-state distribution exists and is independent of the starting state $S_0$:
+- Every expectation above assumes the trajectory starts from $S_0$ and selects all actions $A_0, A_1, \ldots, A_{t-1}$ using $\pi$.
+- **Ergodicity**: the second and third equalities hold whenever the MDP is **ergodic**, meaning a unique steady-state visitation distribution exists independently of where the agent begins:
 
 $$\mu_\pi(s) \doteq \lim_{t \to \infty} \Pr\!\left\{S_t = s \mid A_{0:t-1} \sim \pi\right\}$$
 
-- In an ergodic MDP, the starting state can have only a temporary effect, but in the long run the expectation of being in a state depends only on the policy and the MDP transition probabilities.
-- Ergodicity is sufficient but not necessary to guarantee the existence of the limit in the $r(\pi)$ equation above.
-- It may be adequate practically to simply order policies according to their average reward per time step, otherwise called the **return rate**.
-- All policies that reach the maximal value of $r(\pi)$ are optimal.
-- The steady-state distribution $\mu_\pi$ is the special distribution under which, if you select actions according to $\pi$, you remain in the same distribution, i.e., for which:
+- Under ergodicity, initial conditions wash out over time so long-run state occupancy is governed purely by $\pi$ and environment transition probabilities (note that ergodicity is sufficient, though not strictly required, for the $r(\pi)$ limit to exist).
+- Ranking policies solely by their per-step **return rate** $r(\pi)$ is clean and practical: any policy achieving $\max_\pi r(\pi)$ is deemed optimal.
+- **Stationarity invariance**: starting from $\mu_\pi$ and acting under $\pi$ leaves the state distribution unchanged:
 
 $$\sum_s \mu_\pi(s) \sum_a \pi(a \vert s)\, p(s' \vert s, a) = \mu_\pi(s')$$
 
-- In the average-reward setting, returns are defined in terms of differences between rewards and the average reward; this is called the **differential return**:
+- **Differential return**: because undiscounted raw rewards diverge on continuing tasks, returns are measured as cumulative excess reward relative to the policy's baseline rate $r(\pi)$:
 
 $$G_t \doteq R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + R_{t+3} - r(\pi) + \ldots$$
 
-- The corresponding value functions for the differential return are known as **differential value functions**:
+- **Differential value functions**: expected differential returns conditioned on the current state or state-action pair:
 
 $$
 \begin{aligned}
@@ -102,7 +97,7 @@ $$
 \newpage
 ```
 
-- Differential value functions also have Bellman equations:
+- **Differential Bellman equations**: parallel the discounted Bellman equations with $\gamma = 1$ and $r(\pi)$ subtracted from every reward:
 
 $$
 \begin{aligned}
@@ -113,7 +108,7 @@ q_{*}(s, a) &= \sum_{r, s'} p(s', r \vert s, a)\!\left[r - \max_\pi r(\pi) + \ma
 \end{aligned}
 $$
 
-- The differential form of the 2 TD errors:
+- **Differential TD errors**: replace the true rate $r(\pi)$ with an online running estimate $\bar{R}_t$:
 
 $$
 \begin{aligned}
@@ -124,22 +119,18 @@ $$
 
 $$
 \begin{aligned}
-\text{where} \quad \bar{R}_t &= \text{average reward } r(\pi) \text{ estimate at time } t
+\text{where} \quad \bar{R}_t &= \text{running estimate of average reward } r(\pi) \text{ at time } t
 \end{aligned}
 $$
 
-- Most of the algorithms covered so far don't change for the average-reward setting. For example, the semi-gradient Sarsa average-reward version is the same as the regular version except with the differential version of the TD error:
+- **Differential semi-gradient Sarsa**: keeps the exact same parameter update structure as discounted Sarsa while plugging in the differential TD error (alongside a companion update $\bar{R}_{t+1} = \bar{R}_t + \beta \delta_t$):
 
 $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{q}(S_t, A_t, \mathbf{w}_t)$$
 
 ## Deprecating the Discounted Setting {#sec-ch10-10-4}
 
-- For the tabular case, the continuing, discounted problem formulation is useful, but in the approximate case, is this problem formulation necessary?
-- Should we use the discounted reward or average reward in continuing tasks?
-- It turns out that the average of the discounted return is proportional to the average reward.
-- The ordering of all policies in the average discounted return setting would be exactly the same as in the average-reward setting.
-- This idea of the **futility of discounting in continuing problems** can be proven by the **symmetry argument.** 
-  - Let's choose an objective that saves discounting by summing discounted values over the distribution with which states occur under the policy (where $v^\gamma_\pi \equiv$ discounted value function):
+- Discounting works smoothly in tabular continuing MDPs because each state can be optimized independently, yet under function approximation we must compare policies by a single scalar objective rather than state-by-state dominance.
+- **Symmetry argument (futility of discounting in continuing tasks)**: if we try to rescue discounting by averaging the discounted state value $v^\gamma_\pi(s)$ over the policy's stationary distribution $\mu_\pi(s)$, the resulting objective collapses to a constant multiple of the undiscounted average reward:
 
     $$
     \begin{aligned}
@@ -158,16 +149,14 @@ $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t \nabla \hat{q}(S_t, A
 
     $$\boxed{J(\pi) = \left(\frac{1}{1-\gamma}\right) r(\pi)}$$
 
-    - _The proposed discounted objective orders policies identically to the undiscounted (average reward) objective._
-    - _The discount rate $\gamma$ does not influence the ordering._
+    - _Because $\frac{1}{1-\gamma}$ is a positive constant independent of $\pi$, this averaged discounted objective induces the exact same policy ranking as average reward $r(\pi)$._
+    - _Consequently, the discount factor $\gamma$ has zero effect on which continuing policy is optimal._
 
-- The root cause of the difficulties with the discounted control setting is that with function approximation we have lost the policy improvement theorem.
-- Now if we change the policy to improve the discounted value of one state, we are no longer guaranteed to have improved the overall policy.
+- **Loss of the policy improvement theorem**: the deeper reason discounted continuing control breaks under approximation is that changing parameters to boost discounted value at one state can degrade values elsewhere, destroying the monotonic global improvement guarantee of tabular DP.
 
 ## Differential Semi-gradient $n$-step Sarsa {#sec-ch10-10-5}
 
-- We need an $n$-step version of the TD error in order to generalize to $n$-step bootstrapping.
-- Let's generalize the $n$-step return to its differential form, with function approximation:
+- **Differential $n$-step return**: extends one-step differential Sarsa to $n$-step bootstrapping by subtracting the current average-reward estimate $\bar{R}_{t+n-1}$ from each of the $n$ collected rewards before adding the bootstrapped action value:
 
 $$\boxed{G_{t:t+n} \doteq R_{t+1} - \bar{R}_{t+n-1} + \ldots + R_{t+n} - \bar{R}_{t+n-1} + \hat{q}(S_{t+n}, A_{t+n}, \mathbf{w}_{t+n-1})}$$
 
@@ -178,14 +167,13 @@ G_{t:t+n} &\doteq G_t \quad \text{ if } t+n \geq T
 \end{aligned}
 $$
 
-- The $n$-step TD error is:
+- **Differential $n$-step TD error**: drives both the weight update and the average-reward tracker:
 
 $$\delta_t \doteq G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w})$$
 
 ## Summary {#sec-ch10-10-6}
 
-- Moving from prediction to control with function approximation is straightforward in episodic tasks (replacing $\hat{v}$ with $\hat{q}$ in semi-gradient Sarsa and $n$-step Sarsa).
-- In continuing tasks with approximation, discounting breaks down because policies can no longer be ordered unambiguously without a start-state distribution.
-- Optimizing the **average reward** $r(\pi)$ per time step resolves this cleanly, giving every policy a single scalar performance score.
-- The average-reward framework introduces **differential** returns, value functions, Bellman equations, and TD errors that closely mirror their discounted counterparts and yield parallel differential control algorithms.
-
+- Extending approximate on-policy prediction to episodic control requires only parameterizing $\hat{q}(s, a, \mathbf{w})$ in place of $\hat{v}(s, \mathbf{w})$ and coupling semi-gradient one-step or $n$-step Sarsa with $\varepsilon$-greedy action selection.
+- For continuing tasks with function approximation, discounting loses a coherent global objective because the policy improvement theorem no longer holds and averaging discounted values over $\mu_\pi$ merely rescales $r(\pi)$ by $\frac{1}{1-\gamma}$.
+- Framing continuing control around **average reward** $r(\pi)$ assigns every policy an unambiguous scalar performance rate.
+- The resulting **differential** returns, value functions, Bellman equations, and TD errors mirror discounted algorithms cleanly and yield natural one-step and $n$-step differential Sarsa control methods.

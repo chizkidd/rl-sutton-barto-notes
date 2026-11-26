@@ -102,7 +102,8 @@ RL-Sutton-Barto-notes/
 │   ├── build-epub-gallery.py    # Regenerates the EPUB figure list from the gallery grid
 │   ├── fix-epub.py              # Post-render repair of the EPUB for EPUBCheck
 │   ├── make-webp.py             # WebP copies of the figures for the gallery
-│   ├── make-fig-13-1.py         # Redraws figure 13.1 at 300 dpi from the formula
+│   ├── make-figures.py          # Generates 8 original 300 dpi conceptual diagrams (Ch. 3–12)
+│   ├── make-fig-13-1.py         # Generates Figure 13.1 (Gaussian PDF) at 300 dpi
 │   └── freeze-anchors.py        # Freezes heading ids; fails if one is used twice
 ├── chapters/                    # One .qmd per chapter (13)
 │   ├── ch01-introduction.qmd
@@ -118,22 +119,16 @@ RL-Sutton-Barto-notes/
 │   ├── ch11-off-policy-methods-approximation.qmd
 │   ├── ch12-eligibility-traces.qmd
 │   └── ch13-policy-gradient-methods.qmd
-└── figures/                     # 42 figure PNGs (the book's diagrams)
+└── figures/                     # 9 programmatically generated PNGs + WebP gallery copies
     ├── SOURCES.md               # Every figure: file, chapter, number and caption
-    ├── ch03-3-1.png             # chNN-N-N[-label].png = chapter NN, book figure N-N
-    ├── ch06-6-4-sarsa.png
-    ├── ch12-12-10-watkins-q-lambda.png
-    ├── webp/                    # Same 42 figures as WebP, for the gallery
-    ├── fig71_nstep_td.svg       # Chapter 7 SVG alternates, commented out
-    ├── fig75_tree_backup.svg
-    └── ...
+    ├── ch03-mdp-loop.png
+    ├── ch06-td-backups.png
+    ├── ch12-lambda-weights.png
+    ├── ch13-13-7-prob-density-function.png
+    └── webp/                    # Matching 9 figures as WebP, for the gallery
 ```
 
-*Figure counts per chapter: ch03 (3), ch04 (1), ch05 (1), ch06 (5), ch07 (5), ch08 (6), ch09 (4), ch11 (7), ch12 (9), ch13 (1). Chapters 01, 02 and 10 have no figures.*
-
-The PNGs follow `chNN-N-N[-label].png` throughout, including chapter 7 (`ch07-7-1-n-step-td.png`). The five `.svg` files in chapter 7 keep the older `figNN_slug.svg` name; they are the superseded attempts described below.
-
-Chapter 7 also keeps five SVG attempts next to its PNGs. They are commented out in the chapter source and are not part of the build, so `figures/SOURCES.md`, which maps every image to its chapter, figure number and caption, lists the 42 PNGs that actually appear.
+*All 9 figures are generated programmatically via `scripts/make-figures.py` and `scripts/make-fig-13-1.py` (Ch. 3, 4, 6, 7, 8, 9, 11, 12, 13; one original diagram per chapter). Chapters 01, 02, 05, and 10 have no figures, and additional textbook diagrams are cited by figure number in Sutton & Barto (2018).*
 
 ## Reference
 

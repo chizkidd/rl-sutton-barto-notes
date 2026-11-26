@@ -3,19 +3,18 @@ title: "On-Policy Prediction with Approximation"
 number-sections: true
 ---
 
-- Study of **function approximation** in RL by considering its use in estimating the state-value function from on-policy data, i.e. in approximating $v_\pi$ from experience generated using a known policy $\pi$.
-- The approximate value function is represented as a parameterized functional form with **weight vector** $\mathbf{w} \in \mathbb{R}^d$:
+- **Function approximation in on-policy prediction**: shifts RL beyond lookup tables by estimating the state-value function $v_\pi$ from trajectories generated under a known policy $\pi$ via a parameterized model with **weight vector** $\mathbf{w} \in \mathbb{R}^d$:
 
 $$\hat{v}(s, \mathbf{w}) \approx v_\pi(s)$$
 
-- The function above is for the approximate value of state $s$ given weight vector $\mathbf{w}$.
-- $\hat{v}$ might be a linear function, a multi-layer artificial neural network, or a decision tree.
-- Extending RL to function approximation makes it applicable to **partially observable problems**, in which the full state is unavailable to the agent.
-- Function approximation cannot augment the state representation with memories of past observations.
+- Here $\hat{v}(s, \mathbf{w})$ denotes the estimated value of state $s$ produced by parameters $\mathbf{w}$, where the number of parameters $d$ is typically far smaller than the total number of states.
+- Candidate architectures for $\hat{v}$ span linear feature combinations, multi-layer artificial neural networks, decision trees, and kernel regressors.
+- **Partial observability**: because a function approximator depends only on observable state features rather than distinct state IDs, it naturally applies to **partially observable** environments where hidden state variables are inaccessible.
+- However, static function approximation by itself does not construct internal memory of past observations; handling long-term hidden state requires recurrent or history-based representations.
 
 ## Value-Function Approximation {#sec-ch09-9-1}
 
-- All the prediction methods covered so far involve an update to an estimated value function that shifts its value towards a "backed-up value" (update target, $u$). Let's denote an individual state update by $s \mapsto u$:
+- Every prediction algorithm in Part I nudges an estimated state value toward a backup target $u$, written as a state-to-target training pair $s \mapsto u$:
 
 $$
 \begin{aligned}
@@ -26,34 +25,31 @@ n\text{-step TD:} \quad & S_t \mapsto G_{t:t+n} \\
 \end{aligned}
 $$
 
-- Each update is interpretable as an example of the desired input-output behaviour of the value function.
-  - Until now, the value function updates have been made in the tabular setting, which is quite trivial because estimated values of all other states are left unchanged.
-  - Now using arbitrarily complex and sophisticated methods to perform the update, updating at $s$ generalizes so that the estimated value of many other states are changed as well.
-  - Machine learning methods that learn to mimic input-output examples in this way are called **supervised learning** methods, and when the outputs are numbers, like $u$, the process is called **function approximation**.
+- **Generalization via supervised learning**:
+  - In tabular RL, adjusting the estimate for $s$ leaves every other state untouched, so there is no generalization across states.
+  - With parameterized approximation, modifying $\mathbf{w}$ based on $s \mapsto u$ simultaneously shifts the predicted values of many related states.
+  - Learning to fit input-output pairs is **supervised learning**; when targets $u$ are continuous real numbers, the task is **function approximation** (regression).
 
-- Function approximation methods expect to receive examples of the desired input-output behavior of the function they are trying to approximate.
-  - We view each update as a conventional training example.
-  - This allows us to use any of a wide range of existing function approximation methods for value prediction.
-  - Whatever function approximation method is chosen needs to be able to perform **online learning**.
+- Treating each RL backup $s \mapsto u$ as a supervised training example unlocks the full toolbox of regression algorithms for value prediction.
+- **Online capability requirement**: RL targets arrive sequentially and shift as policies or bootstrapped estimates evolve, so chosen approximators must support incremental **online learning** from nonstationary streams rather than assuming static i.i.d. datasets.
 
 ## The Prediction Objective ($\overline{\text{VE}}$) {#sec-ch09-9-2}
 
-- We have more states $s$ than weights $\mathbf{w}$, therefore we cannot feasibly approximate the value function perfectly.
-- Making one state's estimate more accurate invariably leads to making the others' less accurate.
-- Therefore, it is necessary to define which states we care most about, based on a **state distribution,** $\mu(s)$, that represents how much we care about the error in each state $s$.
+- Because $|\mathcal{S}| \gg d$, no parameter setting $\mathbf{w}$ can match $v_\pi(s)$ exactly at every state simultaneously.
+- Reducing error on one subset of states inevitably increases error on others, forcing us to specify which states matter most via a **state weighting distribution** $\mu(s)$:
 
 $$\mu(s) \geq 0, \quad \sum_s \mu(s) = 1$$
 
-- Weighting the error in a state $s$, the difference between the approximate value $\hat{v}(s, \mathbf{w})$ and the true value $v_\pi(s)$, over the state space by $\mu$ leads to obtaining a natural objective function called the **mean squared value error**, denoted by $\overline{\text{VE}}$:
+- **Mean Squared Value Error ($\overline{\text{VE}}$)**: weights the squared approximation error at each state by $\mu(s)$:
 
 $$\boxed{\overline{\text{VE}}(\mathbf{w}) \doteq \sum_{s \in S} \mu(s) \left[v_\pi(s) - \hat{v}(s, \mathbf{w})\right]^2}$$
 
-- $\sqrt{\overline{\text{VE}}}$ tells us roughly how much the approximate values differ from the true values.
-- Often $\mu$ is chosen to be the fraction of time spent in $s$, called the **on-policy distribution** under on-policy training.
+- Taking the square root $\sqrt{\overline{\text{VE}}}$ gives the typical magnitude of prediction error under $\mu$.
+- In on-policy training, $\mu(s)$ is naturally set to the **on-policy distribution**, meaning the long-run proportion of time steps the agent spends in state $s$ while following $\pi$.
 
 ### On-policy Distribution {#on-policy-distribution}
 
-1. **Continuing tasks**: the on-policy distribution is the stationary distribution under $\pi$:
+1. **Continuing tasks**: $\mu(s)$ equals the stationary distribution of the Markov chain induced by $\pi$:
 
 $$\mu(s) = \sum_{s'} \mu(s') \sum_a \pi(a \vert s')\, p(s \vert s', a), \quad \forall s \in S$$
 
@@ -65,55 +61,50 @@ s' &= \text{preceding state}
 \end{aligned}
 $$
 
-<!-- > ***Balance Equation:*** the probability of being in state $s$ equals the sum over all ways of arriving in $s$ from any previous state $s'$ under policy $\pi$. -->
-
 ::: {.callout-note title="Balance Equation"}
-The probability of being in state $s$ equals the sum over all ways of arriving in $s$ from any previous state $s'$ under policy $\pi$.
+At stationarity, the probability mass residing in state $s$ equals the total incoming probability flow from every predecessor state $s'$ transitioning into $s$ under policy $\pi$.
 :::
 
-2. **Episodic tasks**: it depends on how the initial states of episodes are chosen:
+2. **Episodic tasks**: visitation counts depend on the start-state distribution $h(s)$ as well as transition dynamics:
 
 $$\eta(s) = h(s) + \sum_{\bar{s}} \eta(\bar{s}) \sum_a \pi(a \vert \bar{s})\, p(s \vert \bar{s}, a), \quad \forall s \in S$$
 
 $$
 \begin{aligned}
 \text{where} \\
-h(s) &= \text{probability that an episode begins in each state } s \\
-\eta(s) &= \text{number of time steps spent, on average, in state } s \text{ in a single episode} \\
+h(s) &= \text{probability that an episode starts in state } s \\
+\eta(s) &= \text{expected number of visits to state } s \text{ per episode} \\
 \bar{s} &= \text{preceding state}
 \end{aligned}
 $$
 
-<!-- > ***Visitation Equation:*** the expected number of visits to state $s$ equals the probability of starting in state $s$ plus the expected number of visits to all preceding states $s'$ that transition into $s$ under policy $\pi$. -->
-
 ::: {.callout-note title="Visitation Equation"}
-The expected number of visits to state $s$ equals the probability of starting in state $s$ plus the expected number of visits to all preceding states $s'$ that transition into $s$ under policy $\pi$.
+The expected visit count for state $s$ in an episode equals the chance of starting in $s$ plus the summed incoming flow from all predecessor states $\bar{s}$ transitioning to $s$ under $\pi$.
 :::
 
-- This system of equations can be solved for the expected number of visits $\eta(s)$.
-- The on-policy distribution is the fraction of time spent in each state, normalized to sum to 1:
+- Solving this linear system yields the expected per-episode visit counts $\eta(s)$.
+- Normalizing $\eta(s)$ across all states produces the episodic on-policy distribution:
 
 $$\mu(s) = \frac{\eta(s)}{\sum_{s'} \eta(s')}, \quad \forall s \in S$$
 
-- If discounting exists, then we redefine $\eta(s)$:
+- When discounting is absorbed into state weighting, $\eta(s)$ is redefined with factor $\gamma$:
 
 $$\eta(s) = h(s) + \gamma \sum_{\bar{s}} \eta(\bar{s}) \sum_a \pi(a \vert \bar{s})\, p(s \vert \bar{s}, a), \quad \forall s \in S$$
 
 $$
 \begin{aligned}
-\text{where} \gamma &= \text{discount factor}
+\text{where } \gamma &= \text{discount factor}
 \end{aligned}
 $$
 
 ### Performance Objective {#performance-objective}
 
-- Although $\overline{\text{VE}}$ is a good starting point, it's not completely clear that it is the right performance objective.
-- The **ultimate goal** (reason for learning a value function) is to find a better policy.
-- If we use $\overline{\text{VE}}$, the goal is to find a **global optimum** (optimal weight vector, $\mathbf{w}^*$):
+- While $\overline{\text{VE}}$ provides a clean analytical benchmark for prediction, minimizing value error is only a proxy; the true **control goal** of RL is discovering a higher-performing policy.
+- Under $\overline{\text{VE}}$, linear methods can reach a **global optimum** $\mathbf{w}^*$:
 
 $$\mathbf{w}^* \quad \text{for which} \quad \overline{\text{VE}}(\mathbf{w}^*) \leq \overline{\text{VE}}(\mathbf{w}), \quad \forall \mathbf{w}$$
 
-- Complex function approximators may converge to a **local optimum**: 
+- Expressive nonlinear approximators generally settle at a **local optimum**, where no small perturbation improves the loss:
 
 $$\mathbf{w}^* \quad \text{for which} \quad \overline{\text{VE}}(\mathbf{w}^*) \leq \overline{\text{VE}}(\mathbf{w}), \quad \forall \mathbf{w} \quad \text{in some neighborhood of} \quad \mathbf{w}^*$$
 
@@ -121,12 +112,11 @@ $$\mathbf{w}^* \quad \text{for which} \quad \overline{\text{VE}}(\mathbf{w}^*) \
 
 ### Stochastic Gradient Descent (SGD) {#stochastic-gradient-descent-sgd}
 
-- SGD methods are among the most widely used of all function approximation methods and are well suited to online RL.
-- The function approximator is parameterized by a weight vector with a fixed number of real components (column vector):
+- **Stochastic Gradient Descent (SGD)**: updates a fixed-size real parameter vector incrementally from individual samples, making it a natural backbone for online RL:
 
 $$\mathbf{w} \doteq (w_1, w_2, w_3, \ldots, w_d)^T$$
 
-- In SGD, we update the weight vector at each time step by moving it in the direction that minimises the error most quickly for the example shown:
+- Given an exact value label $v_\pi(S_t)$ at step $t$, SGD nudges $\mathbf{w}_t$ down the gradient of the instantaneous squared error:
 
 $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t - \frac{1}{2}\alpha \nabla\!\left[v_\pi(S_t) - \hat{v}(S_t, \mathbf{w}_t)\right]^2$$
 
@@ -137,35 +127,34 @@ $$
 \text{where} \\
 \hat{v}(s, \mathbf{w}) &= \text{approximate value function (differentiable in } \mathbf{w},\ \forall s \in S) \\
 \alpha &= \text{positive step-size parameter} \\
-\nabla f(\mathbf{w}) &= \text{column vector of partial derivatives of } f(\mathbf{w}) \text{ WRT components of } \mathbf{w}
+\nabla f(\mathbf{w}) &= \text{column vector of partial derivatives of } f(\mathbf{w}) \text{ with respect to } \mathbf{w}
 \end{aligned}
 $$
 
-- The equation for $\nabla f(\mathbf{w})$, the gradient of $f$ WRT $\mathbf{w}$, is:
+- Explicitly, the gradient vector collects all partial derivatives:
 
 $$\nabla f(\mathbf{w}) \doteq \left(\frac{\partial f(\mathbf{w})}{\partial w_1},\ \frac{\partial f(\mathbf{w})}{\partial w_2},\ \frac{\partial f(\mathbf{w})}{\partial w_3},\ \ldots,\ \frac{\partial f(\mathbf{w})}{\partial w_d}\right)^T$$
 
-- SGD methods are ***"gradient descent"*** methods because the overall step in $\mathbf{w}_t$ is proportional to the negative gradient of the example's squared error ($\mathbf{w}_{t+1}$). This is the direction in which the error falls most rapidly.
-- Gradient descent methods are called ***"stochastic"*** because the update is done on only a single example, which might have been selected stochastically.
-- If $\alpha$ decreases as expected in satisfaction of the standard stochastic approximation conditions, then SGD is guaranteed to converge to a local optimum.
+- **Why "gradient descent"**: stepping opposite to the squared-error gradient moves parameters along the steepest local descent direction for that state's error.
+- **Why "stochastic"**: each step relies on a noisy single state sample $S_t$ rather than averaging gradients across the entire state distribution.
+- Provided $\alpha$ decays according to classical Robbins-Monro stochastic approximation conditions, true SGD converges reliably to a local minimum of $\overline{\text{VE}}$.
 
 ### True Value Estimates {#true-value-estimates}
 
-- When the true value function $v_\pi(S_t)$ is unknown, we can approximate it by substituting $U_t$ in place of $v_\pi(S_t)$.
-- This yields the following general SGD method for state-value prediction:
+- In real RL problems, exact $v_\pi(S_t)$ values are unavailable, so we plug in a noisy target estimate $U_t$ to obtain the general update rule:
 
 $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[U_t - \hat{v}(S_t, \mathbf{w}_t)\right] \nabla \hat{v}(S_t, \mathbf{w}_t)}$$
 
-- If $U_t$ is an ***unbiased*** estimate, that is, if $\mathbb{E}[U_t \vert S_t = s] = v_\pi(s)$ for each $t$, then $\mathbf{w}_t$ is guaranteed to converge to a local optimum under the usual stochastic approximation conditions for decreasing $\alpha$.
-- An example of an unbiased estimator is the **Monte Carlo** estimate for state $S_t$:
+- **Unbiased targets**: whenever $\mathbb{E}[U_t \vert S_t = s] = v_\pi(s)$ holds at every step, SGD inherits the local-optimum convergence guarantee under standard decaying step sizes.
+- **Gradient Monte Carlo**: substitutes the full sample return $U_t = G_t$, which is unbiased and yields a true stochastic gradient algorithm:
 
 $$U_t = G_t$$
 
 $$\mathbf{w} \leftarrow \mathbf{w} + \alpha\!\left[G_t - \hat{v}(S_t, \mathbf{w})\right] \nabla \hat{v}(S_t, \mathbf{w}), \quad \alpha > 0$$
 
-- **Bootstrapping methods** are ***biased*** in that their target is dependent on the current value of the weights $\mathbf{w}$.
-  - **Semi-gradient** (bootstrapping) methods converge reliably in linear cases.
-  - Bootstrapping targets could be **$n$-step returns** or **dynamic programming (DP)** targets.
+- **Semi-gradient (bootstrapping) methods**: when $U_t$ bootstraps on the current estimate $\hat{v}(\cdot, \mathbf{w}_t)$, the target itself depends on $\mathbf{w}_t$ and is therefore biased. Because the update differentiates only through $\hat{v}(S_t, \mathbf{w}_t)$ and treats $U_t$ as constant, it captures only half the true gradient and is termed a **semi-gradient** update.
+  - Despite lacking full-gradient guarantees in general, semi-gradient updates converge cleanly in important settings (notably linear on-policy prediction) and learn far faster online than Monte Carlo.
+  - Common bootstrapping targets include one-step TD, $n$-step returns, and DP expectations:
 
 $$
 \begin{aligned}
@@ -177,15 +166,14 @@ $$
 
 ### State Aggregation {#state-aggregation}
 
-- A simple form of generalizing function approximation in which states are grouped together, with one estimated value (one component of the weight vector $\mathbf{w}$) for each group.
-- A special SGD case in which:
+- **State aggregation**: partitions the state space into disjoint clusters and assigns a single scalar weight component in $\mathbf{w}$ to each cluster.
+- It reduces to a minimal SGD instance whose feature gradient is a one-hot indicator for the active cluster:
 
 $$\nabla \hat{v}(S_t, \mathbf{w}_t) = \left\{ \begin{array}{ll} 1 & \text{for } S_t\text{'s group's component} \\ 0 & \text{for the other components} \end{array} \right\}$$
 
 ## Linear Methods {#sec-ch09-9-4}
 
-- One of the simplest cases for function approximation is when the approximate value function is a **linear combination** of the weight vector.
-- Linear methods approximate the state-value function by the inner product between $\mathbf{w}$ and $\mathbf{x}(s)$:
+- **Linear function approximation**: represents state values as the inner product between parameters $\mathbf{w}$ and a state-dependent **feature vector** $\mathbf{x}(s)$:
 
 $$\hat{v}(s, \mathbf{w}) \doteq \mathbf{w}^T \mathbf{x}(s) \doteq \sum_{i=1}^{d} w_i x_i(s)$$
 
@@ -197,16 +185,16 @@ x_i(s) &= \text{value of function } x_i : S \to \mathbb{R}
 \end{aligned}
 $$
 
-- For linear methods, features are **basis functions** because they form a linear basis for the set of approximate functions.
-- For linear methods, the gradient of the approximate value function WRT $\mathbf{w}$ is:
+- Each feature function $x_i : \mathcal{S} \to \mathbb{R}$ acts as a **basis function** spanning the linear subspace of representable value approximations.
+- Because $\hat{v}$ is linear in $\mathbf{w}$, its gradient simplifies directly to the feature vector:
 
 $$\nabla \hat{v}(s, \mathbf{w}) = \mathbf{x}(s)$$
 
-- Thus in the linear case, the general SGD update reduces to:
+- Plugging this into the general update rule gives the **linear SGD / semi-gradient update**:
 
 $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[U_t - \hat{v}(S_t, \mathbf{w}_t)\right] \mathbf{x}(S_t)}$$
 
-- The semi-gradient TD(0) algorithm converges under linear function approximation:
+- Under linear approximation, **semi-gradient TD(0)** rearranges cleanly into an affine recursion in $\mathbf{w}_t$:
 
 $$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left(R_{t+1} + \gamma \mathbf{w}_t^T \mathbf{x}_{t+1} - \mathbf{w}_t^T \mathbf{x}_t\right) \mathbf{x}_t$$
 
@@ -218,7 +206,7 @@ $$
 \end{aligned}
 $$
 
-- Once the system has reached steady state, for any given $\mathbf{w}_t$ the expected next weight vector can be represented as:
+- In steady state, taking the conditional expectation of the next weight vector given $\mathbf{w}_t$ yields:
 
 $$\mathbb{E}\!\left[\mathbf{w}_{t+1} \vert \mathbf{w}_t\right] = \mathbf{w}_t + \alpha\!\left(\mathbf{b} - \mathbf{A}\mathbf{w}_t\right)$$
 
@@ -230,7 +218,7 @@ A &\doteq \mathbb{E}\!\left[\mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}
 \end{aligned}
 $$
 
-- It is clear that, if the system converges, it must converge to the weight vector $\mathbf{w}_\text{TD}$ at which:
+- Any stationary solution $\mathbf{w}_\text{TD}$ of this expected update must zero out the drift term:
 
 $$\mathbf{b} - \mathbf{A}\mathbf{w}_\text{TD} = \mathbf{0}$$
 
@@ -238,12 +226,12 @@ $$\mathbf{b} = \mathbf{A}\mathbf{w}_\text{TD}$$
 
 $$\mathbf{w}_\text{TD} \doteq \mathbf{A}^{-1}\mathbf{b}$$
 
-- $\mathbf{w}_\text{TD}$ is called the **TD fixed point**. It is the point that linear semi-gradient TD(0) converges to.
-- $\mathbf{A}$ needs to be ***positive definite*** to ensure that $\mathbf{A}^{-1}$ exists:
+- **TD fixed point ($\mathbf{w}_\text{TD}$)**: the unique parameter vector to which on-policy linear semi-gradient TD(0) converges.
+- Stability and invertibility of $\mathbf{A}$ follow when $\mathbf{A}$ is **positive definite**:
 
 $$y^T \mathbf{A} y > 0, \text{ for any } y \neq 0$$
 
-- The semi-gradient $n$-step TD algorithm is the natural extension of the tabular $n$-step TD algorithm in Ch. 7 to semi-gradient function approximation:
+- **Semi-gradient $n$-step TD**: lifts tabular $n$-step bootstrapping (Chapter 7) directly into parameterized form:
 
 $$\boxed{
 \begin{aligned}
@@ -254,29 +242,26 @@ G_{t:t+n} &\doteq R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots + \gamma^
 
 ### Bounded Expansion {#bounded-expansion}
 
-- At the TD fixed point, $\overline{\text{VE}}$ is within a bounded expansion of the lowest possible error:
+- **TD fixed-point error bound**: although $\mathbf{w}_\text{TD}$ does not minimize $\overline{\text{VE}}$ exactly, its mean squared value error is guaranteed to lie within a finite multiple of the global linear optimum:
 
 $$\boxed{\overline{\text{VE}}(\mathbf{w}_\text{TD}) \leq \frac{1}{1-\gamma} \min_{\mathbf{w}} \overline{\text{VE}}(\mathbf{w})}$$
 
-- That is, the asymptotic error of the TD method is no more than $\frac{1}{1-\gamma}$ times the smallest possible error (attained in the limit by the MC method).
-- $\gamma$ is often near 1, so the expansion factor can be quite large; therefore there is substantial potential loss in asymptotic performance with the TD method.
-- A bound analogous to TD's fixed point & bound above on $\overline{\text{VE}}(\mathbf{w}_\text{TD})$ applies to other on-policy bootstrapping methods as well.
-- One-step **action-value** methods such as ***semi-gradient Sarsa(0)*** converge to an analogous fixed point and an analogous bound.
-- For **episodic** tasks, there exists a bound [Bertsekas & Tsitsiklis, 1996].
+- Thus TD(0)'s limiting error is bounded by $\frac{1}{1-\gamma}$ times the lowest achievable error (which Monte Carlo reaches asymptotically).
+- Because $\gamma$ is frequently close to $1$, the worst-case multiplier $\frac{1}{1-\gamma}$ can be sizable, highlighting a genuine asymptotic bias-vs-speed tradeoff relative to Monte Carlo.
+- Parallel fixed points and error bounds hold for other linear on-policy bootstrapping schemes, including one-step **semi-gradient Sarsa(0)** for action values and episodic formulations [Bertsekas & Tsitsiklis, 1996].
 
 ## Feature Construction for Linear Methods {#sec-ch09-9-5}
 
-- Let's discuss different ways of constructing features, which is important for function approximation in linear methods.
+- Because linear models cannot invent nonlinear cross-terms on their own, the quality of the hand-engineered feature map $\mathbf{x}(s)$ governs what value surfaces a linear learner can represent.
 
 ### Polynomials {#sec-ch09-9-5-1}
 
-- There may be a need to design features with higher complexity that can be captured with linear methods.
-- Say for example a state has 2 numerical dimensions, $s_1, s_2 \in \mathbb{R}$. Then it is insufficient to represent this state as $\mathbf{x}(s) = (s_1, s_2)^T$ because it does not take into account any interactions between the 2 dimensions.
-- We can overcome this limitation by instead representing $s$ by the 4-D feature vector:
+- **Polynomial basis**: encodes nonlinear interactions among continuous state variables inside a linear model.
+- For a two-dimensional state $(s_1, s_2) \in \mathbb{R}^2$, using raw coordinates $\mathbf{x}(s) = (s_1, s_2)^T$ misses multiplicative coupling between $s_1$ and $s_2$; expanding to a four-dimensional vector restores both a constant offset and pairwise interaction:
 
 $$\mathbf{x}(s) = \bigl(1,\ s_1,\ s_2,\ s_1 s_2\bigr)^T$$
 
-- For $k$ numerical dimensions, suppose each state $s$ corresponds to $k$ numbers, $s_1, s_2, s_3, \ldots, s_k$ with each $s_i \in \mathbb{R}$, each order-$n$ polynomial-basis feature $x_i$ can be written as:
+- More generally, for a $k$-dimensional numerical state $(s_1, \ldots, s_k) \in \mathbb{R}^k$, each feature in the order-$n$ polynomial basis takes the product form:
 
 $$\boxed{x_i(s) = \prod_{j=1}^{k} s_j^{c_{i,j}}}$$
 
@@ -284,21 +269,21 @@ $$
 \begin{aligned}
 \text{where} \\
 c_{i,j} &= \text{integer in } \{0, 1, 2, 3, \ldots, n\}, \quad \text{for } n \geq 0 \\
-(n+1)^k &= \text{no. of distinct features for a } k\text{-dimensional state space}
+(n+1)^k &= \text{number of distinct features for a } k\text{-dimensional state space}
 \end{aligned}
 $$
 
 ### Fourier Basis {#sec-ch09-9-5-2}
 
-- Fourier series express periodic functions as weighted sums of sine and cosine basis functions of different frequencies, with a function $f$ being periodic if:
+- **Fourier basis**: represents smooth target functions on a bounded domain via weighted sums of periodic cosine waves of varying frequencies, where periodicity means:
 
-$$f(x) = f(x + \tau) \quad \forall x, \text{ and for some period } \tau$$
+$$f(x) = f(x + \tau) \quad \forall x, \text{ for some period } \tau$$
 
-- The 1-D, order-$n$ Fourier cosine basis consists of the $n+1$ features:
+- For a scalar state normalized to $s \in [0, 1]$, the order-$n$ Fourier cosine basis supplies $n+1$ features:
 
 $$x_i(s) = \cos(i \pi s), \quad s \in [0, 1] \quad \text{for } i = 0, 1, 2, \ldots, n$$
 
-- For $k$-dimensional state space, the $i$-th feature in the order-$n$ Fourier cosine basis is:
+- Across a $k$-dimensional normalized state vector $\mathbf{s} \in [0, 1]^k$, the $i$-th order-$n$ cosine feature is:
 
 $$\boxed{x_i(s) = \cos\!\left(\pi \mathbf{s}^T \mathbf{c}^i\right)}$$
 
@@ -307,116 +292,84 @@ $$
 \text{where} \\
 \mathbf{c}^i &= \bigl(c_1^i, c_2^i, \ldots, c_k^i\bigr)^T \\
 c_j^i &\in \{0, 1, 2, \ldots, n\} \quad \text{for } j = 1, 2, \ldots, k \text{ and } i = 1, 2, \ldots, (n+1)^k \\
-i &\equiv \text{features} \\
-j &\equiv \text{dimensions}
+i &\equiv \text{feature index} \\
+j &\equiv \text{state dimension}
 \end{aligned}
 $$
 
 ### Coarse Coding {#sec-ch09-9-5-3}
 
-- Mapping circles to the features of a state space for 2-dimension.
+- **Coarse coding**: covers a continuous state space with overlapping receptive fields (for instance, circular regions in 2D as shown on the left of @fig-91).
 
 ::: {#fig-91}
-![](../figures/ch09-9-5-3-coarse-coding.png){fig-align="center" fig-alt="Coarse coding. Overlapping circular receptive fields cover the 2D state space; two states generalize in proportion to how many circles contain both."}
+![](../figures/ch09-coarse-rbf.png){width=95% fig-align="center" fig-alt="Two-panel feature plot: 2D overlapping circular coarse-coding receptive fields on the left and 1D Gaussian radial basis functions on the right."}
 
-**Coarse coding.** Overlapping circular receptive fields partition the continuous state space; updating $s$ affects $s'$ in proportion to the number of regions that contain both states.
+**Coarse coding and 1D radial basis functions.** Left: overlapping circular receptive fields share activation between nearby states $s$ and $s'$. Right: smooth Gaussian RBFs provide continuous feature activations across a 1D state space.
 :::
 
-- In the diagram above, if the state is inside a circle, then the corresponding feature has the value of 1 and is said to be **present**; otherwise the feature is 0 and is said to be **absent**.
-- This kind of 1-0 valued feature is called a **binary feature**.
-- Representing a state with features that overlap in this way is known as **coarse coding**.
-- If we train at one state (a point in the space), then the weights of all circles intersecting that state will be affected (each circle has a corresponding weight, a single $\mathbf{w}$ component).
-- Generalization in linear function approximation methods is determined by the **sizes** and **shapes** of the features' receptive fields.
+- **Binary feature activation**: each receptive field outputs $1$ (**present**) whenever state $s$ falls inside its boundary and $0$ (**absent**) otherwise.
+- Training at a point $s$ adjusts only the weights linked to circles covering $s$, which automatically shifts the value of any neighbor $s'$ in direct proportion to how many circles cover both $s$ and $s'$.
+- **Generalization geometry**: the spatial reach and directional bias of generalization are controlled by the **sizes** and **shapes** of the receptive fields, whereas asymptotic representation accuracy depends mainly on the density of features rather than their individual width.
 
 ### Tile Coding {#sec-ch09-9-5-4}
 
-- Tile coding is a form of coarse coding for multi-dimensional continuous spaces that is flexible and computationally efficient.
-- It may be the most practical feature representation for modern sequential digital computers.
-- In tile coding, the receptive fields of the features are grouped into partitions of the state space.
-- Each such partition is called a **tiling**, and each element of the partition is called a **tile**.
-- These tiles can be sets that are overlapping, uniform, or asymmetrically distributed.
-- The tiles do not need to be squares; they can be irregular shapes, horizontal/vertical/log lines.
-- **Advantages:**
-  - Because tile coding works with partitions, the overall number of features that are active at one time is the **same** for any state.
-  - Because tile coding uses binary feature vectors, computing the approximate value function reduces to simply summing the $n$ weight components corresponding to the $n$ active tiles, rather than performing $d$ multiplications.
+- **Tile coding**: a highly efficient, structured variant of coarse coding built for multi-dimensional continuous spaces and well matched to standard CPU hardware.
+- Receptive fields are organized into multiple complete partitions of the state space: each full partition is a **tiling**, and every cell inside it is a **tile**.
+- Tilings are shifted relative to one another using uniform or asymmetric offsets, and individual tiles can be squares, rectangles, stripes, or irregular shapes.
+- **Computational strengths**:
+  - **Constant active count**: because each of the $n$ tilings activates exactly one tile per state, every feature vector has the exact same norm ($\mathbf{x}^T\mathbf{x} = n$), simplifying step-size tuning.
+  - **Fast lookup**: since active features equal $1$ and all others equal $0$, evaluating $\mathbf{w}^T\mathbf{x}(s)$ reduces to adding $n$ indexed weights rather than multiplying across all $d$ parameters.
 
-- Generalization extends to states sharing tiles with the trained state, proportional to **tiles in common.**
-  - **Uniform offsets** can introduce directional artifacts (e.g. diagonal bias).
-  - **Asymmetric offsets** produce better-centered patterns.
-- Tilings are offset by $\frac{w}{n}$ (the fundamental unit).
-  - **Uniform offsets** use displacement vector $(1,1)$.
-  - **Asymmetric offsets** use $(1,3)$ for superior generalization.
-- Miller & Glanz (1996) recommend displacement vectors of **first odd integers** $(1, 3, 5, \ldots, 2k-1)$ for $k$ dimensions, with $n$ set to a **power of 2** $\geq 4k$.
-- Tile **number & size** determine resolution, while tile **shape** determines generalization.
-  - Square tiles generalize equally.
-  - Elongated tiles generalize along their longer dimension.
-  - Diagonal tiles generalize along a diagonal.
-- **Mixed tile shapes** (horizontal, vertical, conjunctive) allow per-dimension generalization while still learning values for specific conjunctions. Tile choice fully determines generalization behavior.
-- **Hashing** pseudorandomly collapses a large tiling into a much smaller set of tiles (each consisting of noncontiguous, disjoint regions), drastically reducing memory requirements with little performance loss.
-  - This sidesteps the curse of dimensionality since memory need only match the task's real demands rather than grow exponentially with dimensions.
+- **Offset design and generalization**:
+  - Two states generalize in proportion to how many tiles they share across the $n$ tilings.
+  - **Uniform offsets** such as $(1, 1)$ scaled by the fundamental unit $\frac{w}{n}$ create diagonal striping artifacts.
+  - **Asymmetric offsets** such as $(1, 3)$ yield much rounder, isotropic generalization neighborhoods.
+  - Following Miller & Glanz (1996), good practice uses the **first odd integers** $(1, 3, 5, \ldots, 2k-1)$ for $k$-dimensional displacement vectors with the tiling count $n$ chosen as a **power of 2** satisfying $n \geq 4k$.
 
-::: {#fig-92}
-![](../figures/ch09-9-5-4-hashing-border.png){fig-align="center" fig-alt="Hashing. 4 subtiles collapse into 1 tile in the above diagram."} 
+- **Resolution vs. generalization shape**:
+  - Tile **width** and **count** govern spatial resolution and overall generalization breadth.
+  - Tile **aspect ratio** shapes directional generalization: squares generalize isotropically, elongated strips generalize strongly along their long axis, and diagonal tiles generalize along diagonals.
+  - Combining stripes (per-dimension generalization) with full multi-dimensional tiles (conjunctive interactions) lets the designer encode domain structure directly.
 
-**Hashing.** 4 subtiles collapse into 1 tile in the above diagram.
-:::
+- **Tile hashing**: pseudorandomly maps a vast multi-dimensional tile grid onto a compact table of memory slots so disjoint tiles occasionally collide (see Sutton & Barto, 2018, §9.5, for the hashing collapse illustration).
+  - Because collisions across multiple independent tilings rarely coincide at the same query state, hashing sharply reduces memory usage with minimal loss in accuracy, sidestepping exponential growth with state dimension.
 
 ### Radial Basis Functions (RBF) {#sec-ch09-9-5-5}
 
-- RBFs are the natural extension/generalization of coarse coding to continuous-valued domain/feature space.
-  - Rather than a feature being 0 or 1 (binary), it can take any value in the interval $[0, 1]$.
-- A typical RBF feature, $x_i$, has a Gaussian (bell-shaped) response $x_i(s)$ dependent only on the distance between the state $s$ and the feature's center state $c_i$, and relative to the feature's width $\sigma_i$:
+- **Radial Basis Functions (RBFs)**: extend coarse coding from $0/1$ indicators to smooth, continuous activations in $[0, 1]$ (see right panel of @fig-91).
+- A standard Gaussian RBF feature $x_i(s)$ decays smoothly with the distance between state $s$ and feature center $c_i$, controlled by bandwidth $\sigma_i$:
 
 $$\boxed{x_i(s) \doteq \exp\!\left(-\frac{\lVert s - c_i \rVert^2}{2\sigma_i^2}\right)}$$
 
-- Let's see a 1-D example with a Euclidean distance metric:
-
-::: {#fig-93}
-![](../figures/ch09-9-5-5-1dim-rbf.png){fig-align="center" fig-alt="1-D RBF. One-dimensional radial basis function."} 
-
-**1-D RBF.** One-dimensional radial basis function.
-:::
-
-- RBFs are more advantageous to binary features: they produce approximate functions that vary smoothly and are differentiable.
-- An **RBF network** is a linear function approximator using RBFs for its features.
-- Some learning methods for RBF networks change the features' centers and widths, making them nonlinear function approximators.
-- Nonlinear methods are much more precise in fitting the target functions, but (nonlinear) RBF networks are ***much more computationally complex*** and require more manual tuning before learning.
+- As shown in the 1D example on the right of @fig-91, overlapping Gaussian bumps generate continuous, differentiable value approximations rather than piecewise-constant steps.
+- **RBF network**: a linear approximator built over fixed RBF features.
+- Allowing gradient learning to also adapt centers $c_i$ and widths $\sigma_i$ converts an RBF network into a **nonlinear** approximator, trading higher expressiveness for markedly greater computational cost and sensitivity to initialization and tuning.
 
 ## Selecting Step-Size Parameters Manually {#sec-ch09-9-6}
 
-- What is the best way to select $\alpha$ for function approximation?
-- So far:
-  - The theory of stochastic approximation gives us conditions on a slowly decreasing step-size sequence that are sufficient to guarantee convergence, but these tend to result in learning that is **too slow.**
-  - The sample-average classical method $\alpha_t = \frac{1}{t}$ is **not appropriate** for TD methods, for nonstationary problems, or for any function approximation method.
-  - For linear methods, there are recursive least-square methods that set an optimal matrix step size which can be extended to LSTD methods (seen in [Section 9.8](#sec-ch09-9-8)), but these require $O(d^2)$ step-size parameters, or $d$ times more parameters than we are learning. Therefore, it is inappropriate for function approximation.
+- Picking an effective learning rate $\alpha$ is critical in function approximation:
+  - Theoretical Robbins-Monro schedules guarantee asymptotic convergence, yet typically decay far too slowly or fast to learn briskly in practice.
+  - Classic sample averaging ($\alpha_t = \frac{1}{t}$) is unsuitable for TD bootstrapping, nonstationary control tasks, and function approximation in general.
+  - Second-order matrix step sizes (such as recursive least squares or LSTD in [Section 9.8](#sec-ch09-9-8)) demand $O(d^2)$ parameters and updates, making them impractical when $d$ is large.
 
-- A good rule of thumb for setting the step-size parameter of linear SGD models is:
+- **Practical linear SGD step-size heuristic**: to converge over roughly $\tau$ visits to similar states, set:
 
 $$\boxed{\alpha \doteq \left(\tau\, \mathbb{E}\!\left[\mathbf{x}^T \mathbf{x}\right]\right)^{-1}}$$
 
 $$
 \begin{aligned}
 \text{where} \\
-\mathbf{x} &= \text{random feature vector chosen from the same distribution as input vectors in the SGD} \\
-\tau &= \text{number of experiences within which learning converges}
+\mathbf{x} &= \text{random feature vector drawn from the same state distribution} \\
+\tau &= \text{target number of experiences over which learning should converge}
 \end{aligned}
 $$
 
-- This rule of thumb works best if the feature vectors do not vary greatly in length; ideally $\mathbf{x}^T \mathbf{x}$ is a constant.
+- This heuristic is most reliable when feature vector norms $\mathbf{x}^T \mathbf{x}$ stay nearly constant across states (a built-in property of tile coding).
 
 ## Nonlinear Function Approximation: Artificial Neural Networks (ANNs) {#sec-ch09-9-7}
 
-- ANNs are widely used for nonlinear function approximation.
-- An ANN is a network of interconnected units that have some of the properties of neurons, the main components of nervous systems.
-
-::: {#fig-94}
-![](../figures/ch09-9-7-ann.png){fig-align="center" fig-alt="ANN. A generic feedforward ANN with 4 input units, 2 output units, and 2 hidden layers."} 
-
-**ANN.** A generic feedforward ANN with 4 input units, 2 output units, and 2 hidden layers.
-:::
-
-- The units (circles in the figure above) compute a weighted sum of their input signals, and then apply a nonlinear function, called the **activation function**, to the result.
-- Some activation functions include:
+- **Artificial Neural Networks (ANNs)**: the dominant class of nonlinear function approximators, built from layers of interconnected computing units loosely inspired by biological neurons (see Sutton & Barto, 2018, §9.7, for a generic multi-layer feedforward network diagram).
+- Each unit computes an affine weighted combination of its incoming signals and passes that scalar through a nonlinear **activation function**, such as:
 
 $$
 \begin{aligned}
@@ -426,18 +379,19 @@ $$
 \end{aligned}
 $$
 
-- ANNs can use TD errors to learn value functions, or they can aim to maximize expected reward as in a gradient bandit ([Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8)) or a policy gradient algorithm (Chapter 13).
-- Overfitting in ANNs is a problem for function approximation that can be reduced through the **dropout** method [Srivastava, Hinton, Krizhevsky, Sutskever & Salakhutdinov, 2014].
-- **Deep belief networks** presented a major step towards solving the training problem of deep layers of a deep ANN [Hinton, Osindero & Teh, 2006].
-- **Batch normalization** makes it easier to train deep ANNs by normalizing the output of deep layers before they feed into the following layer. This improves the learning rate of deep ANNs [Ioffe & Szegedy, 2015].
-- **Deep residual learning** is another technique useful for training deep ANNs [He, Zhang, Ren & Sun, 2016].
-- **Deep Convolutional Networks** have proven to be very successful in impressive RL algorithms [LeCun, Bottou, Bengio & Haffner, 1998].
-- In summary, advances in the design and training of ANNs, of which we have only mentioned a few, all contribute to RL.
-- Although current RL theory is mostly limited to methods using tabular or linear function approximation methods, the impressive performances of notable RL applications owe much of their success to nonlinear function approximation by multi-layer ANNs.
+- In RL, neural networks can be trained via backpropagation on TD errors to predict values, or via policy gradients to directly maximize expected reward (extending gradient bandits in [Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8) to full MDPs in Chapter 13).
+- Key deep-learning innovations that enabled reliable training of deep ANNs in RL include:
+  - **Dropout**: randomly silences units during training to curb overfitting [Srivastava, Hinton, Krizhevsky, Sutskever & Salakhutdinov, 2014].
+  - **Deep belief networks**: demonstrated early layer-wise pretraining strategies for deep architectures [Hinton, Osindero & Teh, 2006].
+  - **Batch normalization**: standardizes intermediate layer activations across minibatches, stabilizing and accelerating optimization [Ioffe & Szegedy, 2015].
+  - **Deep residual learning**: introduces skip connections so very deep networks propagate gradients cleanly [He, Zhang, Ren & Sun, 2016].
+  - **Deep Convolutional Networks**: exploit spatial locality and weight sharing to process raw visual inputs effectively [LeCun, Bottou, Bengio & Haffner, 1998].
+
+- While theoretical convergence proofs remain centered on tabular and linear methods, landmark empirical breakthroughs in modern RL owe much of their power to deep nonlinear neural networks.
 
 ## Least-Squares TD (LSTD) {#sec-ch09-9-8}
 
-- As established earlier, TD(0) with linear function approximator converges asymptotically (for appropriately decreasing step sizes) to the TD fixed point:
+- Linear semi-gradient TD(0) reaches the **TD fixed point** iteratively:
 
 $$\boxed{\mathbf{w}_\text{TD} = \mathbf{A}^{-1}\mathbf{b}}$$
 
@@ -449,7 +403,7 @@ b &\doteq \mathbb{E}\!\left[R_{t+1}\, \mathbf{x}_t\right]
 \end{aligned}
 $$
 
-- Instead of computing $\mathbf{w}_\text{TD}$ iteratively, let's compute estimates of $\mathbf{A}$ and $\mathbf{b}$ and then directly compute the TD fixed point. This is what **Least-Squares TD (LSTD)** does exactly. It forms the natural estimates:
+- **Least-Squares TD (LSTD)**: bypasses iterative gradient steps by accumulating empirical estimates of $\mathbf{A}$ and $\mathbf{b}$ directly from observed transitions and solving the linear system in closed form:
 
 $$\mathbf{\hat{A}_t} \doteq \sum_{k=0}^{t-1} \mathbf{x_k}\!\left(\mathbf{x}_k - \gamma \mathbf{x}_{k+1}\right)^T + \varepsilon \mathbf{I}$$
 
@@ -459,104 +413,95 @@ $$
 \begin{aligned}
 \text{where} \\
 \mathbf{I} &= \text{identity matrix, and} \\
-&\varepsilon \mathbf{I} \text{, for some small } \varepsilon > 0 \text{, ensures that } \mathbf{\hat{A}_t} \text{ is always invertible}
+&\varepsilon \mathbf{I} \text{, for small } \varepsilon > 0 \text{, guarantees } \mathbf{\hat{A}_t} \text{ remains invertible}
 \end{aligned}
 $$
 
-- The LSTD estimated TD fixed point is:
+- The resulting parameter estimate at step $t$ is:
 
 $$\boxed{\mathbf{w}_t \doteq \mathbf{\hat{A}_t}^{-1} \mathbf{\hat{b}_t}}$$
 
 ### Computational Complexity {#ch09-computational-complexity}
 
-- The inverse of $\mathbf{\hat{A}_t}$ computation costs $O(d^3)$, but this can be reduced to $O(d^2)$ using the **Sherman-Morrison** formula:
+- Naive matrix inversion of $\mathbf{\hat{A}_t}$ costs $O(d^3)$ per step; applying the rank-one **Sherman-Morrison** identity maintains $\mathbf{\hat{A}_t}^{-1}$ incrementally in $O(d^2)$ time:
 
 $$\mathbf{\hat{A}_t^{-1}} = \left(\mathbf{\hat{A}_{t-1}} + \mathbf{x_{t-1}}\!\left(\mathbf{x_{t-1}} - \gamma \mathbf{x}_t\right)^T\right)^{-1}$$
 
 $$\boxed{\mathbf{\hat{A}_t^{-1}} = \mathbf{\hat{A}_{t-1}^{-1}} - \frac{\mathbf{\hat{A}_{t-1}^{-1}} \mathbf{x}_{t-1}\!\left(\mathbf{x}_{t-1} - \gamma \mathbf{x}_t\right)^T \mathbf{\hat{A}_{t-1}^{-1}}}{1 + \left(\mathbf{x}_{t-1} - \gamma \mathbf{x}_t\right)^T \mathbf{\hat{A}_{t-1}^{-1}} \mathbf{x}_{t-1}}, \quad \text{for } t > 0, \text{ with } \mathbf{\hat{A}_0} \doteq \varepsilon \mathbf{I}}$$
 
-- LSTD does **not** require a step-size and as such means that it never forgets, which is sometimes desirable but often not in RL problems where both the policy and environment change with time.
-- However in control applications, LSTD typically has to be combined with some other mechanism to induce forgetting, negating its advantage of not requiring a step-size parameter.
+- **Data efficiency vs. nonstationarity**: LSTD extracts maximum statistical efficiency without needing a step-size parameter $\alpha$, but its uniform weighting of all historical transitions means it never forgets. In control problems where policies evolve, forgetting factors must be re-introduced, offsetting the step-size-free appeal.
 
 ## Memory-based Function Approximation {#sec-ch09-9-9}
 
-- So far we have been parametrising functions that approximate our value function, and these parameters are updated as we see more data. This is called the **parametric** approach.
-- Memory-based function approximators store training examples in memory as they arrive without updating any parameters and retrieve them from memory upon query of a state value's estimate.
-- Memory-based function approximators are examples of **non-parametric** methods.
-- Memory-based function approximation is sometimes called **lazy learning** because processing training examples is postponed until the system is queried to provide an output.
-- Non-parametric methods could produce increasingly accurate approximations of any target function with increasing number of training examples accumulating in memory.
-- There are different memory-based methods, but let's focus on **local learning**:
-  - Local learning methods approximate a value function only locally in the neighborhood of the current query state by retrieving states in memory via a distance metric between the query state and training example states.
-  - Local learning methods discard the local approximation after the query state is assigned a value.
+- **Parametric vs. non-parametric approximation**:
+  - **Parametric** learners compress experience into a fixed-size weight vector $\mathbf{w}$ updated at every step.
+  - **Memory-based (non-parametric)** learners simply store raw $(s, u)$ examples in a database and defer computation until a state's value is queried.
+- Because inference waits until query time, memory-based schemes are also called **lazy learning** methods.
+- As the stored dataset grows, non-parametric estimators can refine their predictions to match arbitrarily complex target surfaces without being locked into a rigid functional template.
+- **Local learning**: fits a transient approximation strictly in the neighborhood of the queried state $s$ using nearby stored points (selected by a distance metric), then discards the local fit once the prediction is returned.
 
-- Examples of local learning methods:
-  - **Nearest Neighbor**: retrieve from memory the closest state to the query state and return that example's value as the local approximation of the query state.
-  - **Weighted Average**: retrieve a set of nearest neighbor examples and return a weighted average of their target values (weigh their value via some distance metric).
-  - **Locally Weighted Regression**: similar to weighted average, but fits a surface to the values of a set of nearest states based on a parametric approximation method.
+- Representative local-learning estimators:
+  - **Nearest Neighbor**: returns the target value of the single stored state closest to the query $s$.
+  - **Weighted Average**: fetches a neighborhood of stored states and averages their target values weighted inversely by distance to $s$.
+  - **Locally Weighted Regression**: fits a local parametric model (e.g., linear plane) over the nearest stored examples using distance-weighted regression.
 
-- Pros of non-parametric, memory-based methods:
-  - Do not limit approximations to pre-specified functional forms.
-  - The more data accumulated, the better the accuracy.
-  - Allow for relatively immediate effect on value estimates in the neighborhood of the current state.
-  - Handle/address the curse of dimensionality, which is a big problem for global approximation. For example, for a state space with $K$ dimensions, 
-    - A **tabular method** storing a global approximation requires memory ***exponential in $K$,*** while
-    - Storing examples in a **memory-based method** requires only memory ***proportional to $K$, or linear in the number of examples $n$.***
+- **Key advantages of memory-based methods**:
+  - Free from rigid global parametric bias.
+  - Accuracy scales smoothly as additional samples accumulate.
+  - Newly observed experiences immediately sharpen predictions around the agent's active region.
+  - Mitigate the **curse of dimensionality**: whereas a global tabular grid in $K$ dimensions needs memory **exponential in $K$**, storing $n$ raw examples takes memory only **linear in $K$ and $n$** (though fast query indexing still requires careful data structures such as $k$-d trees).
 
 ## Kernel-based Function Approximation {#sec-ch09-9-10}
 
-- Weighted average and locally weighted regression depend on assigning weights based on some distance metric between examples $s'$ and a query state $s$.
-- The function that assigns these weights is called a **kernel function** or simply a **kernel**.
-- A kernel function $k : \mathbb{R} \to \mathbb{R}$ assigns weights to distances between states, but more generally weights do not have to depend on distances; they can also depend on some similarity measure:
+- **Kernel function ($k$)**: generalizes distance-based weighting by mapping any pair of states to a real similarity score:
 
 $$k : S \times S \to \mathbb{R}$$
 
-- $k(s, s')$ is a measure of the strength of generalization from $s'$ to $s$.
-- Kernel functions numerically express **how relevant** knowledge about any state is to any other state.
-- **Kernel regression** is the memory-based method that computes a kernel weighted average of the targets of **all examples** stored in memory:
+- Intuitively, $k(s, s')$ quantifies how strongly experience gathered at state $s'$ should generalize to query state $s$.
+- **Kernel regression**: computes a similarity-weighted combination over the target values of **all** examples stored in memory $D$:
 
 $$\boxed{\hat{v}(s, D) = \sum_{s' \in D} k(s, s')\, g(s')}$$
 
 $$
 \begin{aligned}
 \text{where} \\
-\hat{v}(s, D) &= \text{value function approximation for query state } s \text{ over stored examples } D \\
-D &= \text{set of stored examples} \\
-g(s') &= \text{target for state } s' \text{ in a stored example}
+\hat{v}(s, D) &= \text{value estimate for query state } s \text{ given stored dataset } D \\
+D &= \text{collection of stored training states} \\
+g(s') &= \text{recorded return or target associated with } s'
 \end{aligned}
 $$
 
-- A common kernel is the Gaussian Radial Basis Function (RBF) discussed earlier in [Section 9.5.5.](#sec-ch09-9-5-5)
-- Kernel regression with RBF differs from linear-based RBF in 2 ways:
-  - It is **memory-based** $\Rightarrow$ RBFs are centered on the states of the stored examples.
-  - It is **non-parametric** $\Rightarrow$ no parameters to learn.
+- The Gaussian RBF from [Section 9.5.5](#sec-ch09-9-5-5) is a classic kernel choice; using it inside kernel regression differs from a parametric RBF network in two respects:
+  - **Data-centered**: basis functions sit directly on the observed states in $D$ rather than on a fixed grid.
+  - **Non-parametric**: no global weight vector $\mathbf{w}$ needs to be trained.
 
-- We can recast any linear parametric regression method with feature vectors $\mathbf{x}(s) = (x_1(s), x_2(s), x_3(s), \ldots, x_d(s))^T$ into a kernel regression as:
+- **Equivalence with linear features and the kernel trick**: any linear parametric predictor built from feature map $\mathbf{x}(s) = (x_1(s), x_2(s), \ldots, x_d(s))^T$ corresponds to the inner-product kernel:
 
 $$k(s, s') = \mathbf{x}(s)^T \mathbf{x}(s')$$
 
-- Kernel methods allow evaluation in high-dimensional feature spaces, only using stored examples, and without the need for a complicated, parametric model. This is the so-called **kernel trick** that forms the basis for many machine learning methods.
+- **Kernel trick**: lets algorithms operate implicitly inside high- or infinite-dimensional feature spaces using only pairwise kernel evaluations over stored examples, without explicitly forming feature vectors or huge parameter vectors.
 
 ## Looking Deeper at On-Policy Learning: Interest & Emphasis {#sec-ch09-9-11}
 
-- So far we have treated all encountered states with equal importance, however it seems more likely that we often have more interest in some states than others.
-- For this scenario, we introduce 2 new concepts: **Interest** and **Emphasis**.
+- Standard on-policy prediction weights states solely by visitation frequency $\mu(s)$, yet practical tasks often prioritize accuracy in specific critical states (such as start states or decision bottlenecks).
+- **Interest** and **Emphasis** allow non-uniform weighting of learning updates across states.
 
 ### Interest {#interest}
 
-- Interest is the degree to which we value an accurate estimate of the values of a given state. How interested are we in the accurate valuation of a given state at time $t$?
+- **Interest ($\mathcal{I}_t$)**: a user-specified non-negative weight indicating how strongly we care about accurately valuing the state encountered at step $t$:
 
 $$\mathcal{I}_t \in [0, 1]$$
 
 ### Emphasis {#emphasis}
 
-- Emphasis is a non-negative scalar random variable that multiplies the learning update and thus emphasizes or de-emphasizes the learning done at time $t$.
-- The general $n$-step learning update is:
+- **Emphasis ($M_t$)**: a non-negative scalar multiplier applied directly to the step-$t$ gradient update, amplifying or dampening learning according to both direct interest in $S_t$ and downstream bootstrapping from prior interested states.
+- The resulting emphasized $n$-step semi-gradient update is:
 
 $$\mathbf{w}_{t+n} \doteq \mathbf{w}_{t+n-1} + \alpha M_t\!\left[G_{t:t+n} - \hat{v}(S_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{v}(S_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T$$
 
 $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n \hat{v}(S_{t+n}, \mathbf{w}_{t+n-1}), \quad 0 \leq t \leq T-n$$
 
-- The emphasis is determined recursively from the interest:
+- Emphasis accumulates recursively from interest over $n$-step intervals:
 
 $$\boxed{M_t = \mathcal{I}_t + \gamma^n M_{t-n}, \quad 0 \leq t < T}$$
 
@@ -564,11 +509,10 @@ $$M_t \doteq 0, \quad \forall t < 0$$
 
 ## Summary {#sec-ch09-9-12}
 
-- **Generalization** is a must for RL systems for AI applications and **supervised-learning function approximation** helps achieve this.
-- The prediction objective $\overline{\text{VE}}(\mathbf{w})$, called the **mean squared value error,** gives us a clear way to rank different value-function approximations in the on-policy case.
-- Most techniques use stochastic gradient descent (SGD) to find the set of weight parameters that minimize $\overline{\text{VE}}(\mathbf{w})$.
-- Linear methods converge to the global optimum under certain conditions.
-- Features constructed for linear function approximations could be represented as: **polynomials, Fouriers, coarse codings, tile codings, and radial basis functions (RBFs).**
-- A huge success in notable RL applications could be attributed to multi-layer ANNs as nonlinear function approximators.
-- Non-parametric models help us **avoid the curse of dimensionality.**
-- **Interest and Emphasis** enable us to focus the function approximation on the states we're more interested in.
+- **Generalization** via **supervised function approximation** is essential whenever state spaces are too large or continuous for lookup tables.
+- **Mean Squared Value Error ($\overline{\text{VE}}(\mathbf{w})$)** provides a principled scalar criterion for evaluating on-policy value approximators under state distribution $\mu$.
+- **SGD and semi-gradient methods** drive online parameter updates; Monte Carlo targets give unbiased gradients, while TD bootstrapping trades a bounded asymptotic expansion ($\frac{1}{1-\gamma}$) for dramatic gains in online learning speed.
+- **Linear approximators** enjoy clean convergence guarantees (reaching the global $\overline{\text{VE}}$ optimum with MC and the unique TD fixed point with TD) and rely heavily on feature representations such as **polynomials, Fourier bases, coarse coding, tile coding, and radial basis functions (RBFs)**.
+- **Multi-layer ANNs** unlock powerful nonlinear feature learning behind many headline RL breakthroughs.
+- **Non-parametric memory-based and kernel methods** adapt flexibly to complex surfaces while sidestepping exponential memory blowup.
+- **Interest and Emphasis** let on-policy learners focus finite approximation capacity on the states that matter most.

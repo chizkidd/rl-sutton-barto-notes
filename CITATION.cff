@@ -4,15 +4,14 @@ title: "Study Notes on Reinforcement Learning: An Introduction (2nd Ed.)"
 abstract: >-
   Independent personal study notes accompanying Richard S. Sutton and Andrew G.
   Barto's Reinforcement Learning: An Introduction (2nd ed., MIT Press, 2018).
-  Covers all 13 chapters across tabular and approximate solution methods, built
-  as a Quarto book (HTML, PDF, EPUB) with an accompanying Anki cloze flashcard
-  deck. Intended solely as a study companion and not as a substitute for the
-  textbook.
+  Written in original prose across all 13 chapters with original Python
+  implementations and programmatically generated conceptual diagrams, built as
+  a Quarto book (HTML, PDF, EPUB 3.3) with a native MathJax Anki cloze deck.
+  Intended as a study companion and not a substitute for the textbook.
 authors:
   - family-names: "Obasi"
     given-names: "Chizoba"
     # orcid: "https://orcid.org/0000-0000-0000-0000"  # optional: add your ORCID
-    # affiliation: ""  # optional: add affiliation
 repository-code: "https://github.com/chizkidd/rl-sutton-barto-notes"
 url: "https://chizkidd.github.io/rl-sutton-barto-notes/"
 keywords:
@@ -22,9 +21,7 @@ keywords:
   - "Markov decision processes"
   - "temporal-difference learning"
   - "policy gradients"
-# NOTE: Confirm license choice after author permission (e.g. CC-BY-NC-SA-4.0 for
-# non-commercial study notes; build scripts remain MIT; does not cover textbook material).
-license: "CC-BY-NC-SA-4.0"
+license: "CC-BY-4.0"
 references:
   - type: book
     title: "Reinforcement Learning: An Introduction"

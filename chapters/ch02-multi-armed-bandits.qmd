@@ -5,7 +5,8 @@ number-sections: true
 
 ## The $k$-armed Bandit Problem {#sec-ch02-2-1}
 
-- The particular nonassociative, evaluative feedback problem is a simple version of the $k$-armed bandit problem.
+- The **$k$-armed bandit** is the canonical single-state decision problem with purely evaluative feedback: on each round, the learner picks one of $k$ available arms and observes a stochastic scalar reward drawn from that arm's unknown payoff distribution.
+- Each action $a$ has a hidden mean payoff, called its **true action value** $q_*(a)$, which the learner tracks through a running estimate $Q_t(a)$ that improves as more samples arrive:
 
 $$q_*(a) \doteq \mathbb{E}\left[R_t \mid A_t = a\right] \quad \text{action-value function}$$
 
@@ -18,19 +19,18 @@ Q_t(a) &= \text{estimated action-value of action } a \text{ at time } t
 \end{aligned}
 $$
 
-- **Exploitation**: always selecting the greedy actions (actions with highest estimated value)
-- **Exploration**: selecting one of the nongreedy actions
-- There exists an **Exploration-Exploitation tradeoff**
+- **Exploitation**: choosing a greedy arm whose current estimated value is highest in order to collect immediate reward.
+- **Exploration**: pulling a non-greedy arm to refine uncertain value estimates and potentially discover a stronger option.
+- **Exploration-exploitation tradeoff**: a single action cannot simultaneously maximize short-term payoff using existing knowledge and gather information on under-sampled alternatives, so an agent must balance both goals over time.
 
 ::: {.callout-note title="Multi-Armed Bandit"}
-A multi-armed bandit is a tuple $\langle A, R \rangle$ 
-where $A$ is a known set of $m$ actions or **"arms"** and 
-$R^a(r)$ is an unknown probability distribution over rewards.
+Formally, a multi-armed bandit is defined by a pair $\langle A, R \rangle$, where $A$ is a known finite set of $m$ choices (the **"arms"**) and $R^a(r)$ denotes an unknown reward distribution associated with pulling arm $a$.
 :::
 
 ## Action-value Methods {#sec-ch02-2-2}
 
-- Let's go through how we can estimate our action-value, $Q_t(a)$. One method is by averaging the rewards that have been received (**Sample average**)
+- **Action-value methods** estimate the expected payoff of every arm from observed history and choose actions using those estimates.
+- **Sample-average estimation**: the most direct estimator sets $Q_t(a)$ to the arithmetic mean of all rewards collected from arm $a$ prior to step $t$:
 
 $$Q_t(a) \doteq \frac{\text{sum of rewards when } a \text{ taken prior to } t}{\text{number of times } a \text{ taken prior to } t} = \frac{\sum_{i=1}^{t-1} R_i \cdot \mathbb{1}_{A_i=a}}{\sum_{i=1}^{t-1} \mathbb{1}_{A_i=a}}$$
 
@@ -43,39 +43,38 @@ t &= \text{timestep} \\
 \end{aligned}
 $$
 
-- As $\displaystyle\sum_{i=1}^{t-1} \mathbb{1}_{A_i=a} \to \infty$, by the law of large numbers, $Q_t(a)$ converges to $q_*(a)$.
-- Now that we can compute $Q_t(a)$, how do we use it to select actions?
+- By the law of large numbers, whenever arm $a$ is pulled infinitely often ($\displaystyle\sum_{i=1}^{t-1} \mathbb{1}_{A_i=a} \to \infty$), its sample average $Q_t(a)$ converges to the true expected reward $q_*(a)$.
+- Once estimates $Q_t(a)$ are maintained, the next design choice is the **action-selection rule** that maps those estimates to a concrete choice $A_t$.
 
 ### Greedy Method {#greedy-method}
 
-- Simplest action selection rule for no exploration.
+- **Greedy selection**: always picks an arm attaining the current maximum estimate (breaking ties arbitrarily), performing zero deliberate exploration:
 
 $$A_t \doteq \arg\max_a Q_t(a)$$
 
 ### $\varepsilon$-greedy method
 
-- Simplest action selection rule for ensuring continual exploration. 
-- For $m$ total actions:
-  - With probability $1-\varepsilon$: choose the greedy action
-  - With probability $\varepsilon$: choose a random action
+- **$\varepsilon$-greedy selection**: guarantees ongoing exploration by behaving greedily most of the time while periodically sampling uniformly across all $m$ arms.
+- Given a small exploration rate $\varepsilon \in (0, 1)$ over $m$ arms:
+  - With probability $1 - \varepsilon$: pick the highest-valued arm.
+  - With probability $\varepsilon$: pick an arm uniformly at random (including the greedy one).
 
 $$\pi(a|s) = \left\{ \begin{array}{ll} \varepsilon/m + 1 - \varepsilon & \text{if } a^* = \arg\max_{a \in A} Q(s,a) \\ \varepsilon/m & \text{otherwise} \end{array} \right\}$$
 
 ## The 10-armed Testbed {#sec-ch02-2-3}
 
-- Stationarity & determinism vs. nonstationarity & stochasticity
-- Compare the relative effectiveness of greedy & $\varepsilon$-greedy action-value methods
+- **Experimental benchmark**: a synthetic suite of 10-arm bandit problems (typically averaged over thousands of independent runs) allows controlled comparisons between greedy and $\varepsilon$-greedy learners.
+- **Problem regimes**: performance depends strongly on whether reward distributions are **stationary or nonstationary** and whether payoffs are **deterministic or noisy**.
+- Purely greedy selection often rises quickly early on, then plateaus at a suboptimal arm; modest $\varepsilon$ values (such as $\varepsilon = 0.01$ or $\varepsilon = 0.1$) continue discovering better arms and achieve higher cumulative payoff over longer horizons, with smaller $\varepsilon$ eventually winning once the optimal arm is identified.
 
 ## Incremental Implementation {#sec-ch02-2-4}
 
-- Maintaining sample averages naively requires storing all past rewards, causing memory and computation to grow unboundedly over time. 
-- For a single action selected $n-1$ times, its value estimate $Q_n$ is:
+- Recomputing sample means from scratch requires retaining every past reward, so storage and per-step runtime would grow linearly with time.
+- Let $Q_n$ denote the mean of the first $n - 1$ rewards observed for a single arm:
 
 $$Q_n \doteq \frac{R_1 + R_2 + \ldots + R_{n-1}}{n-1}$$
 
-- How can we compute $Q_t(a)$ estimates in a computationally and memory efficient manner?
-
-- Instead of storing all the $R$ values and recomputing the sum at every time step, we can derive an **incremental update rule:** $Q_n$ estimate can be updated efficiently without storing the full history.
+- **Incremental update rule**: algebraic rearrangement lets us fold each new reward $R_n$ directly into the previous estimate $Q_n$ using $O(1)$ memory and $O(1)$ work per step:
 
 $$
 \begin{aligned}
@@ -89,20 +88,18 @@ $$
 
 $$\boxed{Q_{n+1} = Q_n + \frac{1}{n}\left[R_n - Q_n\right]}$$
 
-- Throughout the book, $\alpha$ is used to represent $\left(\frac{1}{n}\right)$ as the step-size parameter.
-
-- In general:
+- **Step-size parameter**: replacing $1/n$ by a general step size $\alpha$ (which may vary over time) reveals a recurring error-correction template used across reinforcement learning:
 
 $$\text{NewEstimate} \leftarrow \text{OldEstimate} + \text{StepSize}\underbrace{\left[\text{Target} - \text{OldEstimate}\right]}_{\text{error}}$$
 
 ## Tracking a Nonstationary Problem {#sec-ch02-2-5}
 
-- Sample-average methods assume a stationary reward distribution, so they perform poorly on non-stationary bandits where the true action values drift/change over time.
-- A simple fix is to replace the $\frac{1}{n}$ step size with a constant $\alpha \in (0, 1]$, which gives more weight to recent rewards via an exponentially decaying average over past rewards.
+- **Nonstationary bandits**: when arm payoff distributions drift over time, equal-weight sample averages adapt too slowly because ancient observations keep pulling the estimate toward outdated values.
+- **Constant step size**: fixing $\alpha \in (0, 1]$ keeps the learner responsive by assigning geometrically larger weight to newer rewards than to older ones:
 
 $$Q_{n+1} \doteq Q_n + \alpha\left[R_n - Q_n\right], \quad \alpha \in (0,1] \text{ is constant}$$
 
-- Expanding the recurrence:
+- Unrolling the recursion backward to the initial value $Q_1$ shows the exact contribution of every prior reward:
 
 $$
 \begin{aligned}
@@ -120,14 +117,13 @@ $$
 $$\boxed{Q_{n+1} = (1-\alpha)^n Q_1 + \sum_{i=1}^{n} \alpha(1-\alpha)^{n-i} R_i}$$
 
 ### Exponential recency-weighted average {#exponential-recency-weighted-average}
-- The weight given to $R_i$ depends on how many rewards ago $(n-i)$ it was observed. The more recent the rweard, the higher the weight assigned to it.
-- This is a **weighted average** , which gives priority/higher value to more recently acquired rewards.
-- It's called a weighted average because the sum of the weights is $1$.
+
+- **Weighted average**: $Q_{n+1}$ combines the initial estimate $Q_1$ and all observed payoffs $R_1, \ldots, R_n$ with nonnegative coefficients whose total equals $1$:
 
 $$\left(1-\alpha\right)^n + \sum_{i=1}^{n} \alpha(1-\alpha)^{n-i} = 1$$
 
-- The weighted average is more specifically called an **exponential recency-weighted average** because the weight decays exponentially into the past according to the exponent on $(1 - \alpha)$, $(n - i)$.
-- $Q_{n+1}$ becomes a weighted average of the previous rewards and the initial estimate $Q_1$.
+- **Exponential recency-weighted average**: because $(1 - \alpha) \in [0, 1)$, the multiplier $\alpha(1 - \alpha)^{n-i}$ shrinks exponentially with the age $(n - i)$ of observation $R_i$, prioritizing fresh feedback over stale history.
+- At the boundary $\alpha = 1$, the factor $(1 - \alpha)$ vanishes:
 
 $$\text{If } (1-\alpha) = 0 \Rightarrow \alpha = 1, \text{then:}$$
 
@@ -149,7 +145,7 @@ $$
 \end{aligned}
 $$
 
-- Stochastic approximation theory (Robbins-Monro sequence) requires:
+- **Robbins-Monro conditions**: classical stochastic approximation theory guarantees asymptotic convergence with probability $1$ whenever the step-size sequence $\{\alpha_n(a)\}$ satisfies two criteria:
 
 $$
 \begin{aligned}
@@ -158,31 +154,30 @@ $$
 \end{aligned}
 $$
 
-- `(I)` & `(II)` are met for $\alpha_n(a) = \frac{1}{n}$ (sample-average method)
-- `(II)` is **not** met for $\alpha_n(a) = \alpha$ (constant method) 
+- **Sample-average schedule** ($\alpha_n(a) = 1/n$): satisfies both `(I)` and `(II)`, so estimates converge to $q_*(a)$ in stationary settings (and initial bias disappears after a single pull).
+- **Constant schedule** ($\alpha_n(a) = \alpha$): satisfies `(I)` but violates `(II)`, preventing full convergence while intentionally keeping estimates responsive to shifting rewards (and leaving an exponentially fading trace of $Q_1$).
 
 ## Optimistic Initial Values {#sec-ch02-2-6}
 
-- The methods discussed so far are dependent to some extent on the initial action-value estimates i.e. they are biased by their initial estimates.
-- Essentially, the initial action-value estimates become model parameters that must be chosen by the user.
-- For example, in a 10-armed bandit testbed if we set $Q_{1}(a) = +5$ instead of $0$, we encourage exploration even in the greeedy case. 
-  - The agent will almost always be disappointed with its current samples action-values because they are less than the initial action-value estimate of $+5$, therefore it will continue to explore until the action-values converge.
-  - This technique for encouraging exploration is called **optimistic initial values** (focuses on initial conditions)
+- **Initialization bias**: every incremental estimator depends on its starting values $Q_1(a)$, turning initialization into a hyperparameter that can encode prior expectations about reward magnitude.
+- **Optimistic initial values**: setting starting estimates deliberately high (for instance, $Q_1(a) = +5$ on a 10-arm testbed whose true means lie near $0$) compels even a purely greedy agent to test every arm early on.
+  - Whenever an arm is pulled, its observed payoff falls well short of the inflated starting value, pushing that arm's estimate down so the greedy rule immediately switches to untried alternatives.
+  - Every arm gets sampled several times before estimates settle near their true means.
 
 ::: {.callout-note title="Optimistic Initialization"}
-_**Assume the best action-value initially, until proven otherwise.**_
-Basically **optimistic initialization** encourages systematic exploration 
-early on but can still lock onto suboptimal action.
+_**Treat every untried option as unusually rewarding until data proves otherwise.**_
+Inflated starting estimates trigger systematic early exploration under greedy selection, though the learner can still settle prematurely if an early high-variance draw skews estimates.
 :::
 
 ### Pros & Cons {#pros-cons}
-- (+) It is **effective on stationary problems,** but not a general approach
-- (-) It is **not good for nonstationary problems** because its drive for exploration is inherently temporary.
+
+- **Strength**: simple and effective for stationary problems where early broad coverage is enough to identify the strongest arm.
+- **Limitation**: poorly suited to nonstationary tasks because the exploratory push occurs only at startup and vanishes once initial estimates decay.
 
 ## Upper-Confidence-Bound (UCB) Action Selection {#sec-ch02-2-7}
-- $\varepsilon$-greedy action selection explores indiscriminately, giving equal probability to all non-greedy actions regardless of their potential. 
-- A smarter approach is **Upper Confidence Bound (UCB)** action selection, which favors non-greedy actions based on both how close their value estimates are to the maximum and how uncertain those estimates are.
-- Actions can be selected by:
+
+- **Directed exploration**: whereas $\varepsilon$-greedy treats all non-greedy options identically during random moves, **Upper Confidence Bound (UCB)** selection favors arms that either have competitive value estimates or remain poorly sampled.
+- At step $t$, the agent picks the arm maximizing the sum of its point estimate and an uncertainty bonus:
 
 $$A_t \doteq \arg\max_a \left[Q_t(a) + c\sqrt{\frac{\ln(t)}{N_t(a)}}\right]$$
 
@@ -196,37 +191,28 @@ c &> 0 \ \text{controls the degree of exploration} \ (c \equiv \text{confidence 
 \end{aligned}
 $$
 
-- If $N_t(a) = 0$, then $a$ is considered to be a maximizing action.
-- Introduces an exploration bonus term $c\sqrt{\ln(t)/N_t(a)}$, which measures the uncertainty in our estimate
-  - It is proportional to $t$ and inversely proportional to $N_t(a)$.
-  - The more time has passed, and the less we have sampled an action, the higher our upper-confidence-bound.
+- **Zero-count convention**: any arm with $N_t(a) = 0$ is treated as having an infinite upper bound, ensuring every arm is tried at least once.
+- **Uncertainty bonus dynamics**: the radical term $c\sqrt{\ln(t)/N_t(a)}$ acts as a confidence radius above $Q_t(a)$, scaled by $c$:
+  - Picking arm $a$ increments $N_t(a)$ in the denominator, immediately shrinking its bonus.
+  - Picking any rival arm leaves $N_t(a)$ unchanged while incrementing $t$, nudging arm $a$'s bonus upward.
+  - Because $\ln(t)$ grows without bound yet ever more slowly, every arm is revisited eventually, while clearly inferior or heavily sampled arms get chosen with vanishingly small frequency.
 
 $$t \uparrow,\ N_t(a) \downarrow \ \Rightarrow \ \sqrt{\frac{\ln t}{N_t(a)}} \uparrow \ \Rightarrow \ \text{UCB} \uparrow$$
 
-- The idea of the UCB action selection is that the square-root term is a measure of the uncertainty or variance in the estimate of $a$’s value. 
-- The quantity being max’ed over is a sort of upper bound on the possible true value of action $a$, with
-$c$ determining the confidence level. 
-- Each time $a$ is selected, $N_t(a)$ increments and, since it appears in the denominator, the uncertainty term decreases. 
-- Conversely, each time any other action is selected the uncertainty increases ($t$ increases while $N_t(a)$ does not).
-- Using $\ln t$ means the uncertainty bonus grows without bound but at a diminishing rate (increases get smaller over time), ensuring all actions are eventually selected while those with lower value estimates or higher selection counts are chosen with decreasing frequency over time.
-
 ### Pros & Cons {#pros-cons-1}
-- (+) UCB usually performs better than $\varepsilon$-greedy 
-- (-) UCB is more difficult than $\varepsilon$-greedy to **extend beyond bandits** to the more general RL settings
-- (-) Difficulty in dealing with **nonstationary problems**
-- (-) Difficulty in dealing with **large state spaces** (especially function approximation)
+
+- **Strength**: typically achieves lower regret and higher average reward than $\varepsilon$-greedy on stationary bandits.
+- **Limitations**: harder to generalize beyond tabular bandits to full RL, struggles directly with **nonstationary environments**, and does not translate cleanly to **large state spaces** requiring function approximation (where visit counts $N_t(a)$ are ill-defined).
 
 ::: {.callout-note title="Optimism in the Face of Uncertainty"}
-_**The more uncertain we are about an action-value, the more important it is to explore 
-that action, because it could turn out to be the best action.**_
-
+_**High uncertainty about an arm's payoff justifies trying it, since its true mean could exceed our current best option.**_
 :::
 
 ## Gradient Bandit Algorithms {#sec-ch02-2-8}
 
-- Another action selection method, which isn't based on action-value estimation, entails learning a numerical **preference** for each action $a$, which is denoted as $H_t(a)$.
-- The larger the preference ($H_t(a)$), the more often the action is taken.
-- The relative preference of one action over another is more important, hence why we define the action probabilities by a **soft-max distribution** (i.e., Gibbs or Boltzmann):
+- **Action preferences**: instead of estimating expected rewards directly, gradient bandits maintain a real-valued preference $H_t(a) \in \mathbb{R}$ for every arm.
+- Only differences between preferences affect behavior; adding any constant to all $H_t(a)$ leaves choice probabilities unchanged.
+- **Softmax policy**: preferences map to action probabilities via the Gibbs (Boltzmann) distribution:
 
 $$\mathbb{P}\{A_t = a\} \doteq \frac{e^{H_t(a)}}{\sum_{b=1}^{k} e^{H_t(b)}} \doteq \pi_t(a) \quad \text{(softmax)}$$
 
@@ -238,9 +224,9 @@ H_t(a) &\in \mathbb{R} \equiv \text{numerical preference for action } a \text{ a
 \end{aligned}
 $$
 
-- Initially all action preferences are the same (e.g., $H_1(a) = 0 \forall a$) so that all actions have an equal probability of being selected.
+- Setting equal initial preferences (such as $H_1(a) = 0$ for all $a$) yields a uniform distribution at step $1$.
+- **Stochastic gradient ascent**: after taking $A_t$ and observing reward $R_t$, preferences shift using a running reward baseline $\bar{R}_t$:
 
-- The action preferences are updated via **stochastic gradient ascent**:
 $$
 \begin{aligned}
 H_{t+1}(A_t) &\doteq H_t(A_t) + \alpha(R_t - \bar{R}_t)(1 - \pi_t(A_t)), \quad \text{and} \\
@@ -257,10 +243,10 @@ $$
 \end{aligned}
 $$
 
-- If $R_t > \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\uparrow$
-- If $R_t < \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\downarrow$
-- If $R_t > \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\downarrow \quad \forall a \neq A_t$
-- If $R_t < \bar{R}_t \Rightarrow \mathbb{P}(A_t = a)\uparrow \quad \forall a \neq A_t$
+- **Direction of update**:
+  - When $R_t > \bar{R}_t$, the chosen arm's probability rises ($\mathbb{P}(A_t = a)\uparrow$) while all other arms' probabilities fall ($\forall a \neq A_t$).
+  - When $R_t < \bar{R}_t$, the chosen arm's probability drops ($\mathbb{P}(A_t = a)\downarrow$) while competing arms gain probability ($\forall a \neq A_t$).
+  - Comparing against $\bar{R}_t$ makes the update invariant to uniform reward shifts and substantially lowers gradient variance.
 
 ### Proof: The Bandit Gradient Algorithm as Stochastic Gradient Ascent {#proof-the-bandit-gradient-algorithm-as-stochastic-gradient-ascent}
 
@@ -308,7 +294,7 @@ $$\Rightarrow \boxed{H_{t+1}(a) = H_t(a) + \alpha(R_t - \bar{R}_t)\left(\mathbb{
 
 **Prove** $\dfrac{\partial \pi_t(x)}{\partial H_t(a)} = \pi_t(x)\left[\mathbb{1}_{a=x} - \pi_t(a)\right]$:
 
-Using the quotient rule: $\dfrac{\partial}{\partial z}\left[\dfrac{f(z)}{g(z)}\right] = \dfrac{f'(z)g(z) - f(z)g'(z)}{g(z)^2}$:
+Applying the quotient rule, $\dfrac{\partial}{\partial z}\left[\dfrac{f(z)}{g(z)}\right] = \dfrac{f'(z)g(z) - f(z)g'(z)}{g(z)^2}$:
 
 $$
 \begin{aligned}
@@ -324,32 +310,26 @@ $$
 $$\boxed{\frac{\partial \pi_t(x)}{\partial H_t(a)} = \pi_t(x)\left[\mathbb{1}_{a=x} - \pi_t(a)\right]}$$
 
 ## Associative Search (Contextual Bandits) {#sec-ch02-2-9}
-- **Nonassociative tasks:** tasks where there is no need to associate different actions with different situations.
-- **Associative Search:** extend nonassociative tasks to the associative setting.
-  -  Consider a setting where the bandit task changes from step to step, but the value distributions of the arms within each task remain fixed. 
-  - These are called **associative search tasks**, or **contextual bandits**, where the agent must learn to associate different policies with different task contexts.
-- These tasks are intermediate between the $k$-armed bandit stationary problem & the full reinforcement learning (RL) problem
-- Like full RL probelm: they learn a policy
-- Like $k$-armed bandit: each action affects only the immediate reward
-- These tasks involve both trial & error learning to search for the best actions & **association** of these actions with the situations in which they are best
-- **Full RL problem**: Actions are allowed to affect the **next situation** as well as the reward.
+
+- **Nonassociative tasks**: standard bandits present a single unchanging situation, so the learner only needs to find one best arm without conditioning on context.
+- **Associative search (contextual bandits)**: at each round, the environment presents a cue indicating which bandit problem is active; the learner must map each observed context to its best arm via trial and error.
+- **Bridge to full RL**: contextual bandits sit directly between stationary $k$-armed bandits and sequential reinforcement learning.
+  - Like full RL, they require learning a state-conditioned **policy** mapping situations to actions.
+  - Like basic bandits, each action influences only the immediate payoff and does not alter future contexts.
+- **Full RL problem**: extends contextual bandits by letting actions shape both the immediate reward and the **subsequent state**.
 
 ::: {.callout-note title="Contextual Bandit"}
-A contextual bandit is a tuple $\langle A, S, R \rangle$ 
-where $A$ is a known set of $m$ actions or **"arms"**, 
-$S$ is an unknown probability distribution over states or **"contexts"**
-and $R^a(r)$ is an unknown probability distribution over rewards.
+Formally, a contextual bandit is a triple $\langle A, S, R \rangle$, where $A$ is a known finite set of $m$ **"arms"**, $S$ is an unknown distribution generating states (**"contexts"**), and $R^a(r)$ gives the unknown reward distribution for each choice.
 :::
 
 ## Summary {#sec-ch02-2-10}
 
-- Action values $Q_t(a)$ can be estimated online via **incremental updates**, keeping memory and per-step computation constant rather than storing every historical reward.
-- Stationary tasks suit decaying $1/n$ step sizes, whereas **nonstationary tasks** call for constant step sizes $\alpha$ that exponentially down-weight older returns.
-- Core exploration mechanisms trade off simplicity against sample efficiency:
-  - **$\varepsilon$-greedy** injects uniform random exploration with small probability $\varepsilon$.
-  - **Optimistic initialization** triggers early exploration even under purely greedy action selection, though its effect fades over time.
-  - **UCB** adds an uncertainty bonus that deterministically prioritizes rarely sampled actions.
-  - **Gradient bandits** bypass value estimation altogether, maintaining action preferences converted to probabilities through a softmax policy.
-- Comparing algorithms cleanly across hyperparameter choices requires **parameter studies** (plotting average reward over a wide log-spaced parameter sweep), which typically reveal an inverted-U sweet spot for every method.
-- Bayesian methods such as **Gittins indices** and **Thompson (posterior) sampling** formulate optimal exploration over belief states, connecting single-state bandit problems directly to full sequential RL (see Sutton & Barto, 2018, §2.10).
-
+- **Incremental estimation** updates $Q_t(a)$ online in constant memory and constant time per step instead of storing full reward histories.
+- **Step-size selection**: decaying $1/n$ step sizes converge cleanly in stationary problems, whereas constant step sizes $\alpha$ yield exponentially weighted averages that track drifting nonstationary targets.
+- **Core exploration strategies**:
+  - **$\varepsilon$-greedy**: injects uniform random probes with probability $\varepsilon$ alongside greedy exploitation.
+  - **Optimistic initialization**: inflates starting estimates to spark early exploration under greedy choice, though the effect is strictly transient.
+  - **UCB**: adds a confidence bonus proportional to $\sqrt{\ln(t)/N_t(a)}$ to prioritize uncertain or competitive arms deterministically.
+  - **Gradient bandits**: bypass value estimation by updating softmax action preferences through stochastic gradient ascent with a reward baseline.
+- **Parameter studies**: evaluating methods fairly requires plotting average reward across log-spaced hyperparameter sweeps, which typically produce concave curves showing both peak performance and sensitivity.
+- **Bayesian exploration**: frameworks such as **Gittins indices** and **Thompson sampling** (posterior sampling) formulate optimal exploration over belief distributions, linking bandit problems directly to sequential RL (Sutton & Barto, 2018, §2.10).

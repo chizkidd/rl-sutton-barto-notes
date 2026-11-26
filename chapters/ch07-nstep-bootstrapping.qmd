@@ -3,340 +3,283 @@ title: "n-step Bootstrapping"
 number-sections: true
 ---
 
-- $n$-step methods generalize both MC methods and one-step TD methods so that one can shift from one to the other smoothly as needed to meet the demands of a particular task.
-- $n$-step methods span a spectrum with MC methods at one end and one-step TD methods at the other.
-  - The best methods are often intermediate between the 2 extremes.
-- $n$-step methods enable bootstrapping to occur over multiple steps, freeing us from the tyranny of the single time step.
-  - The idea of $n$-step methods is used as an introduction to the algorithmic idea of **eligibility traces**, which enable bootstrapping over multiple time intervals simultaneously.
+- **Bridging TD and Monte Carlo**: Multi-step ($n$-step) bootstrapping unifies one-step temporal-difference learning and full-episode Monte Carlo methods inside a single parameterized family.
+- **Continuous spectrum of horizons**: Setting $n = 1$ recovers TD(0), while letting $n \to \infty$ recovers Monte Carlo; empirically, intermediate lookahead values often outperform both endpoints by balancing bias and variance.
+- **Beyond single-step updates**: Bootstrapping after $n$ transitions decouples the update interval from the environment's base time step, letting the agent match backup depth to the task's reward delay.
+- **Pathway to eligibility traces**: Understanding finite $n$-step backups lays the conceptual foundation for **eligibility traces** (Chapter 12), which blend multiple lookahead horizons simultaneously with constant per-step memory.
 
 ## $n$-step TD Prediction, $\text{TD}(\lambda)$ {#sec-ch07-7-1}
 
-- Let the TD target look $n$ steps into the future.
-- Consider estimating $V_\pi$ from sample episodes generated using $\pi$:
-  - **MC** methods perform an update for each visited state based on the entire sequence of observed rewards from that state until the end of the episode.
-  - **One-step** TD methods update is based on the one next reward only.
-  - $\mathbf{n}$**-step**: somewhere in between that performs an update based on an intermediate number of rewards (more than 1 but less than all the rewards in the entire episode).
+- **Extending the lookahead window**: Consider estimating $V_\pi$ from trajectories generated under policy $\pi$ while letting the update target accumulate $n$ actual rewards before bootstrapping:
+  - **Monte Carlo**: Waits until termination and updates each visited state from the complete remaining reward sequence.
+  - **One-step TD**: Updates after a single reward $R_{t+1}$ and immediately bootstraps from $V(S_{t+1})$.
+  - **$n$-step TD**: Collects an intermediate span of $n$ consecutive rewards before bootstrapping from the estimated value $n$ steps ahead (see @fig-71).
 
-<!-- ![](../figures/fig71_nstep_td.svg){fig-alt="n-step TD Backup Diagrams"} -->
 ::: {#fig-71}
-![](../figures/ch07-7-1-n-step-td.png){fig-align="center" fig-alt="Backup diagrams for n-step methods."} 
+![](../figures/ch07-nstep-spectrum.png){width=90% fig-align="center" fig-alt="Diagram illustrating n-step returns spanning 1-step TD(0) through finite n-step bootstrapping to full-episode Monte Carlo."}
 
-Backup diagrams for n-step methods.
+**Spectrum of $n$-step returns.** Increasing lookahead $n$ trades bootstrapping bias for sampling variance, bridging TD(0) at $n = 1$ and Monte Carlo at $n = \infty$.
 :::
 
-- $n$-step methods are methods in which the temporal difference extends over $n$ steps.
+- **Family of truncated returns**: Indexing the value estimate available at step $t$ by $V_t : S \to \mathbb{R}$, the lookahead targets progress smoothly across $n$:
 
-- The $n$-step return looks like:
-
-$$\begin{aligned}
+$$
+\begin{aligned}
 G_t^{(n)} &= G_{t:t+n} \equiv \text{the return from time step } t \text{ to } t+n \\[10pt]
 n=1\ (\text{TD(0)}): \quad G_t^{(1)} &= R_{t+1} + \gamma V_t(S_{t+1}) \\[6pt]
 n=2: \quad G_t^{(2)} &= R_{t+1} + \gamma R_{t+2} + \gamma^2 V_{t+1}(S_{t+2}) \\[6pt]
 &\quad \vdots \\[6pt]
 n=\infty\ (\text{MC}): \quad G_t^{(\infty)} &= R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{T-1} R_T
-\end{aligned}$$
+\end{aligned}
+$$
 
-- **MC target** is the return.
-- **TD(0) target** is the one-step return, the first reward plus the discounted next state estimated value ($V_t: S \to \mathbb{R}$ is the estimate at time $t$ of $v_\pi$).
-
-- **$n$-step return:**
+- **General $n$-step return**: Truncate the true episodic return after $n$ rewards and replace the unobserved tail with the discounted estimate $\gamma^n V_{t+n-1}(S_{t+n})$:
 
 $$\boxed{G_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n V_{t+n-1}(S_{t+n}),}$$
 
 $$\forall n, t \quad \text{ s.t. } \quad n \geq 1 \text{ and } 0 \leq t \leq T-n$$
 
-- All $n$-step returns can be considered approximations to the full return, truncated after $n$ steps and then corrected for the remaining missing terms by $V_{t+n-1}(S_{t+n})$.
-- If the $n$-step return extends to or beyond termination, then all the missing terms are taken as zero, and the $n$-step return becomes the ordinary full return:
+- **Boundary condition near termination**: Whenever $t + n \geq T$, the episode ends before $n$ steps elapse, so all post-terminal terms vanish and the $n$-step target collapses to the exact full return:
 
 $$G_{t:t+n} = G_t^{(n)} \doteq G_t \quad \text{if } t+n \geq T$$
 
-- $n$-step returns for $n > 1$ involve future rewards and states that are not available at the transition time from $t \to t+1$. Hence the $n$-step return cannot be used until after it has seen $R_{t+n}$ and computed $V_{t+n-1}$ when they are both available at time $t+n$.
-  - The natural state-value learning algorithm for using $n$-step returns is thus:
+- **Delayed update timing**: For $n > 1$, computing $G_t^{(n)}$ requires waiting until time step $t + n$, when both $R_{t+n}$ and $V_{t+n-1}(S_{t+n})$ are known.
+  - **Incremental $n$-step state-value update**:
 
     $$V_{t+n}(S_t) \doteq V_{t+n-1}(S_t) + \alpha\left[G_t^{(n)} - V_{t+n-1}(S_t)\right], \quad 0 \leq t < T$$
 
-  - while the values of all other states remain unchanged:
+  - **Unvisited states remain fixed**:
 
     $$V_{t+n}(s) = V_{t+n-1}(s), \quad \forall s \neq S_t$$
 
-  - This algorithm is the **$n$-step TD**:
+  - **Compact $n$-step TD rule**:
 
     $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\left[G_t^{(n)} - V(S_t)\right]}$$
 
-- The $n$-step return uses the value function $V_{t+n-1}$ to correct for the missing rewards beyond $R_{t+n}$. An important property of $n$-step returns is that their expectation is guaranteed to be a better estimate of $v_\pi$ than $V_{t+n-1}$ is in a worst-state sense. This is called the **error reduction property**. Using this property, all $n$-step TD methods converge to the correct predictions:
+- **Error reduction property**: Taking the expectation of any $n$-step return shrinks worst-case state-value error by at least a factor of $\gamma^n$ relative to $V_{t+n-1}$, guaranteeing asymptotic convergence of tabular $n$-step TD to $v_\pi$:
 
 $$\max_s \left|\mathbb{E}_\pi\left[G_t^{(n)} \mid S_t = s\right] - v_\pi(s)\right| \leq \gamma^n \max_s \left|V_{t+n-1}(s) - v_\pi(s)\right|$$
 
 ## $n$-step Sarsa, $\text{Sarsa}(\lambda)$ {#sec-ch07-7-2}
 
-- $n$-step value function prediction can be extended to control.
-- Switch value function updates based on state rewards to state-action value function updates based on state-action pairs and then use an $\varepsilon$-greedy policy.
-- Backup diagrams for $n$-step Sarsa are similar to those of $n$-step TD, consisting of strings of alternating states and actions, except that the Sarsa ones all start and end with an action rather than a state.
+- **Extending multi-step backups to control**: Replacing state values $V(s)$ with action values $Q(s, a)$ and pairing the updates with an $\varepsilon$-greedy policy yields **$n$-step Sarsa**.
+- **Action-anchored backup structure**: Whereas $n$-step TD chains begin and terminate at state nodes, $n$-step Sarsa backups begin at $(S_t, A_t)$ and bootstrap from the sampled state-action pair $(S_{t+n}, A_{t+n})$ after $n$ rewards (see Sutton & Barto, 2018, Ch. 7, for multi-step Sarsa backup diagrams).
+- **Action-value return sequence**: Across lookahead horizons $n = 1, 2, \ldots, \infty$:
 
-<!-- ![](../figures/fig72_nstep_sarsa.svg){fig-alt="n-step Sarsa Backup Diagrams"} -->
-::: {#fig-72}
-![](../figures/ch07-7-2-n-step-sarsa.png){fig-align="center" fig-alt="Backup diagrams for n-step SARSA methods."} 
-
-Backup diagrams for n-step SARSA methods.
-:::
-
-- Consider the following $n$-step returns for $n = 1, 2, \ldots, \infty$:
-
-$$\begin{aligned}
+$$
+\begin{aligned}
 G_t^{(n)} &= G_{t:t+n} \\[10pt]
 n=1\ (\text{Sarsa(0)}): \quad G_t^{(1)} &= R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) \\[6pt]
 n=2: \quad G_t^{(2)} &= R_{t+1} + \gamma R_{t+2} + \gamma^2 Q(S_{t+2}, A_{t+2}) \\[6pt]
 &\quad \vdots \\[6pt]
 n=\infty\ (\text{MC}): \quad G_t^{(\infty)} &= R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{T-1} R_T
-\end{aligned}$$
+\end{aligned}
+$$
 
-- **$n$-step Q-return:**
+- **$n$-step Q-return**:
 
 $$\boxed{G_t^{(n)} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n Q_{t+n-1}(S_{t+n}, A_{t+n})}$$
 
 $$\forall n, t \quad \text{ s.t. } \quad n \geq 1,\ 0 \leq t \leq T-n, \quad \text{with } G_t^{(n)} = G_t \text{ if } t+n \geq T$$
 
-- The natural state-action value learning algorithm is then:
+- **Delayed action-value update**: Only the state-action pair visited $n$ steps earlier is modified at step $t + n$:
 
 $$Q_{t+n}(S_t, A_t) \doteq Q_{t+n-1}(S_t, A_t) + \alpha\left[G_t^{(n)} - Q_{t+n-1}(S_t, A_t)\right], \quad 0 \leq t < T$$
 
 $$Q_{t+n}(s,a) = Q_{t+n-1}(s,a) \quad \forall s, a \quad \text{ s.t. } \quad s \neq S_t \text{ or } a \neq A_t$$
 
-- This algorithm is called **$n$-step Sarsa**:
+- **$n$-step Sarsa rule**:
 
 $$\boxed{Q_{t+n}(S_t, A_t) \leftarrow Q_{t+n-1}(S_t, A_t) + \alpha\left[G_t^{(n)} - Q_{t+n-1}(S_t, A_t)\right]}$$
 
 ### Expected Sarsa {#expected-sarsa}
 
-- Similar to $n$-step Sarsa (linear string of sample actions and states), except that its last element is a branch over all action possibilities weighted by their probability under $\pi$.
-- The $n$-step return here is:
+- **Branching at the final step**: Multi-step **Expected Sarsa** follows $n$ sampled transitions identically to $n$-step Sarsa, but replaces the single terminal action bootstrap $Q_{t+n-1}(S_{t+n}, A_{t+n})$ with a policy-weighted average across all legal actions in $S_{t+n}$.
+- **$n$-step Expected Sarsa target**:
 
 $$G_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n \bar{V}_{t+n-1}(S_{t+n}), \quad t+n < T$$
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \text{with } G_t^{(n)} &= G_t \quad \text{if } t+n \geq T
-\end{aligned}$$
+\end{aligned}
+$$
 
-- $\bar{V}_t(s)$ is the **expected approximate value** of state $s$ using the estimated action values at time $t$, under the target policy:
+- **Expected approximate value ($\bar{V}_t$)**: Denotes the policy-weighted average of current action-value entries for state $s$:
 
 $$\bar{V}_t(s) \doteq \sum_a \pi(a|s)\, Q_t(s,a), \quad \forall s \in S$$
 
-- Expected approximate values are essential for action-value methods in RL.
-- If $s$ is terminal, then its expected approximate value is defined to be zero: $$\bar{V}_t(\mathcal{T}) = 0$$
+- **Terminal convention**: For any terminal state $\mathcal{T}$, define $\bar{V}_t(\mathcal{T}) = 0$.
 
 ## $n$-step Off-policy Learning {#sec-ch07-7-3}
 
-- Recall that off-policy learning entails learning the value function for one policy $\pi$, while following another policy $b$ (behavior policy).
-  - Often $\pi$ is the greedy policy for the current $Q(s,a)$ estimate (target policy).
-  - $b$ is a more exploratory policy, perhaps $\varepsilon$-greedy.
-- In order to use the data from $b$, we must account for the **difference between the two policies**, using their relative probability of taking the actions that were taken.
-- In $n$-step methods, returns are constructed over $n$ steps, so we are interested in the relative probability of just those $n$ actions.
-- For example, to make a simple off-policy $n$-step TD, we can weight the update for time $t$ (made at time $t+n$ actually) by the importance sampling ratio:
+- **Decoupled behavior and target policies**: In off-policy learning, we evaluate or optimize target policy $\pi$ (often greedy over $Q$) using trajectories gathered by a separate exploratory behavior policy $b$ (often $\varepsilon$-greedy).
+- **Truncated importance weighting**: Because an $n$-step target depends only on actions across an $n$-step window rather than the entire episode, correcting the policy mismatch requires only the importance-sampling product over those relevant decisions:
 
 $$\rho_{t:h} = \prod_{k=t}^{\min(h,\, T-1)} \frac{\pi(A_k|S_k)}{b(A_k|S_k)}$$
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \text{where } \rho_{t:h} &\equiv \text{relative probability under the two policies of} \\
 &\quad \text{taking the } n \text{ actions from } A_t \text{ to } A_{t+n-1}
-\end{aligned}$$
+\end{aligned}
+$$
 
-- The off-policy $n$-step TD update when weighted by $\rho_{t:h}$ becomes:
+- **Off-policy $n$-step TD**: Scaling the TD update made at time $t + n$ by $\rho_{t:t+n-1}$ corrects for the action choices $A_t, \ldots, A_{t+n-1}$:
 
 $$\boxed{V_{t+n}(S_t) \leftarrow V_{t+n-1}(S_t) + \alpha\, \rho_{t:t+n-1}\left[G_t^{(n)} - V_{t+n-1}(S_t)\right], \quad 0 \leq t < T}$$
 
-- If both policies are actually the same (on-policy), then the importance sampling ratio is always 1 and we have our previous update (on-policy $n$-step TD):
+- **On-policy specialization**: Whenever $\pi = b$, every ratio equals $1$ and the rule reduces immediately to ordinary $n$-step TD:
 
 $$\text{if } \pi = b,\ \rho_{t:h} = 1 \implies V(S_t) \leftarrow V(S_t) + \alpha\left[G_t^{(n)} - V(S_t)\right]$$
 
-- Cannot use importance sampling if $b = 0$ & $\pi \neq 0$.
-
-- Similarly, the $n$-step Sarsa update can be extended for the off-policy method:
+- **Coverage constraint**: Importance sampling requires $b(a \mid s) > 0$ whenever $\pi(a \mid s) > 0$ so division by zero never occurs.
+- **Off-policy $n$-step Sarsa**: For state-action values, $A_t$ is already conditioned on, so weighting shifts forward by one step to cover $A_{t+1}$ through $A_{t+n}$:
 
 $$Q_{t+n}(S_t, A_t) \leftarrow Q_{t+n-1}(S_t, A_t) + \alpha\, \rho_{t+1:t+n}\left[G_t^{(n)} - Q_{t+n-1}(S_t, A_t)\right]$$
 
-- Note that the importance sampling ratio here starts and ends one step later than for $n$-step TD because we are updating a state-action pair:
-  - ($n$-step Sarsa) $\rho_{t+1:t+n}$ vs. $\rho_{t:t+n-1}$ ($n$-step TD)
-  - We know that we have selected the action so we need importance sampling only for the subsequent actions.
-
-- For the $n$-step Expected Sarsa off-policy version, the update is:
+  - **Index shift**: $n$-step Sarsa uses $\rho_{t+1:t+n}$ whereas $n$-step TD uses $\rho_{t:t+n-1}$, because the initial action $A_t$ is fixed as the evaluation point rather than sampled from $\pi$.
+- **Off-policy $n$-step Expected Sarsa**:
 
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\, \rho_{t+1:t+n-1}\left[G_t^{(n)} - Q(S_t, A_t)\right]}$$
 
-  - This is the same as the $n$-step Sarsa update except that the importance sampling ratio used is $\rho_{t+1:t+n-1}$ instead of $\rho_{t+1:t+n}$, because in Expected Sarsa all possible actions are taken into account in the last state; the one actually taken has no effect and does not need to be corrected for.
+  - **Why the last ratio drops**: Because Expected Sarsa sums explicitly over all actions at $S_{t+n}$ weighted by $\pi$, the behavior action $A_{t+n}$ never enters the target and requires no importance-sampling factor.
 
 ## Per-decision Methods with Control Variates {#sec-ch07-7-4}
 
-- The multi-step off-policy methods presented in [section 7.3](#sec-ch07-7-3) are simple and conceptually clear but not very efficient and dramatically increase variance.
+- **Variance drawback of basic weighting**: Multiplying the entire $n$-step error by a single ratio product as in [section 7.3](#sec-ch07-7-3) is straightforward, yet suffers from severe variance that slows learning.
+- **Recursive return formulation**: Writing the ordinary $n$-step return ending at horizon $h$ recursively exposes per-step structure:
 
-- A more sophisticated approach would be using per-decision importance sampling.
-
-    1. The ordinary $n$-step return can be written recursively. For the $n$-steps ending at horizon $h$, the $n$-step return can be written:
+    1. **On-policy recursion**:
 
         $$G_{t:h} = R_{t+1} + \gamma G_{t+1:h}, \quad t < h < T$$
 
         $$\begin{aligned}\text{where } G_{h:h} &\doteq V_{h-1}(S_h)\end{aligned}$$
 
-    2. Consider the effect of following a behavior policy $b$ that is not the same as the target policy $\pi$. All of the resulting experiences, including the first reward $R_{t+1}$ and the next state $S_{t+1}$, must be weighted by the importance sampling ratio for time $t$:
+    2. **Single-step ratio**: At step $t$, the mismatch between behavior $b$ and target $\pi$ enters through the single-decision factor:
 
         $$\rho_t = \frac{\pi(A_t \vert S_t)}{b(A_t \vert S_t)}$$
 
-- A simple approach would be to weight the RHS ($R_{t+1} + \gamma G_{t+1:h}$) by $\rho_t$, but a more sophisticated approach would be to use an off-policy definition of the $n$-step return ending at horizon $h$:
+- **Per-decision off-policy return with control variate**: Rather than scaling $R_{t+1} + \gamma G_{t+1:h}$ by $\rho_t$ alone (which pushes the target to $0$ whenever $\rho_t = 0$), add a zero-mean baseline term:
 
-$$\boxed{\begin{aligned}
+$$
+\boxed{\begin{aligned}
 G_{t:h} &\doteq \rho_t\left(R_{t+1} + \gamma G_{t+1:h}\right) + (1 - \rho_t) V_{h-1}(S_t), \quad t < h < T \\[6pt]
 G_{h:h} &\doteq V_{h-1}(S_h)
-\end{aligned}}$$
+\end{aligned}}
+$$
 
-- If $\rho_t = 0$ (trajectory has no chance of occurrence under the target policy), then instead of the target $G_{t:h}$ being zero and causing the estimate to shrink, the target is the same as the estimate and causes no change.
-
-- The additional term $(1 - \rho_t) V_{h-1}(S_t)$ is called a **control variate** and essentially ensures we ignore the sample when the importance sampling ratio is zero, thereby leaving the estimate unchanged.
-  - The control variate does not change the expected update.
-  - The importance sampling ratio has an expected value of 1 and is uncorrelated with the estimate, so the expected value of the control variate is zero.
+- **Role of the control variate**: The additive correction $(1 - \rho_t) V_{h-1}(S_t)$ acts as a **control variate**:
+  - **Safe zero-probability handling**: Whenever $\rho_t = 0$ (an action forbidden under $\pi$), the return defaults cleanly to $V_{h-1}(S_t)$, yielding a zero update instead of pulling the estimate toward zero.
+  - **Preserves expectation**: Because $\mathbb{E}_b[\rho_t] = 1$ and $V_{h-1}(S_t)$ is independent of $A_t$, the control variate has zero expectation and keeps the estimator unbiased while cutting variance.
 
 ### For Action Values {#for-action-values}
 
-- For action values, the off-policy definition of the $n$-step return is a little different because the first action does not play a role in the importance sampling (it has already been taken).
-- The $n$-step on-policy return ending at horizon $h$ can be written recursively, and for action values the recursion ends with $G_{h:h} \doteq V_{h-1}(S_h)$. An off-policy form with control variates is:
+- **Conditioning on the first action**: For action-value prediction, $A_t$ is fixed, so importance sampling begins at step $t + 1$. Incorporating a control variate into the recursive return ending at horizon $h$ produces:
 
-$$\boxed{\begin{aligned}
+$$
+\boxed{\begin{aligned}
 G_{t:h} &\doteq R_{t+1} + \gamma\left[\rho_{t+1} G_{t+1:h} + \bar{V}_{h-1}(S_{t+1}) - \rho_{t+1} Q_{h-1}(S_{t+1}, A_{t+1})\right] \\[6pt]
 &= R_{t+1} + \gamma\, \rho_{t+1}\left(G_{t+1:h} - Q_{h-1}(S_{t+1}, A_{t+1})\right) + \gamma \bar{V}_{h-1}(S_{t+1}), \quad t < h \leq T
-\end{aligned}}$$
+\end{aligned}}
+$$
 
-- If $h < T$, then the recursion ends with $G_{h:h} \doteq Q_{h-1}(S_h, A_h)$.
-- If $h \geq T$, the recursion ends with $G_{T-1:h} = R_T$.
-- The resultant prediction algorithm (after combining with $n$-step Sarsa update rule) is analogous to Expected Sarsa.
-
-- Importance sampling results in high variance updates. Off-policy training is inevitably slower than on-policy training. Ways to reduce the variance include:
-    1. Control Variates
-    2. Adapt the step size to the observed variance (Autostep Method)
-    3. Invariant updates of Karampatziakis & Langford [2010]
-    4. The usage technique by Mahmood [2017; Mahmood & Sutton, 2015]
+- **Base cases**:
+  - When $h < T$, terminate the recursion with $G_{h:h} \doteq Q_{h-1}(S_h, A_h)$.
+  - When $h \geq T$, terminate with $G_{T-1:h} = R_T$.
+- **Connection to Expected Sarsa**: Plugging this return into the $n$-step Sarsa update rule produces a multi-step variance-reduced counterpart to Expected Sarsa.
+- **Additional variance-mitigation strategies**: Because off-policy ratio products inherently inflate variance compared to on-policy updates, practical systems combine multiple remedies:
+  1. **Control variates** (per-decision baselines as above).
+  2. **Adaptive step sizes** that scale down automatically under high variance (e.g., Autostep).
+  3. **Importance-weight-invariant updates** (Karampatziakis & Langford, 2010).
+  4. **Weighted/usage-adjusted off-policy methods** (Mahmood & Sutton, 2015; Mahmood, 2017).
 
 ## Off-policy Learning Without Importance Sampling: The $n$-step Tree Backup Algorithm {#sec-ch07-7-5}
 
-- Off-policy learning without importance sampling:
-  - Q-learning & Expected Sarsa do it for the one-step case.
-  - The $n$-step case is called the **tree-backup algorithm**.
-
-- **3-step tree backup** diagram:
-  - 3 sample states & rewards.
-  - 2 sample actions.
-  - A list of unselected actions for each state.
-  - We have no sample for the unselected actions, so therefore we bootstrap using their estimated values.
-
-<!-- ![](../figures/fig75_tree_backup.svg){fig-alt="3-step Tree Backup Diagram"} -->
-::: {#fig-73}
-![](../figures/ch07-7-5-n-step-tree.png){width=70% fig-align="center" fig-alt="The 3-step tree-backup update."} 
-
-The 3-step tree-backup update.
-:::
-
-- The target for the update of a node was obtained by combining the rewards along the way and the estimated values of the nodes at the bottom.
-  - Hence the name, **tree-backup update**: an update from the entire tree of estimated action values.
-  - More precisely, the update is from the estimated action values of the **leaf nodes** of the tree.
-  - The **interior** action nodes, corresponding to the actual actions taken, do not participate.
-
-- Each leaf node contributes to the target with a weight proportional to its probability of occurring under the target policy $\pi$:
-  - Each first-level action $a$ contributes with a weight of $\pi(a|S_{t+1})$.
-  - The action actually taken, $A_{t+1}$, does not contribute at all and its probability $\pi(A_{t+1}|S_{t+1})$ is used to weight all the 2nd-level action values.
-  - Each non-selected 2nd-level action $a'$ contributes with weight $\pi(A_{t+1}|S_{t+1})\,\pi(a'|S_{t+2})$.
-  - Each 3rd-level action $a''$ contributes with weight $\pi(A_{t+1}|S_{t+1})\,\pi(A_{t+2}|S_{t+2})\,\pi(a''|S_{t+3})$, and so on.
-
-- Essentially each arrow to an action node in the diagram is weighted by the action's probability of being selected under the target policy and, if there's a tree below the action, then that weight applies to all leaf nodes in the tree.
+- **Ratio-free off-policy bootstrapping**: Q-learning and Expected Sarsa achieve one-step off-policy learning without importance sampling; the **$n$-step tree-backup algorithm** generalizes that exact principle to arbitrary lookahead depth $n$.
+- **Anatomy of a multi-step tree backup**: Along a sampled $n$-step segment (e.g., 3 sampled states/rewards and 2 intermediate sampled actions; see Sutton & Barto, 2018, Ch. 7, for the 3-step tree-backup diagram), each visited state branches out to all unchosen actions in addition to the action actually taken.
+  - Because no environment transition was observed for the unchosen branches, the update bootstraps directly from their current action-value estimates $Q$.
+- **Leaf-only weighting**: Every **leaf node** contributes its estimated action value to the target, while **interior** action nodes (actions that were actually executed and followed further) serve only to propagate probability mass down the tree.
+- **Recursive target-policy weights**: Each action branch carries weight equal to its selection probability under the target policy $\pi$:
+  - Unselected actions $a \neq A_{t+1}$ at depth $1$ receive weight $\pi(a \mid S_{t+1})$.
+  - The executed action $A_{t+1}$ contributes no value directly; instead, its factor $\pi(A_{t+1} \mid S_{t+1})$ multiplies the entire subtree below $S_{t+2}$.
+  - Unselected actions $a' \neq A_{t+2}$ at depth $2$ carry weight $\pi(A_{t+1} \mid S_{t+1})\,\pi(a' \mid S_{t+2})$.
+  - At depth $3$, each action $a''$ receives weight $\pi(A_{t+1} \mid S_{t+1})\,\pi(A_{t+2} \mid S_{t+2})\,\pi(a'' \mid S_{t+3})$, continuing inductively to depth $n$.
 
 ### Detailed Equations for the $n$-step Tree-Backup Algorithm
 
-- The one-step return (target) is the same as that of Expected Sarsa:
+- **One-step case ($n = 1$)**: Matches Expected Sarsa identically for $t < T - 1$:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 G_{t:t+n} &= G_t^{(n)} \\[6pt]
 G_t^{(1)} &\doteq R_{t+1} + \gamma \sum_a \pi(a \vert S_{t+1})\, Q_t(S_{t+1}, a), \quad \text{for } t < T-1
-\end{aligned}$$
+\end{aligned}
+$$
 
-- The two-step tree-backup return is, for $t < T-2$:
+- **Two-step case ($n = 2$)**: For $t < T - 2$, combines immediate non-taken branches with the discounted continuation along $A_{t+1}$:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 G_t^{(2)} &\doteq R_{t+1} + \gamma \sum_{a \neq A_{t+1}} \pi(a \vert S_{t+1})\, Q_{t+1}(S_{t+1}, a) + \gamma\pi(A_{t+1} \vert S_{t+1})\left(R_{t+2} + \gamma \sum_a \pi(a \vert S_{t+2})\, Q_{t+1}(S_{t+2}, a)\right) \\[6pt]
 &= R_{t+1} + \gamma \sum_{a \neq A_{t+1}} \pi(a \vert S_{t+1})\, Q_{t+1}(S_{t+1}, a) + \gamma\pi(A_{t+1} \vert S_{t+1})\, G_{t+1:t+2}
-\end{aligned}$$
+\end{aligned}
+$$
 
-- The $n$-step tree-backup return is, $\text{for } t < T-1,\ n \geq 2$:
+- **General $n$-step tree-backup return** ($\text{for } t < T - 1,\ n \geq 2$):
 
     $$\boxed{G_t^{(n)} \doteq R_{t+1} + \gamma \sum_{a \neq A_{t+1}} \pi(a|S_{t+1})\, Q_{t+n-1}(S_{t+1}, a) + \gamma\pi(A_{t+1}|S_{t+1})\, G_{t+1:t+n}}$$
 
-    - becomes one-step tree-backup return when $n=1$ and $G_{T-1:t+n} = R_T$.
+    - Reduces to the one-step target at $n = 1$, with terminal base case $G_{T-1:t+n} = R_T$.
 
-- We can use $G_t^{(n)}$ in the Q-update from $n$-step Sarsa, for $0 \leq t < T$:
+- **Tree-backup Q-update** ($0 \leq t < T$): Uses the exact same update skeleton as $n$-step Sarsa, with no external importance-sampling multiplier needed:
 
 $$\boxed{Q_{t+n}(S_t, A_t) \leftarrow Q_{t+n-1}(S_t, A_t) + \alpha\left[G_t^{(n)} - Q_{t+n-1}(S_t, A_t)\right]}$$
 
-- while the values of all other state-action pairs remain unchanged:
+- **Untouched entries**:
 
 $$Q_{t+n}(s,a) = Q_{t+n-1}(s,a) \quad \forall s, a \quad \text{ s.t. } \quad s \neq S_t \text{ or } a \neq A_t$$
 
 ## A Unifying Algorithm: $n$-step $Q(\sigma)$ {#sec-ch07-7-6}
 
-- So far we have considered 3 different kinds of action-value algorithms:
-  - **$n$-step Sarsa** has all sample transitions.
-  - **Tree-backup algorithm** has all state-to-action transitions fully branched without sampling.
-  - **$n$-step Expected Sarsa** has all sample transitions except for the last state-to-action one which is fully branched with an expected value.
+- **Comparing three action-value backups**:
+  - **$n$-step Sarsa**: Samples every state-to-action transition along the trajectory.
+  - **$n$-step Tree Backup**: Replaces every state-to-action transition with a full expectation over actions.
+  - **$n$-step Expected Sarsa**: Samples all intermediate actions and takes a full expectation only at the final step.
+- **Step-by-step unification**: Instead of locking into a single choice for the entire horizon, decide dynamically at each step $t$ whether to sample (Sarsa-style) or take an expectation (tree-backup style) (see Sutton & Barto, 2018, Ch. 7, for comparative 4-step $Q(\sigma)$ backup diagrams).
+- **Continuous sampling parameter ($\sigma_t$)**: Introduce $\sigma_t \in [0, 1]$ to interpolate smoothly between the two extremes on every step:
+  - $\sigma_t = 1$: Full action sampling (Sarsa with importance sampling).
+  - $\sigma_t = 0$: Pure expectation across actions (tree backup).
+  - More generally, $\sigma_t$ can vary over time or depend on the visited state or state-action pair.
+- **Resulting algorithm**: This unified family is called **$n$-step $Q(\sigma)$**.
+- **Rewriting the tree-backup return via $\bar{V}$**: Setting horizon $h = t + n$, substitute $\sum_{a \neq A_{t+1}} \pi(a \mid S_{t+1}) Q_{h-1}(S_{t+1}, a) = \bar{V}_{h-1}(S_{t+1}) - \pi(A_{t+1} \mid S_{t+1}) Q_{h-1}(S_{t+1}, A_{t+1})$:
 
-- **Unification Algorithm** $\Rightarrow$ _One Idea_: Decide on a step-by-step basis whether we want to sample, as in Sarsa, or consider the expectation over all actions instead, as in tree-backup update.
-
-<!-- ![](../figures/fig76_qsigma.svg){fig-alt="4-step Q(σ) and comparisons"} -->
-::: {#fig-74}
-![](../figures/ch07-7-6-n-step-q.png){width=70% fig-align="center" fig-alt="Backup diagram for different kinds of n-step Q updates."} 
-
-Backup diagram for different kinds of n-step Q updates.
-:::
-
-- In unification lies many possibilities as seen/suggested in the figure above.
-- To increase the possibilities even further we can consider a continuous variation between sampling and expectation:
-  - Let $\sigma_t \in [0,1]$ denote the degree of sampling on step $t$:
-    - $\sigma = 1 \Rightarrow$ full sampling
-    - $\sigma = 0 \Rightarrow$ pure expectation with no sampling
-  - The random variable $\sigma_t$ might be set as a function of the state, or state-action pair, at time $t$.
-
-- This algorithm is called **$n$-step $Q(\sigma)$**.
-
-- For the equations, first the tree-backup $n$-step return is expressed in terms of the horizon $h = t+n$ and the expected approximate value $\bar{V}$:
-
-$$\begin{aligned}
+$$
+\begin{aligned}
 G_{t:h} &= R_{t+1} + \gamma \sum_{a \neq A_{t+1}} \pi(a \vert S_{t+1})\, Q_{h-1}(S_{t+1}, a) + \gamma\pi(A_{t+1} \vert S_{t+1})\, G_{t+1:h} \\[6pt]
 &= R_{t+1} + \gamma \bar{V}_{h-1}(S_{t+1}) - \gamma\pi(A_{t+1} \vert S_{t+1})\, Q_{h-1}(S_{t+1}, A_{t+1}) + \gamma\pi(A_{t+1} \vert S_{t+1})\, G_{t+1:h} \\[6pt]
 &= R_{t+1} + \gamma\pi(A_{t+1} \vert S_{t+1})\left[G_{t+1:h} - Q_{h-1}(S_{t+1}, A_{t+1})\right] + \gamma \bar{V}_{h-1}(S_{t+1})
-\end{aligned}$$
+\end{aligned}
+$$
 
-- After which it is exactly like the $n$-step return for Sarsa with control variates except with the action probability $\pi(A_{t+1}|S_{t+1})$ substituted for the importance sampling ratio $\rho_{t+1}$. For $Q(\sigma)$, we slide linearly between these 2 cases, $\forall\, t < h \leq T$:
+- **Linear interpolation in $Q(\sigma)$**: Notice that this form is identical to the off-policy $n$-step Sarsa return with control variates, except $\pi(A_{t+1} \mid S_{t+1})$ stands where $\rho_{t+1}$ appeared. Convexly combining those two weights with $\sigma_{t+1}$ gives the **$n$-step $Q(\sigma)$ return** for all $t < h \leq T$:
 
 $$\boxed{G_{t:h} \doteq R_{t+1} + \gamma\left(\sigma_{t+1}\rho_{t+1} + (1-\sigma_{t+1})\pi(A_{t+1}|S_{t+1})\right)\left(G_{t+1:h} - Q_{h-1}(S_{t+1}, A_{t+1})\right) + \gamma \bar{V}_{h-1}(S_{t+1})}$$
 
-- The recursion ends with $G_{h:h} = 0$ if $h < T$ or $G_{T-1:T} = R_T$ if $h = T$.
-- Now we can plug the new defined return into the $n$-step Sarsa update w/o importance sampling (handled already in $G_{t:h}$).
+- **Recursion termination**: End with $G_{h:h} = 0$ if $h < T$ (or equivalently $G_{h:h} = Q_{h-1}(S_h, A_h)$ in the action-value formulation before absorbing $\bar{V}$), and $G_{T-1:T} = R_T$ when $h = T$.
+- **Direct update**: Because off-policy weighting is already embedded inside $G_{t:h}$, substitute $G_{t:h}$ directly into the standard $n$-step Sarsa update rule without extra outer importance ratios.
 
 ## Summary {#sec-ch07-7-7}
 
-- There exist a range of TD learning methods that lie in between the one-step TD (TD(0)) methods and Monte Carlo methods. These are **$n$-step methods.**
-- These methods involve an intermediate amount of bootstrapping and are important because they will typically perform better than either extreme.
-- $n$-step methods look ahead to the next $n$ rewards, states, and actions.
-- The two **4-step backup diagrams** below together summarize most of the methods introduced: 
-  - **$n$-step TD with importance sampling** 
-  - **$n$-step $Q(\sigma)$** which generalizes **Expected Sarsa & Q-learning.**
-
-<!-- ![](../figures/fig77_summary.svg){fig-alt="Summary backup diagrams"} -->
-::: {#fig-75}
-![](../figures/ch07-7-7-n-step-td-q.png){width=52% fig-align="center" fig-alt="Backup diagram for 4-step TD and 4-step Q update."} 
-
-Backup diagram for 4-step TD & 4-step Q update.
-:::
-
-- **Limitations of $n$-step methods:**
-  - $n$ time step **delay** before updating.
-  - **More computation** per time step than previously covered methods.
-  - Require **more memory** to record the states, actions, rewards, and sometimes other variables over the last $n$ time steps than the one-step methods.
-
-- In Chapter 12, we'll learn how multi-step TD methods can be implemented with minimal memory and computational complexity using **eligibility traces.**
-- $n$-step methods, while being quite complex, are conceptually clear. Hence the development of two $n$-step off-policy learning approaches based on:
-  - **Importance-sampling**: conceptually simple but has high variance.
-  - **Tree-based backup updates**: natural extension of Q-learning to the multi-step case with stochastic target policies.
+- **Multi-step continuum**: **$n$-step bootstrapping** spans the full spectrum between one-step TD(0) and Monte Carlo, letting intermediate lookahead depths achieve stronger empirical performance than either extreme.
+- **Core multi-step algorithms**: All methods in this chapter extend backups over $n$ consecutive rewards, states, and actions, cleanly summarized by two canonical archetypes (Sutton & Barto, 2018, Ch. 7):
+  - **$n$-step TD with importance sampling** (state-value prediction, optionally stabilized by per-decision control variates).
+  - **$n$-step $Q(\sigma)$** (a unified control update interpolating continuously between sampled transitions and full action-value tree branching).
+- **Practical trade-offs of $n$-step methods**:
+  - **Update latency**: Each state or state-action update waits $n$ steps before taking effect.
+  - **Higher per-step compute**: Computing multi-step targets and expectations requires more work per transition than one-step TD.
+  - **Sliding buffer memory**: Algorithms must retain the trailing window of $n$ states, actions, rewards, and auxiliary ratios.
+- **Two off-policy philosophies**:
+  - **Importance sampling**: Conceptually direct and applicable to state values, yet prone to high variance without control variates.
+  - **Tree backups**: Avoids importance ratios altogether by branching over target-policy expectations, generalizing Q-learning to multi-step stochastic target policies.
+- **Looking ahead**: Chapter 12 introduces **eligibility traces**, which capture multi-step credit assignment online with minimal memory and per-step overhead.

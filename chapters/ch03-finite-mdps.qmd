@@ -3,100 +3,93 @@ title: "Finite Markov Decision Processes"
 number-sections: true
 ---
 
-- MDPs are a classical formalization of sequential decision making, where actions influence not just immediate rewards, but also subsequent states, and through those future rewards. 
-- Hence, there exists a tradeoff between delayed and immediate rewards.
-- In bandit problems, we estimated $q_{*}(a)$ of each action $a$.
-- In MDPs, we estimate the value $q_{*}(s, a)$ of each action $a$ in each state $s$.
-- These state-dependent action-values are essential for accurate credit assignment for long-term consequences to individual action selections.
-- Markov Decision Processes (MDPs) are a mathematical idealized form of the reinforcement learning problem. 
-- To build the full reinforcement learning (RL) problem's mathematical structure, key elements are introduced: **returns, value functions, & Bellman equations.**
+- **Markov Decision Processes (MDPs)** provide the standard mathematical framework for sequential decision problems in which every choice affects both the immediate payoff and the future states the learner encounters.
+- Because current actions alter later opportunities, agents face an inherent tradeoff between **immediate and delayed rewards**.
+- Whereas bandit algorithms learn context-free arm values $q_*(a)$, MDP agents must learn state-conditioned values $q_*(s, a)$ (or state values $v_*(s)$) to attribute long-term outcomes to specific decisions (the **credit assignment** problem).
+- Formalizing full reinforcement learning rests on three tightly linked concepts: **returns**, **value functions**, and **Bellman equations**.
 
 ## The Agent-Environment Interface {#sec-ch03-3-1}
 
 ::: {#fig-31}
-![](../figures/ch03-3-1.png){width=80% fig-align="center" fig-alt="The agent-environment interaction in an MDP."} 
+![](../figures/ch03-mdp-loop.png){width=85% fig-align="center" fig-alt="Agent-environment interaction loop showing action A_t sent to environment and next state S_{t+1} and reward R_{t+1} returned."}
 
-The agent-environment interaction in an MDP.
+**Agent-environment interaction loop.** At each discrete step $t$, the agent applies action $A_t$ to the environment, which responds with the next state $S_{t+1}$ and scalar reward $R_{t+1}$.
 :::
 
-- The agent is the learner and decison maker, while the environment is everything outside the agent that the agent interacts with.
-- The agent selects actions, and the environment responds with new states back to the agent.
-- The environment also yields rewards, numerical values which the agent seeks to maximize over time through its choice of actions.
-- The agent and environment interact continually over a sequence of discrete time steps, $t = 0, 1, 2, 3, \dots$
-- The MDP and agent together yield a recurring sequence of $S_t, A_t, R_{t+1}, S_{t+1}$ or a **trajectory** when expanded out for all the time steps
+- **Agent**: the decision-making system that observes states, selects actions, and adapts its behavior from feedback.
+- **Environment**: everything external to the agent's direct control that responds to actions with new states and numerical rewards.
+- Interaction unfolds across discrete rounds $t = 0, 1, 2, 3, \dots$ (not necessarily uniform clock ticks), producing a recurring stream of transitions $(S_t, A_t, R_{t+1}, S_{t+1})$.
+- **Trajectory**: the full chronological sequence of states, actions, and rewards generated jointly by the agent and environment:
 
 $$\textbf{Trajectory, }\mathcal{T} \equiv (S_0, A_0, R_1, S_1, A_1, R_2, S_2, A_2, R_3, \ldots )$$
 
 ### Dynamics function {#dynamics-function}
 
-- In a **finite** MDP, the sets of states $S$, actions $A$, and rewards $R$ are all finite. The random variables $S_t$ and $R_t$ have well-defined discrete probability distributions dependent only on the preceding state and action, this is the **Markov property**. 
-- The transition dynamics are fully characterized by the function $p$, which gives the probability of transitioning to state $s' \in S$ and receiving reward $r \in R$, given state $s$ and action $a$ 
-- $\forall\ s', s \in \mathcal{S},\, r \in \mathbb{R},\, a \in \mathcal{A}(s)$, the dynamics function is:
+- **Finite MDP**: the state space $\mathcal{S}$, action space $\mathcal{A}$, and reward set $\mathcal{R}$ all contain finitely many elements.
+- **Markov property**: the joint distribution of the next state $S_t$ and reward $R_t$ depends solely on the immediately preceding state $S_{t-1}$ and action $A_{t-1}$, making earlier history redundant once the current state is known.
+- **Dynamics function** $p$: completely specifies a finite MDP by giving the joint probability of transitioning to $s' \in \mathcal{S}$ and observing reward $r \in \mathcal{R}$ after taking $a \in \mathcal{A}(s)$ in $s \in \mathcal{S}$:
 
 $$\boxed{p(s', r \mid s, a) \doteq \mathbb{P}\{S_t = s',\, R_t = r \mid S_{t-1} = s,\, A_{t-1} = a\} }$$
 
-- The dynamics function is an ordinary deterministic function of 4 arguments:
+- Mathematically, $p$ is a deterministic four-argument mapping into $[0, 1]$:
 
 $$p : \mathcal{S} \times \mathcal{R} \times \mathcal{S} \times \mathcal{A} \to [0,1]$$
 
-- The "|" in the middle of $p(s', r \vert s, a)$ signifies conditional probability, which reminds us that $p$ specifies a probability distribution for each choice of $s$ and $a$. i.e., that
+- The conditioning bar "|" indicates that every fixed pair $(s, a)$ induces a valid joint probability distribution over $(s', r)$:
 
 $$\sum_{s' \in \mathcal{S}} \sum_{r \in \mathcal{R}} p(s', r \mid s, a) = 1 \quad \forall\, s \in \mathcal{S},\, a \in \mathcal{A}(s)$$
 
 ### Derived quantities {#derived-quantities}
 
-- From the 4-argument dynamics function, $p$, we can compute anthing we want to know about the environment. Let's go through some of these functions of interest below.
+- Marginalizing or averaging the four-argument law $p(s', r \mid s, a)$ yields all other environment quantities of interest:
 
-- _State-transition probabilities_ as a 3-argument function $p: S \times S \times A \to [0,1]$
+- **State-transition probabilities** ($p: S \times S \times A \to [0,1]$), obtained by summing over all possible rewards:
 
 $$p(s'|s,a) \doteq \mathbb{P}\{S_t = s' \mid S_{t-1} = s,\, A_{t-1} = a\} = \sum_{r \in R} p(s', r | s, a)$$
 
-- _Expected rewards for state-action pairs_ as a 2-argument function $r: S \times A \to \mathbb{R}$
+- **Expected state-action rewards** ($r: S \times A \to \mathbb{R}$), giving the mean immediate payoff for executing $a$ in $s$:
 
 $$r(s,a) \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a\right] = \sum_{r \in R} r \sum_{s' \in S} p(s', r | s, a)$$
 
-- _Expected rewards for state-action-next-state triples_ as a 3-argument function $r: S \times A \times S \to \mathbb{R}$
+- **Expected transition rewards** ($r: S \times A \times S \to \mathbb{R}$), conditioning further on the realized successor state $s'$:
 
 $$r(s,a,s') \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a,\, S_t = s'\right] = \sum_{r \in R} r\, \frac{p(s', r | s, a)}{p(s' | s, a)}$$
 
 ## Goals & Rewards {#sec-ch03-3-2}
 
-- At each time step, the reward is a simple number, $R_t \in \mathbb{R}$
-- The agent's goal is to maximize the cumulative reward it receives in the long run not the immediate reward.
-- This idea was formalized by the **reward hypothesis**.
+- **Reward signal**: at every round, the environment emits a single scalar $R_t \in \mathbb{R}$ communicating the task objective.
+- The learner targets long-horizon cumulative reward rather than myopic single-step gains, an idea codified by the **reward hypothesis**.
 
 ::: {.callout-note title="Reward Hypothesis (Sutton & Barto, 2018, §3.2)"}
 > "That all of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal (called reward)."
 :::
 
-- Because the agent optimizes whatever scalar signal it receives, reward design must align maximizing cumulative reward with achieving the actual objective.
-- Rewards specify *what* outcome we want, not *which* intermediate steps or heuristics the agent should use to get there.
+- **Reward design**: because an RL algorithm optimizes whatever scalar signal it is fed, rewards must accurately reflect the true task objective.
+- **What, not how**: reward functions should encode the desired end outcome rather than rewarding handcrafted subgoals or heuristics, which can accidentally incentivize unintended shortcuts.
 
 ## Returns & Episodes {#sec-ch03-3-3}
 
-- The formal definition of the maximization of the cumulative reward received by the agent in the long run leads to the **expected return,** $G_t$ we want to maximize:
+- **Return** ($G_t$): the aggregate future payoff following step $t$ that the agent seeks to maximize in expectation. In finite-horizon settings ending at final step $T$, the undiscounted return is simply the sum:
 
 $$G_t \doteq R_{t+1} + R_{t+2} + R_{t+3} + \ldots + R_T, \quad \quad T = \text{final time step}$$
 
-- Episodes are finite sequences of interactions between an agent and environment that have a natural terminal state, after which the process resets to a starting state. Each episode is independent, beginning from an initial state and ending at a terminal state $S_T$.
-- An episode is basically a trajectory with a defined endpoint $S_T$.
+- **Episode**: a self-contained trajectory that starts from an initial state distribution and ends upon reaching a designated terminal state $S_T$, after which the interaction resets cleanly for the next trial:
 
 $$\textbf{Episode } \equiv (S_0, A_0, R_1, S_1, A_1, R_2, S_2, A_2, R_3, \ldots, S_T )$$
 
-- **Episodic tasks**: Tasks with episodes that have a terminal state, $S_T$
-- **Continuing tasks**: Tasks with no terminal state ($T_{\text{final}} = \infty$)
+- **Episodic tasks**: problems that naturally break into independent episodes terminating at some $S_T$.
+- **Continuing tasks**: ongoing interactions with no natural endpoint ($T_{\text{final}} = \infty$), where raw undiscounted sums could diverge.
 
 ### Discounting {#discounting}
 
-- $\gamma \equiv$ discount rate/factor
-- $\gamma \Rightarrow$ determines the present value of future rewards
-- $0 \leq \gamma \leq 1$
-- $\gamma \approx 0$ : "myopic" agent
-- $\gamma \to 1$ : "far-sighted" agent
+- **Discount factor** ($\gamma \in [0, 1]$): scales down rewards received further in the future, ensuring finite returns in continuing tasks and encoding time preference.
+- **Horizon trade-off**: $\gamma$ near $0$ produces a **myopic** learner focused on immediate gains, whereas $\gamma$ approaching $1$ yields a **far-sighted** learner that weighs distant consequences almost equally.
 
 $$\boxed{G_t \doteq R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \ldots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}}$$
 
 ### Recursive form of Expected return {#recursive-form-of-expected-return}
+
+- Factoring $\gamma$ out of all terms after $R_{t+1}$ links consecutive returns recursively, a relation fundamental to Bellman equations:
 
 $$
 \begin{aligned}
@@ -106,47 +99,50 @@ G_t &= R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \gamma^3 R_{t+4} + \ldots \
 \end{aligned}
 $$
 
-- From $G_t = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}$, the expected return is finite if $R \neq 0 \text{ and constant, if } \gamma < 1$. For example, if $R = \text{a constant } + 1$ at each timestep, then the discounted return is:
+- Whenever rewards are bounded and $\gamma < 1$, the infinite sum converges; for instance, a constant payoff of $+1$ at every step produces a closed-form geometric series:
 
 $$G_t = \sum_{k=0}^{\infty} \gamma^k = \frac{1}{1-\gamma}$$
 
 ## Unified Notation for Episodic & Continuing Tasks {#sec-ch03-3-4}
 
-- We can unify the notations for expected return for episodic and continuing tasks into a single notation by considering episode termination to be the entering of a **special absorbing state** that transitions only to itself and that generates only rewards of $0$. For example, lets consider the state transtion diagram:
+- **Absorbing terminal state**: episodic and continuing problems can share one notation by modeling termination as entry into a dedicated absorbing state that only self-transitions and forever emits reward $0$.
 
 ### State transition diagram {#state-transition-diagram}
 
 $$S_0 \xrightarrow{R_1=+1} S_1 \xrightarrow{R_2=+1} S_2 \xrightarrow{R_3=+1} \square \circlearrowright \quad \left\{ \begin{array}{l} R_4 = 0 \\ R_5 = 0 \\ \vdots \end{array} \right\}$$
 
-- The square signifies the special absorbing state that corresponds to the end of an episode.
-- Starting from $S_0$, the reward sequence is $+1, +1, +1, 0, 0, 0, \ldots$, which when summed yields the same return whether over the first $T$ rewards ($T = 3$) or over the full infinite sequence, even with discounting present.
-- The unified notation, including the possibility that $T = \infty$ or $\gamma = 1$ (but not both), for  the return is:
+- Here the square node marks the absorbing state representing episode end.
+- Starting at $S_0$, the observed rewards $+1, +1, +1, 0, 0, \ldots$ sum to the exact same total whether truncated at $T = 3$ or extended to infinity, even under discounting.
+- **Unified return**: allowing either $T = \infty$ or $\gamma = 1$ (but not both simultaneously) covers both task types in a single expression:
 
 $$\boxed{\tilde{G}_t = \sum_{k=t+1}^{T} \gamma^{k-t-1} R_k}$$
 
 ## Policies, Value Functions & Bellman Equations {#sec-ch03-3-5}
 
-- Value functions are defined w.r.t. particular ways of acting, called **policies**.
-- A **Policy** is a mapping from states to probabilities of selecting each possible action.
+- **Policy** ($\pi$): a decision rule mapping every state $s \in \mathcal{S}$ to a probability distribution over valid actions $a \in \mathcal{A}(s)$:
 
 $$\boxed{\pi(a|s) = \mathbb{P}\left[A_t = a \mid S_t = s\right]}$$
 
-- "|" in the middle of $\pi(a|s) \Rightarrow$ reminds us that it defines a probability distribution over $a \in A(s)$ for each $s \in S$.
--  RL methods specify how the agent’s policy is changed as a result of its experience.
+- The vertical bar "|" emphasizes that $\pi(\cdot \mid s)$ sums to $1$ across $a \in \mathcal{A}(s)$ for every state $s$.
+- Reinforcement learning algorithms differ primarily in how they update $\pi$ (explicitly or implicitly) from interaction data.
 
 ### State-value function for policy $\pi$
+
+- **State-value function** $v_\pi(s)$: the expected return when starting in state $s$ and selecting all subsequent actions according to $\pi$:
 
 $$v_\pi(s) \doteq \mathbb{E}_\pi\left[G_t \mid S_t = s\right] = \mathbb{E}_\pi\left[\sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \,\middle|\, S_t = s\right], \quad \forall s \in S$$
 
 ### Action-value function for policy $\pi$
 
+- **Action-value function** $q_\pi(s, a)$: measures expected long-term payoff after committing to move $a$ from state $s$ and obeying $\pi$ on all subsequent steps:
+
 $$q_\pi(s,a) \doteq \mathbb{E}_\pi\left[G_t \mid S_t = s,\, A_t = a\right] = \mathbb{E}_\pi\left[\sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \,\middle|\, S_t = s,\, A_t = a\right]$$
 
-- $\mathbb{E}_\pi[\cdot] \Rightarrow$ expected value of a random variable given that the agent follows policy $\pi$, if $t$ is any time step.
+- Throughout, $\mathbb{E}_\pi[\cdot]$ denotes expectation under trajectories generated by policy $\pi$ and environment dynamics $p$.
 
 ### Bellman Equation for $v_\pi$
 
-- Recursive self-consistency conditions that must be satisfied by value functions for any policy and state in reinforcement learning and dynamic programming (DP) are called **Bellman equations.**
+- **Bellman equations**: recursive consistency identities satisfied by value functions in MDPs, expressing each state's value in terms of immediate rewards and discounted successor values:
 
 $$
 \begin{aligned}
@@ -157,20 +153,10 @@ v_\pi(s) &\doteq \mathbb{E}_\pi\left[G_t \mid S_t = s\right] \\
 \end{aligned}
 $$
 
-- This is the **Bellman Equation for $v_\pi$**. It expresses the relationship between the value of a state and the value of its successor states.
+- **Interpretation**: the expectation weights every feasible action by $\pi(a \mid s)$ and every resulting transition by $p(s', r \mid s, a)$, equating $v_\pi(s)$ to the expected immediate reward plus the discounted value of the next state.
+- **Backup diagram**: graphically, one-step lookahead trees depict open nodes for states ($s$ at the root and successor states $s'$ at the leaves) connected through filled nodes for state-action pairs $(s, a)$; the diagram illustrates how estimates at successor states are averaged and passed upward ("backed up") to update the root state (see Sutton & Barto, 2018, Fig. 3.4).
 
-- The Bellman equation averages over all possibilities, weighting each by its probability of occurring.
-- It states that the starting state value must equal the (discounted) value of the expected next state, plus the reward expected along the way.
-- We visualize this relationship between a state and its possible successor states with a **backup diagram.**
-- It is called a backup diagram because it looks at how value is transferred **back up** the tree from the possible successor states of a specific state at the bottom of the tree to that specific state at the top of the tree.
-
-::: {#fig-32}
-![](../figures/ch03-3-5-v-pi.png){width=80% fig-align="center" fig-alt="Backup diagram for v_pi. Each open circle represents a state s, filled circles represent state-action pairs (s, a), next open circles set represent successor states s'."} 
-
-**Backup diagram for $v_\pi$.** Each open circle represents a state $s$, filled circles represent state-action pairs $(s, a)$, next open circles set represent successor states $s'$.
-:::
-
-- A state-value is an expectation over the available action-values under a policy:
+- Expressing $v_\pi(s)$ directly as an expectation over action values under $\pi$:
 
 $$ 
 \begin{split}
@@ -180,11 +166,10 @@ v_{\pi}(s) & \doteq \mathbb{E}_{\pi,p} [G_t\ |\ S_t{=}s]\\
 \end{split}
 $$
 
-[*] Given a state-action pair, the return $G_t$ is an action-value. 
+[*] Conditioning on both a state and an action yields the action-value expectation.
 
-- $G_t$ is a function of the state $s$ (given by the condition "$S_t{=}s$") and the action $A_t$ (given by the policy $\pi$ under the expectation $\mathbb{E}_{\pi,p}$).
-
-- The following recursive relationship satisfied by $v_{\pi}(s)$ is called the _Bellman equation for state-values_. The value function $v_{\pi}(s)$ is the _unique solution_ to its Bellman equation.
+- Here $G_t$ depends on the fixed state $s$ and the stochastic action $A_t \sim \pi(\cdot \mid s)$ inside $\mathbb{E}_{\pi, p}$.
+- Expanding step by step using the Markov property confirms that $v_\pi$ is the **unique solution** to the state-value Bellman equation:
 
 $$
 \begin{aligned}
@@ -198,16 +183,18 @@ v_{\pi}(s) & \doteq \mathbb{E}_{\pi,p} [G_t\ |\ S_t{=}s]\\
 \end{aligned}
 $$
 
-- Final form: 
+- Summary identity:
 
-$$\boxed{\begin{array}{rcl}
+$$
+\boxed{\begin{array}{rcl}
 v_{\pi}(s) &=& \displaystyle\sum_{a} \pi(a \vert s)\, q_{\pi}(s,a)\\[1em]
 &=& \displaystyle\sum_{a} \pi(a \vert s) \sum_{s',r} p(s',r \vert s,a) \Big[r + \gamma v_{\pi}(s') \Big]
-\end{array}}$$
+\end{array}}
+$$
 
 ### Bellman equation for $q_{\pi}(s,a)$
 
-- An action-value is an expectation over the possible next state-values under the environment’s dynamics.
+- Because action $a$ is already chosen, $q_\pi(s, a)$ averages solely over the environment's stochastic transition $(S_{t+1}, R_{t+1})$:
 
 $$
 \begin{aligned}
@@ -218,11 +205,9 @@ q_{\pi}(s,a) & \doteq \mathbb{E}_{p,\pi} [G_t\ |\ S_t{=}s, A_t{=}a]\\
 \end{aligned}
 $$
 
-[*] Given only a state $s$, the return $G_t$ is a state-value. 
+[*] Conditioning solely on the next state $s'$ yields the state-value expectation.
 
-- $G_t$ is a function of the state $S_{t+1}$ (given by the environment’s dynamics $p$ under the expectation $\mathbb{E}_{p,\pi}$).
-
-- The following recursive relationship satisfied by $q_{\pi}(s,a)$ is called the _Bellman equation for action-values_. The value function $q_{\pi}(s,a)$ is the _unique solution_ to its Bellman equation.
+- Substituting $v_\pi(s') = \sum_{a'} \pi(a' \mid s') q_\pi(s', a')$ yields the **Bellman equation for action values**, to which $q_\pi$ is the **unique solution**:
 
 $$
 \begin{aligned}
@@ -236,34 +221,36 @@ q_{\pi}(s,a) & \doteq \mathbb{E}_{p,\pi} [G_t\ |\ S_t{=}s, A_t{=}a]\\
 \end{aligned}
 $$
 
-- Final form:
+- Summary identity:
 
-$$\boxed{\begin{array}{rcl}
+$$
+\boxed{\begin{array}{rcl}
 q_{\pi}(s,a) &=& \displaystyle\sum_{s',r} p(s',r \vert s,a) \Big[r + \gamma v_{\pi}(s')\Big]\\[1em]
 &=& \displaystyle\sum_{s',r} p(s',r \vert s,a) \Big[r + \gamma \sum_{a'} \pi(a' \vert s')\, q_{\pi}(s',a') \Big]
-\end{array}}$$
+\end{array}}
+$$
 
 ## Optimal Policies & Optimal Value Functions {#sec-ch03-3-6}
 
-- For finite MDPS, we can define an optimal policy for finite MDPs as a policy that achieves the maximum expected return.Value functions define a partial ordering over policies. A policy $\pi$ is better than or equal to $\pi'$ iff $v_\pi(s) \geq v_{\pi'}(s)$ for all $s \in S$. 
+- **Policy partial ordering**: value functions induce a natural ranking over policies, where $\pi$ dominates $\pi'$ whenever $\pi$ attains at least as high an expected return in every state:
 
 $$\pi \geq \pi' \iff v_\pi(s) \geq v_{\pi'}(s) \quad \forall s \in S$$
 
-- There always exists at least one **optimal policy** $\pi_{*}$, which is better than or equal to all other policies. All optimal policies share the same **optimal state-value function** $v_{*}$, defined as:
+- **Optimal policy** ($\pi_*$): every finite MDP admits at least one policy that beats or ties all others simultaneously across all states. Multiple optimal policies can exist, yet they all share the same **optimal state-value function** $v_*$:
 
 $$v_*(s) \doteq \max_\pi v_\pi(s) \quad \forall s \in S$$
 
-- All optimal policies also share the same **optimal action-value function** $q_{*}$, defined as:
+- **Optimal action-value function** ($q_*$): similarly unique across all optimal policies, assigning every pair $(s, a)$ the best achievable return when starting with $a$ in $s$:
 
 $$q_*(s,a) \doteq \max_\pi q_\pi(s,a) \quad \forall s \in S,\, a \in A(s)$$
 
-- For a state-action pair $(s, a)$, $q_{*}$ gives the expected return for taking action $a$ in state $s$ and thereafter following an optimal policy. We can therefore write $q_{*}$ in terms of $v_{*}$ as:
+- Because an optimal policy governs behavior from the next step onward, $q_*$ connects directly to $v_*$:
 
 $$q_*(s,a) = \mathbb{E}\left[R_{t+1} + \gamma v_*(S_{t+1}) \mid S_t = s,\, A_t = a\right]$$
 
 ### Bellman Optimality Equations {#ch03-bellman-optimality-equations}
 
-- Self-consistency condition given by Bellman equation for state values must be satisfied by $v_{*}$ and $q_{*}$.
+- **Bellman optimality**: under an optimal policy, the value of any state must equal the expected return of its highest-scoring action, eliminating explicit reference to $\pi$ and introducing a nonlinear $\max$ operator.
 
 #### Optimal state-value function, $v_{*}(s)$
 
@@ -277,9 +264,11 @@ v_{*}(s) &= \max_{a \in A(s)} q_{\pi_{*}}(s,a) \\
 \end{aligned}
 $$
 
-$$\boxed{\begin{array}{rcl}
+$$
+\boxed{\begin{array}{rcl}
 v_{*}(s) &=& \displaystyle \max_a \sum_{s', r} p(s', r \vert s, a)\left[r + \gamma v_{*}(s')\right]
-\end{array}}$$
+\end{array}}
+$$
 
 #### Optimal action-value function, $q_{*}(s,a)$
 
@@ -292,11 +281,7 @@ q_{*}(s,a) &= \mathbb{E}\left[R_{t+1} + \gamma \max_{a'} q_{*}(S_{t+1}, a') \mid
 }
 $$
 
-::: {#fig-33}
-![](../figures/ch03-3-6-v-q-optimal.png){width=80% fig-align="center" fig-alt="Backup diagrams for v_ and q_. the max node appears at the state level for v_ and at the successor state level for q_."} 
-
-**Backup diagrams for $v_*$ and $q_*$.** the max node appears at the state level for $v_*$ and at the successor state level for $q_*$.
-:::
+- **Optimality backup structure**: unlike policy-evaluation backups that average across actions according to $\pi$, optimality backups apply a $\max$ arc at the action-selection branch (at the root state $s$ for $v_*$, and at each successor state $s'$ for $q_*$; see Sutton & Barto, 2018, Fig. 3.5).
 
 ```{=latex}
 \clearpage
@@ -304,34 +289,30 @@ $$
 
 ### Takeaways {#ch03-takeaways}
 
-- For finite MDPs, the Bellman optimality equation has a **unique solution,** a system of $n$ equations in $n$ unknowns (one per state) solvable if the dynamics $p$ are known.
-- Any policy that is **greedy with respect to** $v_{*}$ is an optimal policy: since $v_{*}$ already accounts for all future rewards, a one-step-ahead search is sufficient to identify optimal actions.
-- $q_{*}$ makes optimal action selection even easier; the agent simply picks $\arg\max_a\, q_{*}(s, a)$ without needing to know the environment's dynamics or successor state values.
-- Explicitly solving the Bellman optimality equation is rarely practical. It requires 3  assumptions that rarely all hold simultaneously:
-  1. Known environment dynamics,
-  2. Sufficient computational resources, and 
-  3. The Markov property
-- In practice, RL methods settle for **approximate solutions** to the Bellman optimality equation, using actual experienced transitions in place of full knowledge of expected transitions.
+- **Unique fixed point**: in a finite MDP, the Bellman optimality equation forms a nonlinear system of $|\mathcal{S}|$ equations in $|\mathcal{S}|$ unknowns with a unique solution $v_*$ whenever the dynamics $p$ are fully known.
+- **One-step lookahead optimality**: because $v_*$ already folds all optimal future payoffs into every successor state, any policy acting **greedily with respect to** $v_*$ over a single lookahead step is automatically globally optimal.
+- **Model-free greediness via $q_*$**: knowing $q_*$ removes even the one-step lookahead, since selecting $\arg\max_a q_*(s, a)$ requires neither transition probabilities $p$ nor successor state values.
+- **Why exact solutions rarely apply**: directly solving the Bellman optimality system demands three idealized conditions that seldom hold together:
+  1. Complete, accurate knowledge of environment dynamics $p$.
+  2. Enough computation and memory to sweep every state and action.
+  3. Exact validity of the Markov property.
+- **Sample-based approximation**: practical RL algorithms replace exact dynamics and exhaustive computation with **approximate updates** driven by sampled transitions.
 
 ## Optimality & Approximation {#sec-ch03-3-7}
 
-- We have defined optimal value functions and optimal policies clearly. 
-  - A $Q$-table is not practical/possible in large state spaces.
-  - Hence, the need for function approximation because calculation of optimality (Q-table) is too expensive.
-- Computing optimal policies is rarely feasible in practice due to extreme computational cost, even with a complete and accurate model of the environment's dynamics.
-- The agent is always constrained by available **computational power** (per time step) and **memory**, both of which limit how well value functions, policies, and models can be approximated.
-- When the state space is small and finite, exact **tabular methods** suffice; for larger state spaces, **function approximation** with compact parameterized representations is necessary.
-- RL's **online nature** allows approximations to focus more effort on frequently encountered states, at the expense of rarely visited ones. This makes useful approximate solutions achievable even when optimal ones are not.
-- This ability to prioritize learning for high-frequency states is a key property that distinguishes RL from other approaches to approximately solving MDPs.
+- **Curse of scale**: storing a lookup table ($Q$-table) over all states and actions rapidly becomes infeasible in realistic domains (such as board games or continuous robotics), even if perfect dynamics are known.
+- **Resource bounds**: every deployed agent operates under hard limits on per-step **computation** and **memory**, which govern how faithfully it can represent value functions, policies, and environment models.
+- **Tabular vs. parameterized representations**: small discrete spaces permit exact **tabular methods**, whereas huge or continuous spaces require compact **function approximation** that generalizes across states.
+- **Online state prioritization**: because RL learns during live interaction, it naturally concentrates representation capacity and update effort on frequently encountered states while tolerating higher error on states rarely visited, setting RL apart from classical offline MDP solvers.
 
 ## Summary {#sec-ch03-3-8}
 
-- RL is about learning from interaction to maximize cumulative reward over time, with the agent-environment interface defined by **actions, states, and rewards**.
-- A **finite MDP** formalizes this with well-defined transition probabilities over finite state, action, and reward sets.
-- The **return** is the (expected) function of future rewards the agent seeks to maximize (undiscounted for episodic tasks, discounted for tabular continuing tasks).
-- **Value functions** assign expected returns to states or state-action pairs; **optimal value functions** give the maximum achievable return, and any policy greedy w.r.t. them is optimal.
-- Problems vary by knowledge level: **complete knowledge** gives the agent full dynamics $p$; **incomplete knowledge** does not.
-- In practice, optimal solutions are rarely computable, therefore memory and computation constraints force agents to **approximate** value functions, policies, and models.
+- **Agent-environment loop**: reinforcement learning formalizes goal-directed learning from interaction through discrete exchanges of **states**, **actions**, and scalar **rewards**.
+- **Finite MDPs**: encode sequential decision tasks using finite state, action, and reward spaces governed by Markovian transition dynamics $p(s', r \mid s, a)$.
+- **Returns**: summarize cumulative future rewards (undiscounted in finite episodic tasks, discounted by $\gamma$ in continuing tasks, and unified via absorbing zero-reward terminal states).
+- **Value functions & optimality**: $v_\pi$ and $q_\pi$ measure expected returns under $\pi$, while $v_*$ and $q_*$ satisfy the Bellman optimality equations and make greedy action selection globally optimal.
+- **Knowledge regimes**: planning algorithms assume **complete dynamics** $p$, whereas learning algorithms operate under **incomplete knowledge** using sampled experience.
+- **Practical approximation**: memory and runtime budgets push realistic agents from exact tabular solutions toward online function approximation focused on high-traffic states.
 
 ```{=latex}
 \newpage
@@ -339,16 +320,16 @@ $$
 
 ## Glossary {#sec-ch03-3-9}
 
-- **Reinforcement Learning**: learning from interaction how to behave in order to achieve a goal
-- **Agent**: known & controllable; the RL agent & its environment interact over a sequence of discrete time steps
-- **Environment**: incompletely controllable & may/may not be completely known
-- **Actions**: choices made by the agent
-- **States**: the basis/foundation for making the choices/actions
-- **Rewards**: the basis for evaluating the choices/actions
-- **Policy**: a stochastic rule by which the agent selects actions as a function of states (_agent's brain_) $$\boxed{\pi(a|s) = \mathbb{P}[A_t = a | S_t = s]}$$
-- **MDP**: the variables formulated above within a RL setup with well-defined transition probabilities
-- A **finite MDP**: an MDP with finite state, action & reward sets.
-- **MRP**: Markov Reward Process
+- **Reinforcement Learning**: learning goal-directed behavior through trial-and-error interaction with an environment.
+- **Agent**: the controllable learner and decision maker operating at discrete steps $t = 0, 1, 2, \dots$
+- **Environment**: everything external to the agent's control, whose mechanics may be stochastic or unknown.
+- **Actions**: choices emitted by the agent at each step.
+- **States**: representations summarizing the current situation to inform decisions.
+- **Rewards**: scalar feedback signals defining what the agent should maximize cumulatively.
+- **Policy**: a conditional distribution mapping states to action probabilities (the agent's behavior rule) $$\boxed{\pi(a|s) = \mathbb{P}[A_t = a | S_t = s]}$$
+- **MDP**: a sequential decision formulation coupling states, actions, rewards, and Markovian transition probabilities.
+- **Finite MDP**: an MDP whose state, action, and reward sets are all finite.
+- **MRP**: Markov Reward Process (a Markov chain augmented with rewards and discounting, without action choices).
 
 |**Markov Property** | **Markov Chain/Process** | **MRP** | **MDP** |
 |---|---|---|---|
@@ -357,25 +338,25 @@ $$
 
 - **MDP components:**
 
-$$\text{MDP} \left\{ \begin{array}{lll}
+$$
+\text{MDP} \left\{ \begin{array}{lll}
 S & \to & \text{finite set of states} \\
 A & \to & \text{finite set of actions} \\
 P & \to & \text{state transition probability matrix,} \quad P^a_{ss'} = \mathbb{P}[S_{t+1} = s' \vert S_t = s,\, A_t = a] \\
 R & \to & \text{reward function,} \qquad\qquad\qquad\qquad\quad R^a_s = \mathbb{E}[R_{t+1} \vert S_t = s,\, A_t = a] \\
 \gamma & \to & \text{discount factor,} \qquad\qquad\qquad\qquad\qquad \gamma \in [0,1]
-\end{array} \right\}$$
+\end{array} \right\}
+$$
 
-- **Return**: function of future rewards that the agent seeks to maximize (in expected value)
+- **Return**: aggregate function of future rewards targeted for maximization in expectation.
 - **Tasks**:
-  - **Episodic**: have a clear starting & ending point (a terminal state) [e.g. ping pong]
-  - **Continuing**: tasks/RL instances that continue forever w/o a terminal state [e.g. automated stock trading]
-- **Discount factor,  $\gamma$**: determines the present value of future rewards
-- **Value functions** ($v_\pi, q_\pi$): a policy's value functions assign to each state/state-action pair, the expected return from that state/state-action pair, given that the agent uses the policy.
-- **Optimal value functions** ($v_*, q_*$): assign to each state/state-action pair the largest expected return achievable by any policy.
-
-- **Optimal policy** ($\pi_*$): a policy whose value functions are optimal $\left[v_*(s) = \max_\pi v_\pi(s)\right]$
-  - $\pi_* > \pi,\ \forall \pi$ ($\pi \geq \pi'$ iff $v_\pi(s) \geq v_{\pi'}(s)\ \forall s \in S$)
-  - $v_*$ & $q_*$ are unique for a given MDP, but there can be many optimal policies ($\pi_*$)
-  - Any policy that is **greedy** w.r.t. the optimal value functions $(q_*, v_*)$ must be an optimal policy $(\pi_*)$
-
-- **Bellman Optimality Equations**: special consistency conditions that $q_*, v_*$ must satisfy & that can, in principle, be solved for $q_*, v_*$, from which an optimal policy $(\pi_*)$ can be determined with relative ease.
+  - **Episodic**: decompose into independent runs ending at a terminal state (e.g., a game of ping pong).
+  - **Continuing**: proceed indefinitely without termination (e.g., continuous portfolio control).
+- **Discount factor ($\gamma$)**: weights future rewards relative to immediate ones.
+- **Value functions** ($v_\pi, q_\pi$): score individual states or state-action choices by their long-run expected payoff under $\pi$.
+- **Optimal value functions** ($v_*, q_*$): record the maximum expected payoff achievable from each state or choice across all candidate policies.
+- **Optimal policy** ($\pi_*$): any policy attaining $v_*$ in every state $\left[v_*(s) = \max_\pi v_\pi(s)\right]$.
+  - Dominates or ties every policy ($\pi \geq \pi'$ iff $v_\pi(s) \geq v_{\pi'}(s)\ \forall s \in S$).
+  - While $v_*$ and $q_*$ are unique for a given MDP, multiple distinct optimal policies $\pi_*$ can coexist.
+  - Any policy acting **greedily** with respect to $v_*$ or $q_*$ is guaranteed to be optimal.
+- **Bellman Optimality Equations**: nonlinear self-consistency conditions satisfied by $v_*$ and $q_*$ whose solution immediately yields an optimal policy $\pi_*$.
