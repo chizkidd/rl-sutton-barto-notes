@@ -334,3 +334,16 @@ body.left-sidebar-hidden.right-sidebar-hidden main.content {
     }
   }
 }
+
+[data-bs-theme=dark] .coverage-table {
+  th {
+    background-color: #1c2531;
+    color: #c9d4e0;
+    border-bottom-color: #3a4a5a;
+  }
+
+  td {
+    border-bottom-color: #2c3846;
+  }
+}
+

@@ -1,15 +1,11 @@
----
-number-sections: false
----
-
 # Preface {.unnumbered}
 
-These are personal study notes from *Reinforcement Learning: An Introduction* by Richard S. Sutton and Andrew G. Barto (2nd Edition, MIT Press, 2018).
+These are independent personal study notes accompanying *Reinforcement Learning: An Introduction* by Richard S. Sutton and Andrew G. Barto (2nd Edition, MIT Press, 2018; [book homepage](http://incompleteideas.net/book/the-book-2nd.html)). The textbook is distributed by its authors under the [Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Generic (CC BY-NC-ND 2.0)](https://creativecommons.org/licenses/by-nc-nd/2.0/) license.
 
-The notes cover the core ideas, equations, and algorithms from each chapter, transcribed and formatted for review. Mathematical notation follows the textbook closely. Backup diagrams are shown as figures.
+These notes are an independent companion for study and review, not a substitute for the textbook. Mathematical notation follows standard reinforcement learning conventions from the book, and backup diagrams are included as figures.
 
 
-## Coverage
+## Coverage {.unnumbered}
 
 ::: {.coverage-table}
 
@@ -31,12 +27,13 @@ The notes cover the core ideas, equations, and algorithms from each chapter, tra
 
 :::
 
-## Downloads
+## Downloads {.unnumbered}
 
-- [PDF edition](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf): the whole book, 13 chapters, built from the same sources on every push.
-- [Anki deck](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes-anki.tsv): cloze cards, one per bolded term, tagged by chapter and section. Import it with Anki's *File → Import* (tab-separated, note type *Cloze*).
+- [PDF edition](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.pdf): all 13 chapters, built from the same sources on every push.
+- [EPUB edition](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes.epub): EPUB 3.3 with MathML equations (best in Apple Books, Kobo, Thorium, or Calibre).
+- [Anki deck](https://chizkidd.github.io/rl-sutton-barto-notes/rl-notes-anki.tsv): cloze cards with native MathJax, tagged by chapter and section. Import via Anki's *File → Import* (tab-separated, `#notetype:Cloze` is preset).
 
-## How to Read These Notes
+## How to Read These Notes {.unnumbered}
 
 These notes are meant to accompany the textbook, not replace it. They are most useful for:
 
@@ -44,7 +41,7 @@ These notes are meant to accompany the textbook, not replace it. They are most u
 - Checking notation and definitions across chapters.
 - Following the logical progression of ideas from bandits through full RL.
 
-## Key Notation
+## Key Notation {.unnumbered}
 
 ::: {.coverage-table}
 
@@ -155,7 +152,7 @@ These notes are meant to accompany the textbook, not replace it. They are most u
 
 :::
 
-## Reference
+## Reference {.unnumbered}
 
 Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.  
 Available at: [http://incompleteideas.net/book/the-book-2nd.html](http://incompleteideas.net/book/the-book-2nd.html)

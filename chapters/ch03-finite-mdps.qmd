@@ -65,13 +65,12 @@ $$r(s,a,s') \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a,\, S_t = 
 - The agent's goal is to maximize the cumulative reward it receives in the long run not the immediate reward.
 - This idea was formalized by the **reward hypothesis**.
 
-::: {.callout-note title="Reward Hypothesis"}
-All of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal (called reward).
+::: {.callout-note title="Reward Hypothesis (Sutton & Barto, 2018, §3.2)"}
+> "That all of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal (called reward)."
 :::
 
-- The agent always learns to maximize its reward. If we want it to do something for us, we must provide rewards
-to it in such a way that in maximizing them the agent will also achieve our goals. 
-- The reward signal is our way of communicating to the agent what we want it to achieve, not how we want it achieved.
+- Because the agent optimizes whatever scalar signal it receives, reward design must align maximizing cumulative reward with achieving the actual objective.
+- Rewards specify *what* outcome we want, not *which* intermediate steps or heuristics the agent should use to get there.
 
 ## Returns & Episodes {#sec-ch03-3-3}
 
@@ -354,7 +353,7 @@ $$
 |**Markov Property** | **Markov Chain/Process** | **MRP** | **MDP** |
 |---|---|---|---|
 | $\mathbb{P}[S_{t+1} \mid S_t] =$ <br/> $\mathbb{P}[S_{t+1} \mid S_1, \ldots, S_t]$ | $\langle S, P \rangle$ | $\langle S, P, R, \gamma \rangle$ | $\langle S, A, P, R, \gamma \rangle$ |
-| State-transition <br/>probability matrix:<br/>$P_{ss'} = \mathbb{P}[S_{t+1} = s' \mid S_t = s]$ | Sequences of random <br/>states $(S_1, S_2, \ldots)$ + <br/>Markov property | Markov Chain with Values | MRP + decisions |
+| State-transition <br/> probability matrix: <br/> $P_{ss'} = \mathbb{P}[S_{t+1} = s' \mid S_t = s]$ | Sequences of random <br/> states $(S_1, S_2, \ldots)$ + <br/> Markov property | Markov Chain with Values | MRP + decisions |
 
 - **MDP components:**
 

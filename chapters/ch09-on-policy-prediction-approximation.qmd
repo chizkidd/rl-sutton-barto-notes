@@ -317,9 +317,9 @@ $$
 - Mapping circles to the features of a state space for 2-dimension.
 
 ::: {#fig-91}
-![](../figures/ch09-9-5-3-coarse-coding.png){fig-align="center" fig-alt="Coarse coding. Generalization from state s to state s' depends on the number of their features whose receptive fields (in this case, circles) overlap. These states have one feature in common, so there will be slight generalization between them."} 
+![](../figures/ch09-9-5-3-coarse-coding.png){fig-align="center" fig-alt="Coarse coding. Overlapping circular receptive fields cover the 2D state space; two states generalize in proportion to how many circles contain both."}
 
-**Coarse coding.** Generalization from state $s$ to state $s'$ depends on the number of their features whose receptive fields (in this case, circles) overlap. These states have one feature in common, so there will be slight generalization between them.
+**Coarse coding.** Overlapping circular receptive fields partition the continuous state space; updating $s$ affects $s'$ in proportion to the number of regions that contain both states.
 :::
 
 - In the diagram above, if the state is inside a circle, then the corresponding feature has the value of 1 and is said to be **present**; otherwise the feature is 0 and is said to be **absent**.

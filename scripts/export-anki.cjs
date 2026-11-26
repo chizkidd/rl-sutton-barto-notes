@@ -1,77 +1,94 @@
 #!/usr/bin/env node
-// Turns the notes into an Anki deck.
+// Turns the notes into an Anki deck with native Anki MathJax (\(...\)).
 //
-// Every bullet that bolds a term is already the shape of a card: "**TD methods**
-// learn from incomplete episodes..." asks "which methods learn from incomplete
-// episodes?" and answers "TD methods". So the rule is simple and mechanical:
-// one card per bold term, the term cloze-deleted, the section path as context.
+// Every bullet that bolds a meaningful term becomes a cloze card, tagged by
+// chapter and section. Promptless heading bullets (e.g. "**Goal**:" with only
+// sub-bullets below) and generic structural labels ("not", "YES", "Pros") are
+// skipped so every card stands on its own during review.
 //
 // Usage: node scripts/export-anki.cjs [--out path.tsv] [file.qmd ...]
 //   default output: dist/anki/rl-notes.tsv
 //
-// The file is tab separated with the header lines Anki understands, so
+// The file is tab separated with header lines Anki understands, so
 // File -> Import accepts it directly. #notetype:Cloze presets the built-in
-// Cloze note type, which is what turns the {{c1::…}} markers into clozes;
-// left to itself the import screen picks Basic and they stay literal text.
+// Cloze note type, which turns {{c1::...}} markers into real clozes.
 
 const fs = require('fs');
 const path = require('path');
 
 const OUT_DEFAULT = path.join('dist', 'anki', 'rl-notes.tsv');
 
-// LaTeX the notes use, rendered as the plain text a card should show. Ordered
-// longest-first so \mathbf{w} is replaced before \mathbf.
-const TEX = [
-  [/\\mathbf\{([^{}]*)\}/g, '$1'],
-  [/\\boldsymbol\{([^{}]*)\}/g, '$1'],
-  [/\\mathbb\{([^{}]*)\}/g, '$1'],
-  [/\\operatorname\{([^{}]*)\}/g, '$1'],
-  [/\\text\{([^{}]*)\}/g, '$1'],
-  [/\\mathrm\{([^{}]*)\}/g, '$1'],
-  [/\\hat\{([^{}]*)\}/g, '$1̂'],
-  [/\\bar\{([^{}]*)\}/g, '$1̄'],
-  [/\\tilde\{([^{}]*)\}/g, '$1̃'],
-  [/\\doteq/g, '≐'],
-  [/\\approx/g, '≈'],
-  [/\\neq/g, '≠'],
-  [/\\leq/g, '≤'],
-  [/\\geq/g, '≥'],
-  [/\\times/g, '×'],
-  [/\\cdot/g, '·'],
-  [/\\sum/g, 'Σ'],
-  [/\\prod/g, 'Π'],
-  [/\\nabla/g, '∇'],
-  [/\\infty/g, '∞'],
-  [/\\in\b/g, '∈'],
-  [/\\pi\b/g, 'π'],
-  [/\\theta\b/g, 'θ'],
-  [/\\gamma\b/g, 'γ'],
-  [/\\alpha\b/g, 'α'],
-  [/\\beta\b/g, 'β'],
-  [/\\lambda\b/g, 'λ'],
-  [/\\mu\b/g, 'μ'],
-  [/\\rho\b/g, 'ρ'],
-  [/\\sigma\b/g, 'σ'],
-  [/\\delta\b/g, 'δ'],
-  [/\\epsilon\b/g, 'ε'],
-  [/\\tau\b/g, 'τ'],
-  [/\\eta\b/g, 'η'],
-  [/\\max/g, 'max'],
-  [/\\min/g, 'min'],
-  [/\\log/g, 'log'],
-  [/\\left|\\right/g, ''],
-  [/\\[,;:!]/g, ' '],
-  [/\\quad|\\qquad/g, ' '],
-  [/\\[a-zA-Z]+\*?/g, ''], // any command we did not map
-];
+// Generic structural labels or emphasis words that make poor standalone clozes.
+const SKIP_TERMS = new Set([
+  'goal',
+  'issue',
+  'fix',
+  'pros',
+  'cons',
+  'advantages',
+  'disadvantages',
+  'note',
+  'example',
+  'examples',
+  'summary',
+  'result',
+  'results',
+  'not',
+  'yes',
+  'no',
+]);
 
-function plain(text) {
-  let out = text;
-  out = out.replace(/\$([^$]+)\$/g, '$1');
-  for (const [re, rep] of TEX) out = out.replace(re, rep);
-  return out
-    .replace(/[{}]/g, '')
-    .replace(/\s+/g, ' ')
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// Convert markdown + inline $...$ LaTeX to Anki-safe HTML with native MathJax.
+// Math spans are extracted before HTML/markdown formatting so TeX syntax is
+// preserved intact (while still escaping < and > inside MathJax for #html:true).
+function toAnkiHtml(text) {
+  const mathSlots = [];
+  let s = text;
+
+  // Strip raw HTML comments if any
+  s = s.replace(/<!--[\s\S]*?-->/g, '');
+  // Convert markdown links [label](url) -> label
+  s = s.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
+  // Normalize inline display math $$...$$ into inline math $...$
+  s = s.replace(/\$\$([^$]+)\$\$/g, '$$$1$$');
+
+  // Protect inline math $...$ and convert to Anki MathJax \(...\)
+  s = s.replace(/\$([^$\n]+)\$/g, (_, expr) => {
+    const idx = mathSlots.length;
+    mathSlots.push(`\\(${escapeHtml(expr.trim())}\\)`);
+    return `\u0000M${idx}\u0000`;
+  });
+
+  // Escape HTML entities in prose so inequalities (<, >) aren't eaten as tags
+  s = escapeHtml(s);
+
+  // Convert inline code `...` -> <code>...</code>
+  s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Strip remaining bold markers and convert *italic* / _italic_ to <em>
+  s = s.replace(/\*\*\*/g, '');
+  s = s.replace(/\*\*/g, '');
+  s = s.replace(/(^|[\s([{"'])\*([^*\n]+?)\*(?=[\s)\]}.,;:!?"']|$)/g, '$1<em>$2</em>');
+  s = s.replace(/(^|[\s([{"'])_([^_\n]+?)_(?=[\s)\]}.,;:!?"']|$)/g, '$1<em>$2</em>');
+
+  // Restore MathJax spans
+  s = s.replace(/\u0000M(\d+)\u0000/g, (_, idx) => mathSlots[Number(idx)]);
+
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+// Strip Quarto heading attributes like {#sec-ch07-7-1} or {.unnumbered}
+// without chopping LaTeX commands like $\text{TD}(n)$ or $\overline{\text{VE}}$.
+function cleanHeading(raw) {
+  return raw
+    .replace(/^#+\s+/, '')
+    .replace(/\s*\{[#.][^}]*\}\s*$/, '')
     .trim();
 }
 
@@ -85,31 +102,75 @@ function walk(dir, out) {
 
 function slug(text) {
   return text
+    .replace(/\$[^$]*\$/g, ' ')
+    .replace(/\\[a-zA-Z]+/g, ' ')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_|_$/g, '')
     .slice(0, 40);
 }
 
-// One entry per top-level bullet carrying at least one bold term.
+// Wrap a cloze answer safely: if the answer ends with '}', add a trailing space
+// so Anki doesn't confuse LaTeX '}' with the cloze delimiter '}}', and escape '::'.
+function formatCloze(answerHtml) {
+  let safe = answerHtml.replace(/::/g, ': :');
+  while (safe.includes('}}')) safe = safe.replace(/\}\}/g, '} }');
+  if (safe.endsWith('}')) safe += ' ';
+  return `{{c1::${safe}}}`;
+}
+
+// One entry per top-level bullet carrying a meaningful bold term and prompt context.
 function cardsFrom(file, heading, bullets) {
   const cards = [];
   for (const { text, children } of bullets) {
-    const bolds = [...text.matchAll(/\*\*(.+?)\*\*/g)].map((m) => m[1]);
-    if (!bolds.length) continue;
-    const term = bolds[0].replace(/[\s:;,.]+$/, '');
-    // Cloze the first bold term only; later ones would need c2, c3 and export
-    // one card per cloze, which makes a single bullet spill into several cards.
-    const body = plain(text.replace(/\*\*/g, '')).replace(plain(term), `{{c1::${plain(term)}}}`, 1);
-    const extra = [
-      heading.section ? `Section: ${heading.section}` : null,
-      plain(text.replace(/\*\*/g, '')),
-      ...children.map((c) => `• ${plain(c.replace(/\*\*/g, ''))}`),
-    ]
-      .filter(Boolean)
-      .join('\n');
-    const tags = ['rl', file.replace(/^.*ch(\d+).*$/, 'ch$1'), ...heading.path.map(slug)].join(' ');
-    cards.push({ text: body, extra, tags });
+    // Match ***bold-italic*** or **bold**
+    const match = text.match(/\*\*\*([\s\S]+?)\*\*\*|\*\*([\s\S]+?)\*\*/);
+    if (!match) continue;
+
+    const rawMatch = match[0];
+    const rawInner = (match[1] ?? match[2]).trim();
+    const cleanedTerm = rawInner.replace(/[\s:;,.]+$/, '').trim();
+    if (!cleanedTerm) continue;
+
+    // Skip generic structural labels (e.g. "Goal", "Pros", "not", "YES")
+    const plainCheck = cleanedTerm
+      .replace(/\$[^$]*\$/g, '')
+      .replace(/[*_`]/g, '')
+      .trim()
+      .toLowerCase();
+    if (SKIP_TERMS.has(plainCheck)) continue;
+
+    // Skip promptless header-only bullets (<= 2 non-cloze words outside the bold term)
+    const outsideWords = text
+      .replace(rawMatch, ' ')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/[^A-Za-z0-9\s]/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    if (outsideWords.length <= 2) continue;
+
+    // Replace the exact first bold span with a placeholder before converting to HTML,
+    // so we never accidentally cloze an earlier identical substring.
+    const trail = rawInner.slice(cleanedTerm.length);
+    const placeholder = '\u0001CLOZE_TARGET\u0001';
+    const markedText = text.replace(rawMatch, `${placeholder}${trail}`);
+    const bodyHtml = toAnkiHtml(markedText);
+    const termHtml = toAnkiHtml(cleanedTerm);
+    const front = bodyHtml.replace(placeholder, formatCloze(termHtml));
+
+    const extraParts = [
+      heading.section ? `Section: ${toAnkiHtml(heading.section)}` : null,
+      ...children.map((c) => `• ${toAnkiHtml(c)}`),
+    ].filter(Boolean);
+
+    const tags = [
+      'rl',
+      file.replace(/^.*ch(\d+).*$/, 'ch$1'),
+      ...heading.path.map(slug).filter(Boolean),
+    ].join(' ');
+
+    cards.push({ text: front, extra: extraParts.join('\n'), tags });
   }
   return cards;
 }
@@ -130,24 +191,27 @@ function parse(file) {
     }
     if (fenced) continue;
     if (/^#\s+/.test(line)) {
-      h1 = line.replace(/^#\s+/, '').replace(/\{.*$/, '').trim();
+      h1 = cleanHeading(line);
       h2 = h3 = '';
       continue;
     }
     if (/^##\s+/.test(line)) {
-      h2 = line.replace(/^##\s+/, '').replace(/\{.*$/, '').trim();
+      h2 = cleanHeading(line);
       h3 = '';
       continue;
     }
     if (/^###\s+/.test(line)) {
-      h3 = line.replace(/^###\s+/, '').replace(/\{.*$/, '').trim();
+      h3 = cleanHeading(line);
       continue;
     }
     if (/^- /.test(line)) {
       bullets.push({
         text: line.replace(/^-\s+/, ''),
         children: [],
-        heading: { section: [h1, h2, h3].filter(Boolean).join(' › '), path: [h2, h3].filter(Boolean) },
+        heading: {
+          section: [h1, h2, h3].filter(Boolean).join(' › '),
+          path: [h2, h3].filter(Boolean),
+        },
       });
       continue;
     }
@@ -180,7 +244,11 @@ function main() {
 
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const body = rows
-    .map((r) => [r.text, r.extra, r.tags].map((f) => f.replace(/\t/g, ' ').replace(/\n/g, '<br>')).join('\t'))
+    .map((r) =>
+      [r.text, r.extra, r.tags]
+        .map((f) => f.replace(/\t/g, ' ').replace(/\n/g, '<br>'))
+        .join('\t')
+    )
     .join('\n');
   fs.writeFileSync(
     out,
@@ -190,7 +258,7 @@ function main() {
   console.log(`export-anki: ${rows.length} cards from ${bullets} bullets in ${sources.length} files`);
   console.log(`  written to ${out}`);
   const ratio = ((rows.length / bullets) * 100).toFixed(0);
-  console.log(`  ${ratio}% of bullets carry a bold term and become a card`);
+  console.log(`  ${ratio}% of bullets become a cloze card`);
 }
 
 main();

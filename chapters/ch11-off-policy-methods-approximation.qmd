@@ -206,9 +206,9 @@ $$
   - TD methods present other solutions.
 
 ::: {#fig-114}
-![](../figures/ch11-11-4-linear-value-func-approx-geometry.png){fig-align="center" fig-alt="The Geometry of Linear Value-Function Approximation. Shown is the 3D space of all value functions over three states, while shown as a plane is the subspace of all value functions representable by a linear function approximator with parameter w =…"} 
+![](../figures/ch11-11-4-linear-value-func-approx-geometry.png){fig-align="center" fig-alt="The Geometry of Linear Value-Function Approximation. A 2D linear subspace inside a 3D value-function space, comparing projections for VE, BE, PBE, and TDE objectives."}
 
-**The Geometry of Linear Value-Function Approximation.** Shown is the 3D space of all value functions over three states, while shown as a plane is the subspace of all value functions representable by a linear function approximator with parameter $\mathbf{w} = (w_1, w_2)^T$. The true value function $v_\pi$ is in the larger space and can be projected down (into the subspace, using a projection operator $\Pi$) to its best approximation in the value error ($\text{VE}$) sense. The best approximators in the Bellman error ($\text{BE}$), projected Bellman error ($\text{PBE}$), and temporal difference error ($\text{TDE}$) senses are all potentially different and are shown in the lower right.
+**The Geometry of Linear Value-Function Approximation.** Value functions over three states form a 3D ambient space, while a 2-parameter linear approximator $\mathbf{w} = (w_1, w_2)^T$ spans a 2D plane within it. Projecting the true value vector $v_\pi$ onto this plane via $\Pi$ yields the minimum-$\text{VE}$ solution, whereas minimizing $\text{BE}$, $\text{PBE}$, or $\text{TDE}$ generally lands on distinct points in the plane.
 :::
 
 ### Projection Operation {#projection-operation}

@@ -298,7 +298,7 @@ Backup diagram for different kinds of n-step Q updates.
     - $\sigma = 0 \Rightarrow$ pure expectation with no sampling
   - The random variable $\sigma_t$ might be set as a function of the state, or state-action pair, at time $t$.
 
-- This algorithm is called $\mathbf{n}$**-step** $\mathbf{Q}(\boldsymbol{\sigma})$.
+- This algorithm is called **$n$-step $Q(\sigma)$**.
 
 - For the equations, first the tree-backup $n$-step return is expressed in terms of the horizon $h = t+n$ and the expected approximate value $\bar{V}$:
 
