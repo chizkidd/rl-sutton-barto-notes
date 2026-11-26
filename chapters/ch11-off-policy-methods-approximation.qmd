@@ -558,14 +558,10 @@ $$
 
 ## Summary {#sec-ch11-11-10}
 
-- Off-policy learning poses a challenge that requires creating stable and efficient learning algorithms.
-- Tabular Q-learning makes off-policy learning seem easy, as does its generalizations to Expected Sarsa and tree backup.
-- Extension further to function approximation (even linear) is challenging.
-- The challenge of off-policy learning is divided into two parts:
-  - Correcting the targets of learning for the behavior policy.
-  - Dealing with the instability of bootstrapping (mismatch between off-policy and on-policy distribution of updates).
-- The **deadly triad** arises when we try to combine these 3 elements: **function approximation, off-policy learning, and bootstrapping,** thereby causing instability and divergence.
-- SGD in the Bellman error $\overline{\text{BE}}$ is not learnable so it does not work.
-- Gradient-TD methods perform SGD in the projected Bellman error $\overline{\text{PBE}}$ and are learnable with $O(d)$ computational complexity.
-- Emphatic-TD methods re-weight updates, emphasizing some and de-emphasizing others, to get the off-policy distribution of the updates to match that of on-policy.
-- There are many ways of reducing high variance in off-policy learning that are centered on minimizing the step taken by SGD by using small step-size parameters to counter the multiplicative effect from the successive policy ratios.
+- While tabular off-policy algorithms (Q-learning, Expected Sarsa, tree backup) behave reliably, adding even linear function approximation introduces severe stability hazards.
+- Two separate obstacles arise: correcting update targets for the mismatch between behavior policy $b$ and target policy $\pi$, and stabilizing updates when the sampled state distribution no longer matches the on-policy distribution.
+- Combining **function approximation, off-policy learning, and bootstrapping** forms the **deadly triad**, where parameter weights can diverge even on tiny MDPs.
+- Minimizing Bellman error ($\overline{\text{BE}}$) directly via SGD fails because $\overline{\text{BE}}$ is not identifiable from observable trajectories alone.
+- **Gradient-TD** methods instead minimize the learnable projected Bellman error ($\overline{\text{PBE}}$) in $O(d)$ time per step, while **Emphatic-TD** re-weights updates to recover an on-policy-like state distribution.
+- High variance from products of importance-sampling ratios remains a practical bottleneck, mitigated via conservative step sizes, variance-aware optimizers, control variates, or tree-backup style updates.
+

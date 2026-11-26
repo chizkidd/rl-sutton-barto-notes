@@ -10,7 +10,7 @@ a symbol with a single hit is probably described only in passing.
 | $R_{t+1}$ | reward received after step $t$ | [§2.1](chapters/ch02-multi-armed-bandits.html#sec-ch02-2-1) | 49 |
 | $G_t$ | return: discounted sum of future rewards | [§3.3](chapters/ch03-finite-mdps.html#sec-ch03-3-3) | 32 |
 | $\gamma$ | discount rate | [§3.3](chapters/ch03-finite-mdps.html#sec-ch03-3-3) | 57 |
-| $\pi(a \mid s)$ | policy: probability of each action in a state | [§2.2](chapters/ch02-multi-armed-bandits.html#sec-ch02-2-2) | 59 |
+| $\pi(a \mid s)$ | policy: probability of each action in a state | [§2.2](chapters/ch02-multi-armed-bandits.html#sec-ch02-2-2) | 61 |
 | $v_\pi(s), q_\pi(s,a)$ | state-value and action-value under $\pi$ | [§3.5](chapters/ch03-finite-mdps.html#sec-ch03-3-5) | 32 |
 | $v_*(s), q_*(s,a)$ | optimal state-value and action-value | [§2.1](chapters/ch02-multi-armed-bandits.html#sec-ch02-2-1) | 13 |
 | $p(s',r \mid s,a)$ | dynamics: transition probability and reward | [§3.1](chapters/ch03-finite-mdps.html#sec-ch03-3-1) | 14 |
@@ -20,12 +20,12 @@ a symbol with a single hit is probably described only in passing.
 | $\delta_t$ | TD error | [§6.1](chapters/ch06-temporal-difference.html#sec-ch06-6-1) | 19 |
 | $\rho_{t:T-1}$ | importance-sampling ratio | [§5.5](chapters/ch05-monte-carlo.html#sec-ch05-5-5) | 15 |
 | $\mathbf{w}$ | weight vector of a function approximator | [§9.1](chapters/ch09-on-policy-prediction-approximation.html#sec-ch09-9-1) | 33 |
-| $\hat{v}(s,\mathbf{w})$ | approximated value with weights $\mathbf{w}$ | [§9.1](chapters/ch09-on-policy-prediction-approximation.html#sec-ch09-9-1) | 28 |
+| $\hat{v}(s,\mathbf{w})$ | approximated value with weights $\mathbf{w}$ | [§9.1](chapters/ch09-on-policy-prediction-approximation.html#sec-ch09-9-1) | 29 |
 | $\mathbf{x}(s)$ | feature vector for state $s$ | [§9.4](chapters/ch09-on-policy-prediction-approximation.html#sec-ch09-9-4) | 15 |
 | $\mathbf{z}_t$ | eligibility trace | [§12.2](chapters/ch12-eligibility-traces.html#sec-ch12-12-2) | 9 |
 | $\lambda$ | trace decay rate | [§1.7](chapters/ch01-introduction.html#sec-ch01-1-7) | 17 |
-| $n$ | number of steps in $n$-step methods | [§2.4](chapters/ch02-multi-armed-bandits.html#sec-ch02-2-4) | 28 |
-| $\theta$ | policy parameters | [§13.1](chapters/ch13-policy-gradient-methods.html#sec-ch13-13-1) | 9 |
+| $n$ | number of steps in $n$-step methods | [§2.4](chapters/ch02-multi-armed-bandits.html#sec-ch02-2-4) | 30 |
+| $\theta$ | policy parameters | [§13.1](chapters/ch13-policy-gradient-methods.html#sec-ch13-13-1) | 10 |
 | $\nabla$ | gradient with respect to the parameters | [§9.3](chapters/ch09-on-policy-prediction-approximation.html#sec-ch09-9-3) | 26 |
 | $\mu$ | on-policy state distribution $\mu(s)$, or continuous action mean | [§5.4](chapters/ch05-monte-carlo.html#sec-ch05-5-4) | 19 |
 | $\sigma$ | sampling-vs-expectation degree in $Q(\sigma)$, or std. dev. | [§7.6](chapters/ch07-nstep-bootstrapping.html#sec-ch07-7-6) | 4 |

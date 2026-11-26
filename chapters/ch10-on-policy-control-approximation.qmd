@@ -184,10 +184,8 @@ $$\delta_t \doteq G_{t:t+n} - \hat{q}(S_t, A_t, \mathbf{w})$$
 
 ## Summary {#sec-ch10-10-6}
 
-- Extended parametrized function approximation & semi-gradient descent to control.
-- The extension is immediate for the episodic case, but dependent on a new problem formulation based on maximizing the **average reward** setting per time step, for the continuing case.
-- The discounted formulation cannot be carried over to control in the presence of approximations.
-- Most policies cannot be represented by a value function in the approximate case.
-- The scalar average reward $r(\pi)$ provides an effective way of ranking the remaining arbitrary policies.
-- The average reward formulation involves new **differential** versions of value functions, Bellman equations, and TD errors, but all of these parallel the old ones and the conceptual changes are small.
-- The average reward setting has a new parallel set of differential algorithms.
+- Moving from prediction to control with function approximation is straightforward in episodic tasks (replacing $\hat{v}$ with $\hat{q}$ in semi-gradient Sarsa and $n$-step Sarsa).
+- In continuing tasks with approximation, discounting breaks down because policies can no longer be ordered unambiguously without a start-state distribution.
+- Optimizing the **average reward** $r(\pi)$ per time step resolves this cleanly, giving every policy a single scalar performance score.
+- The average-reward framework introduces **differential** returns, value functions, Bellman equations, and TD errors that closely mirror their discounted counterparts and yield parallel differential control algorithms.
+

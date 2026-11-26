@@ -342,30 +342,14 @@ and $R^a(r)$ is an unknown probability distribution over rewards.
 :::
 
 ## Summary {#sec-ch02-2-10}
-- The value of an action can be defined as $Q_t(a)$, the sample average return of action $a$ taken prior to time $t$.
-- Understand the need for **incremental** action-value estimation in stationary bandit problems to minimize memory usage and computational complexity.
-- Introduced to **weighted averages, the step-size parameter $\alpha$, and stochastic approximation conditions** in non-stationary bandit problems.
-- Understand the distinction between **stationary/deterministic** and **nonstationary/stochastic** bandit problems.
-- Understand the transition from nonassociative to **associative search tasks** as a stepping stone toward the full RL problem.
-- Presented several simple ways of balancing exploration & exploitation during action selection:
-  - **$\varepsilon$-greedy**: choose randomly a small fraction of the time
-  - **UCB**: choose deterministically but achieve exploration by subtly favoring at each step the actions that have received fewer samples
-  - **Gradient Bandit algorithms**: estimate action preferences, not action values, and favor the more preferred actions in a graded, probabilistic manner using a soft-max distribution
-  - **Optimistic Initialization**: initializing estimates optimistically causes even greedy methods to explore significantly
 
-- How do we know which of these methods is best?
-  - We can run them all on a $k$ ($k=10$)-armed testbed and compare their performances, but they all have a parameter of their own.
-  - To get a meaningful comparative study we have to consider their performance as a function of their parameter.
-  - Simple learning curves would be too complex and crowded in a graph to make clear comparisons.
-  - Instead we use a different kind of graph called **parameter study**:
-    - We can estimate each point as the average reward obtained over 1000 steps with a particular algorithm at a particular parameter setting.
-    - From the inverted U-shape of each algorithm's performance curve, we can deduce that the algorithms all perform best at an intermediate value of their parameter, neither too large nor too small.
-    - We can study the algorithm's sensitivities to their respective parameters by studying/plotting their performance/average reward over a range of parameter values varying about an order of magnitude.
+- Action values $Q_t(a)$ can be estimated online via **incremental updates**, keeping memory and per-step computation constant rather than storing every historical reward.
+- Stationary tasks suit decaying $1/n$ step sizes, whereas **nonstationary tasks** call for constant step sizes $\alpha$ that exponentially down-weight older returns.
+- Core exploration mechanisms trade off simplicity against sample efficiency:
+  - **$\varepsilon$-greedy** injects uniform random exploration with small probability $\varepsilon$.
+  - **Optimistic initialization** triggers early exploration even under purely greedy action selection, though its effect fades over time.
+  - **UCB** adds an uncertainty bonus that deterministically prioritizes rarely sampled actions.
+  - **Gradient bandits** bypass value estimation altogether, maintaining action preferences converted to probabilities through a softmax policy.
+- Comparing algorithms cleanly across hyperparameter choices requires **parameter studies** (plotting average reward over a wide log-spaced parameter sweep), which typically reveal an inverted-U sweet spot for every method.
+- Bayesian methods such as **Gittins indices** and **Thompson (posterior) sampling** formulate optimal exploration over belief states, connecting single-state bandit problems directly to full sequential RL (see Sutton & Barto, 2018, §2.10).
 
-- These bandit methods studied in this chapter are considered state of the art despite their simplicity.
-
-- **Gittins index** is a well-studied Bayesian approach to balancing exploration and exploitation in $k$-armed bandit problems.
-  - **Posterior sampling** or **Thompson sampling** is used for action selection.
-
-- In the Bayesian setting, it is generally not feasible to perform the outrageously large computation of an information state of a horizon, but efficient approximation could be done.
-  - This turns the **bandit problem** to **full RL problem instance,** hence the need for approximate RL methods.

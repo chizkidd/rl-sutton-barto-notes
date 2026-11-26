@@ -1,4 +1,28 @@
-MIT License
+Licensing Scope
+===============
+
+This repository contains two distinct categories of original work by Chizoba Obasi:
+
+1. Build scripts, tooling, and styling (`scripts/`, `custom.scss`, `sidebar-toggle.html`,
+   `_quarto.yml`, and `.github/workflows/`) are licensed under the **MIT License** below.
+
+2. Original study-notes prose and metadata are licensed under **Creative Commons
+   Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)**
+   (https://creativecommons.org/licenses/by-nc-sa/4.0/), pending confirmation
+   for any material derived from the textbook.
+
+Third-Party Material Disclaimer
+-------------------------------
+
+These notes accompany *Reinforcement Learning: An Introduction* (2nd ed.) by
+Richard S. Sutton and Andrew G. Barto (MIT Press, 2018), which is distributed
+by its authors under **CC BY-NC-ND 2.0** (https://creativecommons.org/licenses/by-nc-nd/2.0/).
+Nothing in this file grants rights over any text, figures, or algorithm listings
+originating from Sutton & Barto (2018).
+
+--------------------------------------------------------------------------------
+
+MIT License (for scripts and build tooling)
 
 Copyright (c) 2026 Chizoba Obasi
 

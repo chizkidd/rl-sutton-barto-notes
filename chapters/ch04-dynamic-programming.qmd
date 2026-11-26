@@ -178,25 +178,10 @@ Generalized Policy Iteration.
 
 ## Summary {#sec-ch04-4-8}
 
-- **Policy Evaluation** $\Rightarrow$ (typically) iterative computation of the value functions for a given policy.
-- **Policy Improvement** $\Rightarrow$ computation of an improved policy given the value function for that policy.
+- **Policy evaluation** solves for a fixed policy's value function iteratively, while **policy improvement** produces a strictly better (or already optimal) policy by acting greedily over those values.
+- Interleaving evaluation and improvement yields **policy iteration** and **value iteration**, both of which compute exact optimal values and policies when full finite-MDP dynamics are available.
+- Standard DP runs full state-space sweeps using **expected updates**, weighting every possible next state by its transition probability until the corresponding **Bellman equations** ($v_\pi, v_*, q_\pi, q_*$) hold to convergence.
+- **Generalized Policy Iteration (GPI)** unifies DP and nearly all later RL algorithms as a continuous push-and-pull between improving value estimates and making policies greedier with respect to them.
+- **Asynchronous DP** drops full sweeps altogether, updating states in place in arbitrary or priority-driven order while still converging as long as all states continue to be visited.
+- Every DP algorithm relies on **bootstrapping** (revising estimates using other estimates). Chapter 5 removes both the model requirement and bootstrapping via Monte Carlo sampling.
 
-- The combination of both computations together yields **policy iteration** and **value iteration**, the 2 most popular dynamic programming (DP) methods.
-  - Either of these can be used to reliably compute **optimal value functions & optimal policies** for finite MDPs given complete knowledge of the MDP.
-
-- Classical DP methods operate in sweeps through the state set, performing an **expected update** operation on each state.
-  - Each such operation updates a single state-value on the basis of **all possible successor states and their probabilities of occurring.**
-  - With no changes in value with subsequent updates, then convergence has occurred to values that satisfy the corresponding **Bellman Equations.**
-  - There are 4 primary value functions **($v_\pi, v_*, q_\pi, q_*$),** 4 corresponding Bellman equations, and 4 corresponding expected updates.
-  - **Backup diagrams** give an intuitive view of the operation of DP updates.
-
-- **Generalized Policy Iteration (GPI)**: insight into DP methods, and almost all RL methods can be gained by viewing them as GPI.
-  - GPI is the general idea of 2 interacting processes revolving around an approximate policy and an approximate value function.
-
-- **Asynchronous DP methods** are in-place iterative methods that update states in an arbitrary order, perhaps stochastically determined and using out-of-date information.
-  - No need for complete sweeps through the state set.
-
-- All DP method updates estimates of the values of states based on estimates of the values of successor states.
-  - This is called **bootstrapping**, when DP methods update estimates on the basis of other estimates.
-
-- Next chapter entails RL methods that do not require a model and do not bootstrap; both separable properties but yet can be mixed in interesting combinations.
