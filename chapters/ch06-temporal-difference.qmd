@@ -66,7 +66,7 @@ v_\pi(s) &\doteq \mathbb{E}\left[G_t \mid S_t = s\right] \\
 $$
 
 - **Dual approximation in the TD target**: The target $R_{t+1} + \gamma V(S_{t+1})$ approximates the Bellman expectation in two ways: it samples one transition instead of summing over the full distribution, and it bootstraps from the running table $V$ instead of $v_\pi$.
-- **Hybrid strength**: TD merges the **sampling** of Monte Carlo with the **bootstrapping** of Dynamic Programming (see @fig-61 below and Sutton & Barto, 2018, Ch. 6).
+- **Hybrid strength**: TD [@sutton1988] merges the **sampling** of Monte Carlo with the **bootstrapping** of Dynamic Programming (see @fig-61 in [Section 6.6](#sec-ch06-6-6) and Sutton & Barto, 2020, Ch. 6).
 
 ### TD Error & its Relationship to MC Error {#td-error-its-relationship-to-mc-error}
 
@@ -114,15 +114,15 @@ $$\boxed{G_t - V(S_t) = \sum_{k=t}^{T-1} \gamma^{k-t}\, \delta_k}$$
 ## Sarsa: On-policy TD Control {#sec-ch06-6-4}
 
 - **TD inside GPI**: To turn TD prediction into a control algorithm, we plug TD policy evaluation into the Generalized Policy Iteration (GPI) loop while continually improving the policy.
-- **Action-value transitions**: Model-free control evaluates state-action pairs $q_\pi(s, a)$ rather than state values alone. Following the alternating state and action sequence of an episode (Sutton & Barto, 2018, Ch. 6), we bootstrap from the next state-action estimate:
+- **Action-value transitions**: Model-free control evaluates state-action pairs $q_\pi(s, a)$ rather than state values alone. Following the alternating state and action sequence of an episode (Sutton & Barto, 2020, Ch. 6), we bootstrap from the next state-action estimate:
 
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \gamma Q(S_{t+1}, A_{t+1})}_{\text{TD target}} - Q(S_t, A_t)\Big]}$$
 
-- **Why the name Sarsa**: Every update depends on the five-element transition tuple $(S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1})$ (visualized alongside the other one-step backups in @fig-61).
+- **Why the name Sarsa**: Introduced by @rummery1994, every update depends on the five-element transition tuple $(S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1})$ (visualized alongside the other one-step backups in @fig-61).
 - **Tightly coupled on-policy loop**: At every time step, Sarsa performs both halves of GPI simultaneously:
   - **Policy evaluation**: Update $Q \approx q_\pi$ using the actually sampled successor action $A_{t+1}$.
   - **Policy improvement**: Derive the next action from an $\varepsilon$-greedy (or $\varepsilon$-soft) policy over $Q$.
-- **Convergence conditions**: Under Robbins-Monro step-size decay, continual sampling of all state-action pairs, and a GLIE exploration schedule, tabular Sarsa almost surely approaches $q_*$ and an optimal policy.
+- **Convergence conditions**: Under [Robbins-Monro step-size decay](ch02-multi-armed-bandits.qmd#step-size-parameter), continual sampling of all state-action pairs, and a GLIE exploration schedule, tabular Sarsa almost surely approaches $q_*$ and an optimal policy.
 
 ### Implementation: Sarsa
 
@@ -161,9 +161,9 @@ def sarsa(env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1):
 
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a')}_{\text{Q-learning target}} - Q(S_t, A_t)\Big]}$$
 
-- **Direct optimal value estimation**: Q-learning breaks the link between the policy being evaluated and the policy collecting data; $Q$ directly approximates $q_*$ regardless of the exploratory behavior policy, while $v_*$ follows immediately from a **1-step lookahead** ($\max_a Q(s, a)$).
+- **Direct optimal value estimation**: Q-learning [@watkins1989; @watkins1992] breaks the link between the policy being evaluated and the policy collecting data; $Q$ directly approximates $q_*$ regardless of the exploratory behavior policy, while $v_*$ follows immediately from a **1-step lookahead** ($\max_a Q(s, a)$).
 - **Off-policy separation**: Updates bootstrap through the greedy maximum over successor actions, whereas actions executed in the environment can follow an exploratory policy such as $\varepsilon$-greedy.
-- **Convergence guarantee**: Decoupling the target from behavior simplifies theory. Provided every $(s, a)$ pair keeps being updated (satisfied under GLIE or any persistent exploration) and $\alpha_t$ obeys **stochastic approximation** step-size rules ($\sum \alpha_t = \infty$, $\sum \alpha_t^2 < \infty$), $Q$ converges almost surely to $q_*$:
+- **Convergence guarantee**: Decoupling the target from behavior simplifies theory. Provided every $(s, a)$ pair keeps being updated (satisfied under GLIE or any persistent exploration) and $\alpha_t$ obeys [**stochastic approximation** step-size rules](ch02-multi-armed-bandits.qmd#step-size-parameter) ($\sum \alpha_t = \infty$, $\sum \alpha_t^2 < \infty$), $Q$ converges almost surely to $q_*$:
 
 $$Q(s,a) \longrightarrow q_*(s,a)$$
 
@@ -229,7 +229,7 @@ $$
   - **Special case**: Choosing $\pi$ to be strictly greedy while $\mu$ is $\varepsilon$-greedy recovers **Q-learning** identically.
 
 ::: {#fig-61}
-![](../figures/ch06-td-backups.png){width=95% fig-align="center" fig-alt="Side-by-side one-step backup schematics for TD(0), Sarsa, Q-learning, and Expected Sarsa."}
+![](../figures/ch06-td-backups.png){width=98% fig-align="center" fig-alt="Side-by-side one-step backup schematics for TD(0), Sarsa, Q-learning, and Expected Sarsa."}
 
 **One-step TD backup schematics.** Comparing the single-step update targets of TD(0), Q-learning, Sarsa, and Expected Sarsa.
 :::
@@ -252,7 +252,7 @@ $$
   - Evaluate that chosen action with the second estimator: $Q_2(A^*) = Q_2(\arg\max_a Q_1(a))$.
 - **Unbiased evaluation**: Because $Q_2$ is statistically independent of the noise that caused $Q_1$ to choose $A^*$, its evaluation is unbiased: $\mathbb{E}\left[Q_2(A^*)\right] = q(A^*)$.
 - **Resource trade-off**: Double Learning doubles table storage while keeping per-step computation virtually unchanged (only one of the two tables updates at each transition).
-- **Double Q-learning**: Applying this dual-estimator scheme to Q-learning yields **Double Q-learning** (see Sutton & Barto, 2018, Ch. 6).
+- **Double Q-learning**: Applying this dual-estimator scheme to Q-learning yields **Double Q-learning** (see Sutton & Barto, 2020, Ch. 6).
 
 ### Implementation: Double Q-learning
 
@@ -310,4 +310,4 @@ $$\boxed{Q_1(S_t, A_t) \leftarrow Q_1(S_t, A_t) + \alpha\left[R_{t+1} + \gamma\,
   - **Q-learning** (off-policy, bootstraps greedily toward $q_*$).
   - **Expected Sarsa** (on-policy or off-policy, replaces the sampled next action with its policy-weighted expectation, strictly lowering update variance).
   - **Double Q-learning** (maintains twin value tables to separate action choice from value scoring, removing upward estimation bias).
-- **Scope of Chapter 6**: Every method developed here is a **one-step, tabular, model-free** TD algorithm. Chapter 7 generalizes the lookahead horizon from a single step to arbitrary $n$ steps.
+- **Scope of Chapter 6**: Every method developed here is a **one-step, tabular, model-free** TD algorithm. [Chapter 7](ch07-nstep-bootstrapping.qmd#sec-ch07-7-1) generalizes the lookahead horizon from a single step to arbitrary $n$ steps.

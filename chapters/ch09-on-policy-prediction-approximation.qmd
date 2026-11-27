@@ -137,7 +137,7 @@ $$\nabla f(\mathbf{w}) \doteq \left(\frac{\partial f(\mathbf{w})}{\partial w_1},
 
 - **Why "gradient descent"**: stepping opposite to the squared-error gradient moves parameters along the steepest local descent direction for that state's error.
 - **Why "stochastic"**: each step relies on a noisy single state sample $S_t$ rather than averaging gradients across the entire state distribution.
-- Provided $\alpha$ decays according to classical Robbins-Monro stochastic approximation conditions, true SGD converges reliably to a local minimum of $\overline{\text{VE}}$.
+- Provided $\alpha$ decays according to classical [Robbins-Monro stochastic approximation conditions](ch02-multi-armed-bandits.qmd#step-size-parameter), true SGD converges reliably to a local minimum of $\overline{\text{VE}}$.
 
 ### True Value Estimates {#true-value-estimates}
 
@@ -178,7 +178,7 @@ $$\nabla \hat{v}(S_t, \mathbf{w}_t) = \left\{ \begin{array}{ll} 1 & \text{for } 
 $$\hat{v}(s, \mathbf{w}) \doteq \mathbf{w}^T \mathbf{x}(s) \doteq \sum_{i=1}^{d} w_i x_i(s)$$
 
 $$
-\begin{aligned} \\
+\begin{aligned}
 \text{where } \quad \mathbf{x}(s) &= \textbf{feature vector } \text{representing state } s \\
 \mathbf{x}(s) &\doteq \bigl(x_1(s),\ x_2(s),\ x_3(s),\ \ldots,\ x_d(s)\bigr)^T \\
 x_i(s) &= \text{value of function } x_i : S \to \mathbb{R}
@@ -196,46 +196,46 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[U_t - \hat{v}(S_t,
 
 - Under linear approximation, **semi-gradient TD(0)** rearranges cleanly into an affine recursion in $\mathbf{w}_t$:
 
-$$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left(R_{t+1} + \gamma \mathbf{w}_t^T \mathbf{x}_{t+1} - \mathbf{w}_t^T \mathbf{x}_t\right) \mathbf{x}_t$$
-
-$$= \mathbf{w}_t + \alpha\!\left(R_{t+1} \mathbf{x}_t - \mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T \mathbf{w}_t\right)$$
-
 $$
-\begin{aligned} \\
-\text{where} \quad \mathbf{x}_t = \mathbf{x}(S_t)
+\begin{aligned}
+\mathbf{w}_{t+1} &\doteq \mathbf{w}_t + \alpha\!\left(R_{t+1} + \gamma \mathbf{w}_t^T \mathbf{x}_{t+1} - \mathbf{w}_t^T \mathbf{x}_t\right) \mathbf{x}_t \\
+&= \mathbf{w}_t + \alpha\!\left(R_{t+1} \mathbf{x}_t - \mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T \mathbf{w}_t\right)
 \end{aligned}
 $$
+
+$$\text{where} \quad \mathbf{x}_t = \mathbf{x}(S_t)$$
 
 - In steady state, taking the conditional expectation of the next weight vector given $\mathbf{w}_t$ yields:
 
 $$\mathbb{E}\!\left[\mathbf{w}_{t+1} \vert \mathbf{w}_t\right] = \mathbf{w}_t + \alpha\!\left(\mathbf{b} - \mathbf{A}\mathbf{w}_t\right)$$
 
 $$
-\begin{aligned} \\
-\text{where} \quad
-b &\doteq \mathbb{E}\!\left[R_{t+1}\, \mathbf{x}_t\right] \in \mathbb{R}^d \\
-A &\doteq \mathbb{E}\!\left[\mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T\right] \in \mathbb{R}^{d \times d}
+\begin{aligned}
+\text{where} \quad \mathbf{b} &\doteq \mathbb{E}\!\left[R_{t+1}\, \mathbf{x}_t\right] \in \mathbb{R}^d \\
+\mathbf{A} &\doteq \mathbb{E}\!\left[\mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T\right] \in \mathbb{R}^{d \times d}
 \end{aligned}
 $$
 
 - Any stationary solution $\mathbf{w}_\text{TD}$ of this expected update must zero out the drift term:
 
-$$\mathbf{b} - \mathbf{A}\mathbf{w}_\text{TD} = \mathbf{0}$$
-
-$$\mathbf{b} = \mathbf{A}\mathbf{w}_\text{TD}$$
-
-$$\mathbf{w}_\text{TD} \doteq \mathbf{A}^{-1}\mathbf{b}$$
+$$
+\begin{aligned}
+\mathbf{b} - \mathbf{A}\mathbf{w}_\text{TD} &= \mathbf{0} \\
+\mathbf{b} &= \mathbf{A}\mathbf{w}_\text{TD} \\
+\mathbf{w}_\text{TD} &\doteq \mathbf{A}^{-1}\mathbf{b}
+\end{aligned}
+$$
 
 - **TD fixed point ($\mathbf{w}_\text{TD}$)**: the unique parameter vector to which on-policy linear semi-gradient TD(0) converges.
 - Stability and invertibility of $\mathbf{A}$ follow when $\mathbf{A}$ is **positive definite**:
 
 $$y^T \mathbf{A} y > 0, \text{ for any } y \neq 0$$
 
-- **Semi-gradient $n$-step TD**: lifts tabular $n$-step bootstrapping (Chapter 7) directly into parameterized form:
+- **Semi-gradient $n$-step TD**: lifts tabular $n$-step bootstrapping ([Chapter 7](ch07-nstep-bootstrapping.qmd#sec-ch07-7-1)) directly into parameterized form:
 
 $$\boxed{
 \begin{aligned}
-\mathbf{w}_{t+n} &\doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{v}(S_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{v}(S_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T \\ \\
+\mathbf{w}_{t+n} &\doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{v}(S_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{v}(S_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T \\[6pt]
 G_{t:t+n} &\doteq R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n \hat{v}(S_{t+n}, \mathbf{w}_{t+n-1}), \quad 0 \leq t \leq T-n
 \end{aligned}
 }$$
@@ -248,7 +248,7 @@ $$\boxed{\overline{\text{VE}}(\mathbf{w}_\text{TD}) \leq \frac{1}{1-\gamma} \min
 
 - Thus TD(0)'s limiting error is bounded by $\frac{1}{1-\gamma}$ times the lowest achievable error (which Monte Carlo reaches asymptotically).
 - Because $\gamma$ is frequently close to $1$, the worst-case multiplier $\frac{1}{1-\gamma}$ can be sizable, highlighting a genuine asymptotic bias-vs-speed tradeoff relative to Monte Carlo.
-- Parallel fixed points and error bounds hold for other linear on-policy bootstrapping schemes, including one-step **semi-gradient Sarsa(0)** for action values and episodic formulations [Bertsekas & Tsitsiklis, 1996].
+- Parallel fixed points and error bounds hold for other linear on-policy bootstrapping schemes, including one-step **semi-gradient Sarsa(0)** for action values and episodic formulations [@bertsekas1996].
 
 ## Feature Construction for Linear Methods {#sec-ch09-9-5}
 
@@ -302,7 +302,7 @@ $$
 - **Coarse coding**: covers a continuous state space with overlapping receptive fields (for instance, circular regions in 2D as shown on the left of @fig-91).
 
 ::: {#fig-91}
-![](../figures/ch09-coarse-rbf.png){width=95% fig-align="center" fig-alt="Two-panel feature plot: 2D overlapping circular coarse-coding receptive fields on the left and 1D Gaussian radial basis functions on the right."}
+![](../figures/ch09-coarse-rbf.png){width=98% fig-align="center" fig-alt="Two-panel feature plot: 2D overlapping circular coarse-coding receptive fields on the left and 1D Gaussian radial basis functions on the right."}
 
 **Coarse coding and 1D radial basis functions.** Left: overlapping circular receptive fields share activation between nearby states $s$ and $s'$. Right: smooth Gaussian RBFs provide continuous feature activations across a 1D state space.
 :::
@@ -331,7 +331,7 @@ $$
   - Tile **aspect ratio** shapes directional generalization: squares generalize isotropically, elongated strips generalize strongly along their long axis, and diagonal tiles generalize along diagonals.
   - Combining stripes (per-dimension generalization) with full multi-dimensional tiles (conjunctive interactions) lets the designer encode domain structure directly.
 
-- **Tile hashing**: pseudorandomly maps a vast multi-dimensional tile grid onto a compact table of memory slots so disjoint tiles occasionally collide (see Sutton & Barto, 2018, §9.5, for the hashing collapse illustration).
+- **Tile hashing**: pseudorandomly maps a vast multi-dimensional tile grid onto a compact table of memory slots so disjoint tiles occasionally collide (see Sutton & Barto, 2020, §9.5, for the hashing collapse illustration).
   - Because collisions across multiple independent tilings rarely coincide at the same query state, hashing sharply reduces memory usage with minimal loss in accuracy, sidestepping exponential growth with state dimension.
 
 ### Radial Basis Functions (RBF) {#sec-ch09-9-5-5}
@@ -348,7 +348,7 @@ $$\boxed{x_i(s) \doteq \exp\!\left(-\frac{\lVert s - c_i \rVert^2}{2\sigma_i^2}\
 ## Selecting Step-Size Parameters Manually {#sec-ch09-9-6}
 
 - Picking an effective learning rate $\alpha$ is critical in function approximation:
-  - Theoretical Robbins-Monro schedules guarantee asymptotic convergence, yet typically decay far too slowly or fast to learn briskly in practice.
+  - Theoretical [Robbins-Monro schedules](ch02-multi-armed-bandits.qmd#step-size-parameter) guarantee asymptotic convergence, yet typically decay far too slowly or fast to learn briskly in practice.
   - Classic sample averaging ($\alpha_t = \frac{1}{t}$) is unsuitable for TD bootstrapping, nonstationary control tasks, and function approximation in general.
   - Second-order matrix step sizes (such as recursive least squares or LSTD in [Section 9.8](#sec-ch09-9-8)) demand $O(d^2)$ parameters and updates, making them impractical when $d$ is large.
 
@@ -368,24 +368,30 @@ $$
 
 ## Nonlinear Function Approximation: Artificial Neural Networks (ANNs) {#sec-ch09-9-7}
 
-- **Artificial Neural Networks (ANNs)**: the dominant class of nonlinear function approximators, built from layers of interconnected computing units loosely inspired by biological neurons (see Sutton & Barto, 2018, §9.7, for a generic multi-layer feedforward network diagram).
+- **Artificial Neural Networks (ANNs)**: the dominant class of nonlinear function approximators, built from layers of interconnected computing units loosely inspired by biological neurons (@fig-92).
+
+::: {#fig-92}
+![](../figures/ch09-ann-architecture.png){width=92% fig-align="center" fig-alt="Generic feedforward artificial neural network with 3 state-feature inputs, two hidden layers of 5 and 4 units with nonlinear activation, and 1 scalar state-value output."}
+
+**Feedforward ANN for RL value approximation.** Three state-feature inputs propagate through two nonlinear hidden layers to output a scalar value estimate $\hat{v}(s, \mathbf{w})$, with gradients flowing backward via backpropagation.
+:::
 - Each unit computes an affine weighted combination of its incoming signals and passes that scalar through a nonlinear **activation function**, such as:
 
 $$
 \begin{aligned}
-\text{Sigmoid:} \quad & f(x) = \frac{1}{1 + e^{-x}} \\ \\
-\text{ReLU:} \quad & f(x) = \max(0, x) \\ \\
+\text{Sigmoid:} \quad & f(x) = \frac{1}{1 + e^{-x}} \\[6pt]
+\text{ReLU:} \quad & f(x) = \max(0, x) \\[6pt]
 \text{Binary step:} \quad & f(x) = \left\{ \begin{array}{ll} 1 & \text{if } x \geq 0 \\ 0 & \text{if } x < 0 \end{array} \right\}
 \end{aligned}
 $$
 
-- In RL, neural networks can be trained via backpropagation on TD errors to predict values, or via policy gradients to directly maximize expected reward (extending gradient bandits in [Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8) to full MDPs in Chapter 13).
+- In RL, neural networks can be trained via backpropagation on TD errors to predict values, or via policy gradients to directly maximize expected reward (extending gradient bandits in [Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8) to full MDPs in [Chapter 13](ch13-policy-gradient-methods.qmd#sec-ch13-13-1)).
 - Key deep-learning innovations that enabled reliable training of deep ANNs in RL include:
-  - **Dropout**: randomly silences units during training to curb overfitting [Srivastava, Hinton, Krizhevsky, Sutskever & Salakhutdinov, 2014].
-  - **Deep belief networks**: demonstrated early layer-wise pretraining strategies for deep architectures [Hinton, Osindero & Teh, 2006].
-  - **Batch normalization**: standardizes intermediate layer activations across minibatches, stabilizing and accelerating optimization [Ioffe & Szegedy, 2015].
-  - **Deep residual learning**: introduces skip connections so very deep networks propagate gradients cleanly [He, Zhang, Ren & Sun, 2016].
-  - **Deep Convolutional Networks**: exploit spatial locality and weight sharing to process raw visual inputs effectively [LeCun, Bottou, Bengio & Haffner, 1998].
+  - **Dropout**: randomly silences units during training to curb overfitting [@srivastava2014].
+  - **Deep belief networks**: demonstrated early layer-wise pretraining strategies for deep architectures [@hinton2006].
+  - **Batch normalization**: standardizes intermediate layer activations across minibatches, stabilizing and accelerating optimization [@ioffe2015].
+  - **Deep residual learning**: introduces skip connections so very deep networks propagate gradients cleanly [@he2016].
+  - **Deep Convolutional Networks**: exploit spatial locality and weight sharing to process raw visual inputs effectively [@lecun1998].
 
 - While theoretical convergence proofs remain centered on tabular and linear methods, landmark empirical breakthroughs in modern RL owe much of their power to deep nonlinear neural networks.
 

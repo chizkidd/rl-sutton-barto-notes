@@ -123,7 +123,7 @@ $$\boxed{\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \nabla\pi(a 
 
 ## REINFORCE: Monte Carlo Policy Gradient {#sec-ch13-13-3}
 
-- **REINFORCE** turns the policy gradient theorem into a practical Monte Carlo optimization algorithm by constructing a per-step random vector whose expectation matches $\nabla J(\boldsymbol{\theta})$ up to a positive constant factor (any constant scale simply folds into the step size $\alpha$).
+- **REINFORCE** [@williams1992] turns the policy gradient theorem into a practical Monte Carlo optimization algorithm by constructing a per-step random vector whose expectation matches $\nabla J(\boldsymbol{\theta})$ up to a positive constant factor (any constant scale simply folds into the step size $\alpha$).
 - Because the outer sum in the policy gradient theorem weights states by $\mu(s)$, it immediately rewrites as an on-policy expectation over visited states $S_t$:
 
 $$
@@ -448,7 +448,7 @@ $$
 $$
 
 ::: {#fig-ch13-13-7-pdf}
-![](../figures/ch13-13-7-prob-density-function.png){width=85% fig-align="center" fig-alt="Plot of normal probability density curves illustrating how mean mu shifts center and standard deviation sigma controls spread."}
+![](../figures/ch13-13-7-prob-density-function.png){width=90% fig-align="center" fig-alt="Plot of normal probability density curves illustrating how mean mu shifts center and standard deviation sigma controls spread."}
 
 **Gaussian probability density functions.** Continuous action policies parametrize the mean $\mu$ and standard deviation $\sigma$, shifting location and controlling exploration spread.
 :::

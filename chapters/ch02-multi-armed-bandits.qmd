@@ -332,4 +332,4 @@ Formally, a contextual bandit is a triple $\langle A, S, R \rangle$, where $A$ i
   - **UCB**: adds a confidence bonus proportional to $\sqrt{\ln(t)/N_t(a)}$ to prioritize uncertain or competitive arms deterministically.
   - **Gradient bandits**: bypass value estimation by updating softmax action preferences through stochastic gradient ascent with a reward baseline.
 - **Parameter studies**: evaluating methods fairly requires plotting average reward across log-spaced hyperparameter sweeps, which typically produce concave curves showing both peak performance and sensitivity.
-- **Bayesian exploration**: frameworks such as **Gittins indices** and **Thompson sampling** (posterior sampling) formulate optimal exploration over belief distributions, linking bandit problems directly to sequential RL (Sutton & Barto, 2018, §2.10).
+- **Bayesian exploration**: frameworks such as **Gittins indices** and **Thompson sampling** (posterior sampling) formulate optimal exploration over belief distributions, linking bandit problems directly to sequential RL (Sutton & Barto, 2020, §2.10).

@@ -8,7 +8,7 @@ number-sections: true
 - **Experience**: Training data consists of sampled state, action, and reward trajectories gathered through live interaction or a generative simulator.
 - **Episodic restriction**: Classical MC algorithms require tasks that terminate in finitely many steps, since updates wait for complete episode returns.
 - **Sampling instead of planning**: Whereas dynamic programming computes values analytically from a full MDP specification, MC infers values statistically from repeated rollouts in an unknown MDP.
-- **Generalized Policy Iteration (GPI)**: MC control adopts the Chapter 4 GPI framework to cope with shifting value targets while the policy improves.
+- **Generalized Policy Iteration (GPI)**: MC control adopts the [Chapter 4](ch04-dynamic-programming.qmd#sec-ch04-4-1) GPI framework to cope with shifting value targets while the policy improves.
 - **Chapter roadmap**: We begin with prediction (estimating $v_\pi$ and $q_\pi$ under a fixed policy $\pi$), move to policy improvement, and conclude with GPI-based on-policy and off-policy control.
 
 ## Monte Carlo Prediction {#sec-ch05-5-1}
@@ -62,7 +62,7 @@ $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\left[G_t - V(S_t)\right]}$$
 - **Alternating phases**:
   - **Policy evaluation**: Estimate $Q \approx q_\pi$ using MC rollouts.
   - **Policy improvement**: Derive an improved policy (greedy or $\varepsilon$-greedy) from $Q$.
-- **Visual reference**: See Sutton & Barto (2018, Fig. 5.3) for the classic GPI schematic depicting the interplay between MC action-value estimation and greedy policy updates.
+- **Visual reference**: See Sutton & Barto (2020, §5.3) for the classic GPI schematic depicting the interplay between MC action-value estimation and greedy policy updates.
 - **Iterative convergence chain**: GPI maintains both an evolving policy and an action-value estimate, moving jointly toward optimality:
 
   $$\pi_0 \xrightarrow{E} q_{\pi_0} \xrightarrow{I} \pi_1 \xrightarrow{E} q_{\pi_1} \xrightarrow{I} \pi_2 \xrightarrow{E} \ldots \xrightarrow{I} \pi_* \xrightarrow{E} q_{\pi_*}$$
@@ -198,7 +198,7 @@ $$\boxed{V(s) \doteq \frac{\sum_{t \in \mathcal{T}(s)} \rho_{t:T(t)-1}\, G_t}{\s
 
 ## Incremental Implementation {#sec-ch05-5-6}
 
-- **Episode-by-episode updates**: Just like incremental sample averages in Chapter 2 ([Section 2.4](ch02-multi-armed-bandits.qmd#sec-ch02-2-4)), both ordinary and weighted importance sampling can be updated incrementally without storing past returns.
+- **Episode-by-episode updates**: Just like incremental sample averages in [Chapter 2](ch02-multi-armed-bandits.qmd#sec-ch02-2-1) ([Section 2.4](ch02-multi-armed-bandits.qmd#sec-ch02-2-4)), both ordinary and weighted importance sampling can be updated incrementally without storing past returns.
 - **Standard update template**:
 
 $$\text{NewEstimate} \leftarrow \text{OldEstimate} + \text{StepSize}\left[\text{Target} - \text{OldEstimate}\right]$$
@@ -311,5 +311,5 @@ $$\boxed{V(s) \doteq \frac{\sum_{t \in \mathcal{T}(s)} \tilde{G}_t}{|\mathcal{T}
   - Reweights behavior-generated returns using action-probability ratios so expectations match the target policy.
   - **Ordinary importance sampling**: Unbiased but prone to high or unbounded variance.
   - **Weighted importance sampling**: Introduces finite-sample bias in exchange for bounded, much lower variance and consistency.
-- **Contrast with Chapter 4 DP**: MC differs from DP in two defining respects: it learns from sampled trajectories rather than a dynamics model, and it never bootstraps from other value estimates.
-- **Bridge to Chapter 6**: Next, temporal-difference learning combines MC's sample-based model-free learning with DP's bootstrapping.
+- **Contrast with [Chapter 4](ch04-dynamic-programming.qmd#sec-ch04-4-1) DP**: MC differs from DP in two defining respects: it learns from sampled trajectories rather than a dynamics model, and it never bootstraps from other value estimates.
+- **Bridge to [Chapter 6](ch06-temporal-difference.qmd#sec-ch06-6-1)**: Next, temporal-difference learning combines MC's sample-based model-free learning with DP's bootstrapping.

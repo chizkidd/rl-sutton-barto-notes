@@ -27,11 +27,11 @@ number-sections: true
 $$G_{t:t+n} \doteq R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n \hat{v}(S_{t+n}, \mathbf{w}_{t+n-1}), \quad 0 \leq t \leq T - n$$
 
 - **Compound updates**: Nothing restricts an update target to a single horizon $n$; any convex combination of $n$-step returns forms a valid target, provided the mixture weights are non-negative and sum to $1$.
-  - For example, blending half of the 2-step return with half of the 4-step return produces the valid compound target $\frac{1}{2} G_{t:t+2} + \frac{1}{2} G_{t:t+4}$ (see Sutton & Barto, 2018, Ch. 12, for compound backup diagrams).
+  - For example, blending half of the 2-step return with half of the 4-step return produces the valid compound target $\frac{1}{2} G_{t:t+2} + \frac{1}{2} G_{t:t+4}$ (see Sutton & Barto, 2020, Ch. 12, for compound backup diagrams).
 - Taking weighted averages across multiple horizons unlocks broad algorithmic families:
   1. Blending short-horizon and infinite-horizon returns links TD bootstrapping seamlessly with Monte Carlo rollouts.
   2. Combining sampled returns with full dynamic programming backups merges model-free learning and model-based planning in one target.
-- **The $\lambda$-return ($G_t^\lambda$)**: A specific compound target that averages *all* $n$-step returns ($n = 1, 2, \dots$), assigning each horizon a geometric weight proportional to $\lambda^{n-1}$ (with $\lambda \in [0, 1]$) and normalizing by $(1 - \lambda)$ so all weights sum to $1$ (see Sutton & Barto, 2018, Ch. 12, for the TD($\lambda$) backup diagram):
+- **The $\lambda$-return ($G_t^\lambda$)**: A specific compound target that averages *all* $n$-step returns ($n = 1, 2, \dots$), assigning each horizon a geometric weight proportional to $\lambda^{n-1}$ (with $\lambda \in [0, 1]$) and normalizing by $(1 - \lambda)$ so all weights sum to $1$ (see the left panel of @fig-122):
 
 $$\boxed{G_t^\lambda \doteq (1-\lambda) \sum_{n=1}^{\infty} \lambda^{n-1} G_{t:t+n}}$$
 
@@ -60,7 +60,7 @@ $$
 $$
 
 ::: {#fig-ch12-12-1-weighting}
-![](../figures/ch12-lambda-weights.png){width=85% fig-align="center" fig-alt="Bar chart comparing geometric lambda-return weights (1-lambda)*lambda^(n-1) across 1-step to 10-step returns for lambda = 0.2, 0.5, and 0.8."}
+![](../figures/ch12-lambda-weights.png){width=90% fig-align="center" fig-alt="Bar chart comparing geometric lambda-return weights (1-lambda)*lambda^(n-1) across 1-step to 10-step returns for lambda = 0.2, 0.5, and 0.8."}
 
 **Geometric weighting in the $\lambda$-return.** Each $n$-step return receives weight $(1-\lambda)\lambda^{n-1}$; smaller $\lambda$ concentrates mass near TD(0), while larger $\lambda$ extends weight deeper toward Monte Carlo.
 :::
@@ -71,9 +71,15 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha \!\left[G_t^\lambda - \ha
 
 - Tuning $\lambda$ smoothly trades off bias against variance across the TD-to-MC spectrum, performing comparably to tuning $n$ in $n$-step TD while offering a much cleaner online counterpart.
 
+::: {#fig-122}
+![](../figures/ch12-td-lambda-backups.png){width=98% fig-align="center" fig-alt="Side-by-side backup diagrams comparing Full TD(lambda) running to terminal state S_T against Truncated TD(lambda) cutting off at horizon h."}
+
+**State-value $\lambda$-return backups: Full TD($\lambda$) vs. Truncated TD($\lambda$).** Left: full $G_t^\lambda$ weights every $n$-step return out to termination $S_T$. Right: truncating at horizon $h$ lumps the remaining tail weight $\lambda^{h-t-1}$ onto the $h$-step bootstrapped return.
+:::
+
 ### Forward View {#forward-view}
 
-- The off-line $\lambda$-return algorithm embodies the theoretical **forward view** of credit assignment (illustrated in Sutton & Barto, 2018, Ch. 12):
+- The off-line $\lambda$-return algorithm embodies the theoretical **forward view** of credit assignment (see the left panel of @fig-123):
   - At every visited state $S_t$, we look forward across all upcoming transitions to assemble the compound target $G_t^\lambda$.
   - Because $G_t^\lambda$ depends on rewards all the way through termination $T$, this pure forward-view update cannot run until the episode finishes.
 
@@ -110,7 +116,13 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t\, \mathbf{z}_t
 
 ### Backward View {#backward-view}
 
-- Whereas the forward view explains *what* objective we are targeting, the **backward view** specifies the online *mechanism* that executes on incomplete trajectories (diagrammed in Sutton & Barto, 2018, Ch. 12).
+- Whereas the forward view explains *what* objective we are targeting, the **backward view** specifies the online *mechanism* that executes on incomplete trajectories (@fig-123).
+
+::: {#fig-123}
+![](../figures/ch12-forward-backward-views.png){width=98% fig-align="center" fig-alt="Side-by-side comparison of the Forward View looking ahead from S_t over weighted future returns and the Backward View broadcasting current TD error delta_t backward via decaying traces."}
+
+**Forward view vs. backward view of TD($\lambda$).** Left: looking ahead from $S_t$ to aggregate geometrically weighted $n$-step returns. Right: broadcasting each step's TD error $\delta_t$ backward to recent states via decaying eligibility traces $\mathbf{z}_t$.
+:::
 - In the tabular special case, every state maintains a scalar trace and receives a simultaneous adjustment proportional to the current TD error and its trace magnitude:
 
 $$
@@ -155,7 +167,7 @@ $$
 ## $n$-step Truncated $\lambda$-return Methods {#sec-ch12-12-3}
 
 - Waiting until an episode ends makes the off-line $\lambda$-return impractical for long episodes and unusable in continuing problems.
-- **Truncated $\lambda$-return ($G_{t:h}^\lambda$)**: Cuts off the geometric sum at a finite future horizon $h$ (playing the role of termination time $T$), assigning all remaining tail probability $\lambda^{h - t - 1}$ to the longest available return $G_{t:h}$ (see Sutton & Barto, 2018, Ch. 12, for the truncated backup diagram):
+- **Truncated $\lambda$-return ($G_{t:h}^\lambda$)**: Cuts off the geometric sum at a finite future horizon $h$ (playing the role of termination time $T$), assigning all remaining tail probability $\lambda^{h - t - 1}$ to the longest available return $G_{t:h}$ (see the right panel of @fig-122):
 
 $$G_{t:h}^\lambda \doteq (1-\lambda) \sum_{n=1}^{h-t-1} \lambda^{n-1} G_{t:t+n} + \lambda^{h-t-1} G_{t:h}, \quad 0 \leq t \leq h \leq T$$
 
@@ -374,7 +386,7 @@ G_t^\lambda &\doteq G_{t:\infty}^\lambda
 \end{aligned}
 $$
 
-- Conceptually, the forward-view backup diagram (see Sutton & Barto, 2018, Ch. 12) mirrors TD($\lambda$) but starts and ends on state-action pairs: blending 1-step lookaheads, 2-step lookaheads, longer multi-step rollouts, and the complete episode return with identical $(1 - \lambda)\lambda^{n-1}$ weights.
+- Conceptually, the forward-view backup diagram (left panel of @fig-124) mirrors TD($\lambda$) but starts and ends on state-action pairs: blending 1-step lookaheads, 2-step lookaheads, longer multi-step rollouts, and the complete episode return with identical $(1 - \lambda)\lambda^{n-1}$ weights.
 - **Sarsa($\lambda$)**: The backward-view online control algorithm retains the exact parameter-update form of TD($\lambda$) while swapping in the action-value TD error and action-value gradient trace:
 
 $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\, \delta_t\, \mathbf{z}_t}$$
@@ -428,7 +440,7 @@ $$\boxed{G_t^{\lambda s} \doteq R_{t+1} + \gamma_{t+1}\!\left[(1 - \lambda_{t+1}
 
 $$\boxed{G_t^{\lambda a} \doteq R_{t+1} + \gamma_{t+1}\!\left[(1 - \lambda_{t+1})\, \hat{q}(S_{t+1}, A_{t+1}, \mathbf{w}_t) + \lambda_{t+1}\, G_{t+1}^{\lambda a}\right]}$$
 
-$$\boxed{G_t^{\lambda a} \doteq R_{t+1} + \gamma_{t+1}\!\left[(1 - \lambda_{t+1})\, \bar{V}_t(S_{t+1}) + \lambda_{t+1}\, G_{t+1}^{\bar{\lambda}a}\right]}$$
+$$\boxed{G_t^{\lambda a} \doteq R_{t+1} + \gamma_{t+1}\!\left[(1 - \lambda_{t+1})\, \bar{V}_t(S_{t+1}) + \lambda_{t+1}\, G_{t+1}^{\lambda a}\right]}$$
 
 $$
 \begin{aligned}
@@ -437,14 +449,7 @@ $$
 \end{aligned}
 $$
 
-### Superscripts notation for $i$ in $G_t^{\lambda i}$
-
-$$
-\begin{aligned}
-\text{"s"} &: \text{bootstraps from state values} \\
-\text{"a"} &: \text{bootstraps from action values}
-\end{aligned}
-$$
+- **Superscript notation ($i$ in $G_t^{\lambda i}$)**: `"s"` denotes bootstrapping from state values ($\hat{v}$), whereas `"a"` denotes bootstrapping from action values ($\hat{q}$ or $\bar{V}_t$).
 
 ## Off-Policy Traces with Control Variates {#sec-ch12-12-9}
 
@@ -555,12 +560,18 @@ $$
 
 ### Watkins's Q($\lambda$)
 
-- **Watkins's Q($\lambda$)** was the classic early attempt to combine Q-learning with eligibility traces (backup diagram in Sutton & Barto, 2018, Ch. 12).
+- **Watkins's Q($\lambda$)** was the classic early attempt to combine Q-learning with eligibility traces (middle panel of @fig-124).
 - As long as the agent selects greedy actions with respect to the current action-value estimates, traces decay normally by $\gamma\lambda$; the instant an exploratory (non-greedy) action occurs, Watkins's Q($\lambda$) zeroes out the eligibility trace to cut off off-policy contamination.
 
 ### Tree-Backup($\lambda$)
 
-- **Tree-Backup($\lambda$) / TB($\lambda$)**: Extends the $n$-step tree-backup algorithm ([Section 7.5](#sec-ch07-7-5)) to eligibility traces and serves as the principled off-policy successor to Q-learning because it requires **no importance sampling ratios** (see Sutton & Barto, 2018, Ch. 12, for the TB($\lambda$) backup diagram).
+- **Tree-Backup($\lambda$) / TB($\lambda$)**: Extends the $n$-step tree-backup algorithm ([Section 7.5](#sec-ch07-7-5)) to eligibility traces and serves as the principled off-policy successor to Q-learning because it requires **no importance sampling ratios** (right panel of @fig-124).
+
+::: {#fig-124}
+![](../figures/ch12-action-lambda-backups.png){width=98% fig-align="center" fig-alt="Three-panel action-value lambda-backup taxonomy comparing Sarsa(lambda), Watkins's Q(lambda) with exploratory cutoff, and Tree-Backup(lambda) with expected branches at every depth."}
+
+**Action-value $\lambda$-backup taxonomy.** Comparing on-policy sampled Sarsa($\lambda$), Watkins's Q($\lambda$) (cutting off traces at the first nongreedy action), and Tree-Backup($\lambda$) (branching over expected actions at every depth with no importance sampling).
+:::
 - Weighting every finite-depth tree-backup return geometrically with $\lambda_{t+1}$ gives a compact recursive action-value target:
 
 $$

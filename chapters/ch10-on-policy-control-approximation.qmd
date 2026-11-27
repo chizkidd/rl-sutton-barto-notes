@@ -4,7 +4,7 @@ number-sections: true
 ---
 
 - **On-policy control with approximation**: shifts from estimating state values to approximating optimal action values $\hat{q}(s, a, \mathbf{w}) \approx q_{*}(s, a)$ using a finite-dimensional **weight vector** $\mathbf{w} \in \mathbb{R}^d$.
-- The core algorithm developed here is **semi-gradient Sarsa**, extending Chapter 9's semi-gradient TD(0) to action values and online policy improvement.
+- The core algorithm developed here is **semi-gradient Sarsa**, extending [Chapter 9](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-1)'s semi-gradient TD(0) to action values and online policy improvement.
 - We cover both episodic tasks (one-step and $n$-step semi-gradient Sarsa) and continuing tasks, where discounting runs into fundamental problems and gives way to the **average-reward** formulation.
 
 ## Episodic Semi-gradient Control {#sec-ch10-10-1}

@@ -71,7 +71,7 @@ def random_sample_q_planning(
 ## Dyna: Integrated Planning, Acting, and Learning {#sec-ch08-8-2}
 
 ::: {#fig-81}
-![](../figures/ch08-dyna-unified.png){width=95% fig-align="center" fig-alt="Two-panel schematic: Dyna learning and planning cycle on the left, and the two-dimensional width-versus-depth RL update space on the right."}
+![](../figures/ch08-dyna-unified.png){width=100% fig-align="center" fig-alt="Two-panel schematic: Dyna learning and planning cycle on the left, and the two-dimensional width-versus-depth RL update space on the right."}
 
 **Dyna architecture and the two-dimensional RL update space.** Left: real experience feeds direct RL and model learning while simulated rollouts drive planning. Right: methods span backup width (sample vs. expected) and depth (shallow vs. full-episode).
 :::
@@ -203,7 +203,13 @@ def tabular_dyna_q(
 
 - Earlier chapters contrasted dynamic programming (which uses a distribution model to perform expected policy evaluation and improvement) with model-free sampling algorithms (Monte Carlo, TD, and $n$-step methods).
 - Under a fixed computational budget, a fundamental planning question arises: should compute go into exact expected backups or cheaper sample backups?
-- See Sutton & Barto (2018, Ch. 8) for the full graphical backup diagrams of the seven one-step update rules summarized below.
+- @fig-82 compares the seven one-step expected (DP) and sample (TD) backup rules graphically across state-value and action-value targets.
+
+::: {#fig-82}
+![](../figures/ch08-onestep-matrix.png){width=92% fig-align="center" fig-alt="Four-by-two matrix comparing one-step Expected DP backups against Sample TD backups for v_pi, v_*, q_pi, and q_*."}
+
+**One-step backup comparison matrix.** Contrasting full-width Dynamic Programming expected updates with single-transition TD sample updates across prediction and control.
+:::
 
 **Backup diagrams for one-step updates** (7 of 8 cases shown):
 
@@ -341,7 +347,13 @@ $$\boxed{V(S_t) \leftarrow \max_{a \in A}\left(R^a_{S_t} + \gamma \sum_{s'} P^a_
   - Standard Value Iteration: $O(|S|^2|A|)$ per full sweep.
   - One RTDP trial: $O(L)$ backups where episode length $L \ll |S|$ on large tasks.
 
-- RTDP bridges planning and online learning by ignoring unreachable regions (see Sutton & Barto, 2018, Ch. 8, for the schematic dividing start states, relevant states, and irrelevant states).
+- RTDP bridges planning and online learning by concentrating backups on states reachable under optimal trajectories while ignoring unreachable regions (@fig-83).
+
+::: {#fig-83}
+![](../figures/ch08-rtdp-states.png){width=84% fig-align="center" fig-alt="Nested region diagram showing start states inside relevant states reachable under some optimal policy, surrounded by irrelevant unreachable states."}
+
+**RTDP state-space reachability.** Real-time dynamic programming focuses updates inside the relevant state region rather than sweeping over unreachable irrelevant states.
+:::
 - **Convergence guarantees**: RTDP provably discovers an optimal policy across all relevant states (without necessarily visiting irrelevant states) when four conditions hold:
   1. Every goal state has initial value $0$.
   2. From every start state, at least one policy reaches a goal with probability $1$.
@@ -375,7 +387,13 @@ $$\boxed{V(S_t) \leftarrow \max_{a \in A}\left(R^a_{S_t} + \gamma \sum_{s'} P^a_
 ## Heuristic Search {#sec-ch08-8-9}
 
 - **Heuristic search**: the classical family of decision-time state-space planners that expands a lookahead tree rooted at the current state $S_t$.
-- Starting from $S_t$, the planner explores multi-step continuations down to leaf nodes, evaluates those leaves with an approximate value function, and backs the evaluations up to the root's action branches (see Sutton & Barto, 2018, Ch. 8, for the selective depth-first search tree diagram).
+- Starting from $S_t$, the planner explores multi-step continuations down to leaf nodes, evaluates those leaves with an approximate value function, and backs the evaluations up to the root's action branches (@fig-84).
+
+::: {#fig-84}
+![](../figures/ch08-heuristic-search.png){width=95% fig-align="center" fig-alt="Selective depth-first lookahead tree rooted at current state S_t with numbered bottom-up backup groupings propagating leaf values toward root actions."}
+
+**Heuristic search selective lookahead.** Expanding promising branches from $S_t$ and applying upward backups (1 through 9) refines root action values without solving the full state space.
+:::
 - After choosing the highest-value action at the root, the backed-up tree values are typically thrown away.
 - By concentrating search strictly on immediate descendants of $S_t$, heuristic search turns a one-step greedy policy into a far stronger multi-step lookahead policy without trying to solve the entire state space.
 
@@ -422,7 +440,13 @@ $$\text{total cost} = O\left(|A(s)| \cdot n \cdot L\right)$$
 
 - **Monte Carlo Tree Search (MCTS)**: upgrades plain rollout planning by storing and updating action-value statistics inside an incrementally grown search tree, steering subsequent simulations toward the most promising trajectories.
 - Functioning as an asymmetric best-first search, MCTS balances exploration and exploitation inside the tree via confidence bounds.
-- Whenever the agent enters a new state $S_t$, MCTS roots a search tree at $S_t$ and iterates through four stages until its compute or time budget expires (see Sutton & Barto, 2018, Ch. 8, for the four-stage MCTS cycle diagram).
+- Whenever the agent enters a new state $S_t$, MCTS roots a search tree at $S_t$ and iterates through four stages until its compute or time budget expires (@fig-85).
+
+::: {#fig-85}
+![](../figures/ch08-mcts-cycle.png){width=98% fig-align="center" fig-alt="Four-stage Monte Carlo Tree Search cycle showing Selection via UCT, Expansion of a new node, Simulation rollout to termination, and Backup of returns along the path."}
+
+**Monte Carlo Tree Search (MCTS) four-stage cycle.** Each iteration runs Selection, Expansion, Simulation, and Backup repeatedly while the compute budget permits.
+:::
 
 **Four stages executed per MCTS iteration:**
 

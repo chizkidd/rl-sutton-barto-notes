@@ -15,7 +15,7 @@ $$p(s', r | s, a) = \mathbb{P}\left[R_{t+1} = r,\, S_{t+1} = s' \mid S_t, A_t\ri
 **Core DP strategy:**
 
 - **Value-guided search**: use value functions to structure the search over policies rather than searching policy space directly.
-- **Bellman equations as update rules**: convert the Bellman identities from Chapter 3 into iterative assignments that compute $v_\pi$, $v_*$, or $q_*$.
+- **Bellman equations as update rules**: convert the Bellman identities from [Chapter 3](ch03-finite-mdps.qmd#sec-ch03-3-1) into iterative assignments that compute $v_\pi$, $v_*$, or $q_*$.
 - **Greedy policy extraction**: once $v_*$ or $q_*$ satisfies the **Bellman Optimality Equations**, an optimal policy $\pi_*$ follows immediately by acting greedily.
 
 ### Bellman Optimality Equations {#ch04-bellman-optimality-equations}
@@ -120,7 +120,7 @@ $$
 
     $$\pi_0 \xrightarrow{E} V_{\pi_0} \xrightarrow{I} \pi_1 \xrightarrow{E} V_{\pi_1} \xrightarrow{I} \pi_2 \xrightarrow{E} \ldots \xrightarrow{I} \pi_* \xrightarrow{E} V_*$$
 
-    Here $\xrightarrow{E}$ marks policy evaluation ($v_\pi(s) = \mathbb{E}_\pi\left[G_t \mid S_t = s\right]$) and $\xrightarrow{I}$ marks greedy policy improvement ($\pi' = \text{greedy}(v_\pi)$).
+    where $\xrightarrow{E}$ marks policy evaluation ($v_\pi(s) = \mathbb{E}_\pi\left[G_t \mid S_t = s\right]$) and $\xrightarrow{I}$ marks greedy policy improvement ($\pi' = \text{greedy}(v_\pi)$).
 
 <!-- $$V_\pi(s) = \mathbb{E}_\pi\left[G_t \mid S_t = s\right] \qquad \pi' = \text{greedy}(V_\pi)$$ -->
 
@@ -157,7 +157,7 @@ $$
 - **Competing yet cooperative dynamics**: evaluation pushes the value table toward the current policy's true value $v_\pi$ (which can make the policy non-greedy), while improvement shifts the policy to be greedy over the current table (which changes the target value function). Together, these opposing adjustments stabilize only at the joint optimal solution $(v_*, \pi_*)$.
 
 ::: {#fig-41}
-![](../figures/ch04-gpi-loop.png){width=85% fig-align="center" fig-alt="Generalized Policy Iteration diagram showing evaluation and improvement driving estimates toward optimal v_* and pi_*."}
+![](../figures/ch04-gpi-loop.png){width=96% fig-align="center" fig-alt="Generalized Policy Iteration diagram showing evaluation and improvement driving estimates toward optimal v_* and pi_*."}
 
 **Generalized Policy Iteration (GPI).** Policy evaluation moves the value estimate toward $v_\pi$ while policy improvement pushes the policy toward greediness with respect to $V$, driving both toward $(v_*, \pi_*)$.
 :::
@@ -175,4 +175,4 @@ $$
 - **Expected updates** average over every successor state weighted by exact transition probabilities $p(s', r \mid s, a)$ to satisfy the Bellman equations.
 - **Asynchronous DP** eliminates full state-space sweeps by updating states individually in place, directing compute where it matters most.
 - **Generalized Policy Iteration (GPI)** unifies DP and almost all subsequent RL methods as an ongoing interplay between value estimation and greedy policy updates.
-- **Bootstrapping**: all DP backups revise value estimates using other value estimates; Chapter 5 relaxes both the requirement for a known model and bootstrapping via Monte Carlo methods.
+- **Bootstrapping**: all DP backups revise value estimates using other value estimates; [Chapter 5](ch05-monte-carlo.qmd#sec-ch05-5-1) relaxes both the requirement for a known model and bootstrapping via Monte Carlo methods.

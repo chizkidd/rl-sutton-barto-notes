@@ -11,7 +11,7 @@ number-sections: true
 ## The Agent-Environment Interface {#sec-ch03-3-1}
 
 ::: {#fig-31}
-![](../figures/ch03-mdp-loop.png){width=85% fig-align="center" fig-alt="Agent-environment interaction loop showing action A_t sent to environment and next state S_{t+1} and reward R_{t+1} returned."}
+![](../figures/ch03-mdp-loop.png){width=90% fig-align="center" fig-alt="Agent-environment interaction loop showing action A_t sent to environment and next state S_{t+1} and reward R_{t+1} returned."}
 
 **Agent-environment interaction loop.** At each discrete step $t$, the agent applies action $A_t$ to the environment, which responds with the next state $S_{t+1}$ and scalar reward $R_{t+1}$.
 :::
@@ -60,7 +60,7 @@ $$r(s,a,s') \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a,\, S_t = 
 - **Reward signal**: at every round, the environment emits a single scalar $R_t \in \mathbb{R}$ communicating the task objective.
 - The learner targets long-horizon cumulative reward rather than myopic single-step gains, an idea codified by the **reward hypothesis**.
 
-::: {.callout-note title="Reward Hypothesis (Sutton & Barto, 2018, §3.2)"}
+::: {.callout-note title="Reward Hypothesis (Sutton & Barto, 2020, §3.2)"}
 > "That all of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal (called reward)."
 :::
 
@@ -154,7 +154,7 @@ v_\pi(s) &\doteq \mathbb{E}_\pi\left[G_t \mid S_t = s\right] \\
 $$
 
 - **Interpretation**: the expectation weights every feasible action by $\pi(a \mid s)$ and every resulting transition by $p(s', r \mid s, a)$, equating $v_\pi(s)$ to the expected immediate reward plus the discounted value of the next state.
-- **Backup diagram**: graphically, one-step lookahead trees depict open nodes for states ($s$ at the root and successor states $s'$ at the leaves) connected through filled nodes for state-action pairs $(s, a)$; the diagram illustrates how estimates at successor states are averaged and passed upward ("backed up") to update the root state (see Sutton & Barto, 2018, Fig. 3.4).
+- **Backup diagram**: graphically, one-step lookahead trees depict open nodes for states ($s$ at the root and successor states $s'$ at the leaves) connected through filled nodes for state-action pairs $(s, a)$; the diagram illustrates how estimates at successor states are averaged and passed upward ("backed up") to update the root state (see Sutton & Barto, 2020, §3.5).
 
 - Expressing $v_\pi(s)$ directly as an expectation over action values under $\pi$:
 
@@ -281,7 +281,7 @@ q_{*}(s,a) &= \mathbb{E}\left[R_{t+1} + \gamma \max_{a'} q_{*}(S_{t+1}, a') \mid
 }
 $$
 
-- **Optimality backup structure**: unlike policy-evaluation backups that average across actions according to $\pi$, optimality backups apply a $\max$ arc at the action-selection branch (at the root state $s$ for $v_*$, and at each successor state $s'$ for $q_*$; see Sutton & Barto, 2018, Fig. 3.5).
+- **Optimality backup structure**: unlike policy-evaluation backups that average across actions according to $\pi$, optimality backups apply a $\max$ arc at the action-selection branch (at the root state $s$ for $v_*$, and at each successor state $s'$ for $q_*$; see Sutton & Barto, 2020, Fig. 3.4, §3.6).
 
 ```{=latex}
 \clearpage

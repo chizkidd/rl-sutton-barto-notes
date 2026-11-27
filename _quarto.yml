@@ -14,7 +14,7 @@ project:
 
 book:
   title: "Study Notes on Reinforcement Learning: An Introduction (2nd Ed.)"
-  subtitle: "Independent personal study notes accompanying Sutton & Barto (2018)"
+  subtitle: "Independent personal study notes accompanying Sutton & Barto (2020)"
   author: "Chizoba Obasi"
   date: last-modified
   date-format: "MMMM YYYY"
@@ -100,10 +100,11 @@ format:
         \setlength{\parskip}{0.35em}
         \setlength{\parindent}{0pt}
         \raggedbottom
-        \setlength{\abovedisplayskip}{5pt}
-        \setlength{\belowdisplayskip}{5pt}
-        \setlength{\abovedisplayshortskip}{2pt}
-        \setlength{\belowdisplayshortskip}{3pt}
+        \setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}
+        \setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}
+        \setlength{\abovedisplayshortskip}{2pt plus 1pt}
+        \setlength{\belowdisplayshortskip}{2pt plus 1pt}
+        \setlength{\jot}{3pt}
         \setlength{\columnsep}{18pt}
         \setcounter{secnumdepth}{2}
         % --- pagination: no one-line spills, no headings stranded at a page foot
@@ -126,5 +127,7 @@ format:
     toc: true
     toc-depth: 2
     number-sections: true
+    cover-image: figures/epub-cover.png
+    css: styles/epub.css
 
 bibliography: references.bib

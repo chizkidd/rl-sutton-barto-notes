@@ -12,8 +12,9 @@ node scripts/build-notation.cjs    # regenerate notation.qmd
 python3 scripts/build-epub-gallery.py  # rebuild the epub figure list from the gallery grid
 python3 scripts/fix-epub.py        # repair the epub's packaging (also a post-render step)
 python3 scripts/make-webp.py       # WebP copies of the figures for the gallery
-python3 scripts/make-figures.py    # generate 8 original 300 dpi conceptual diagrams (Ch. 3-12)
+python3 scripts/make-figures.py    # generate 23 original 300 dpi conceptual diagrams (Ch. 3-12)
 python3 scripts/make-fig-13-1.py   # generate Figure 13.1 (Gaussian PDF) at 300 dpi
+python3 scripts/make-cover.py      # generate 1600x2400 EPUB cover image
 python3 scripts/freeze-anchors.py  # write the built heading ids into the chapters
 ```
 
@@ -33,7 +34,7 @@ python3 scripts/freeze-anchors.py  # write the built heading ids into the chapte
 
 **EPUB and releases**: the book builds EPUB alongside HTML and PDF, and tagged releases keep a frozen copy of the PDF for citation. See Releases.
 
-**Image weight**: `figures/webp/` holds display-size WebP copies (0.3 MB against 1.4 MB of PNGs across the 9 programmatically generated figures) that the gallery serves through `<picture>`, falling back to PNG. The PDF keeps the PNGs.
+**Image weight**: `figures/webp/` holds display-size WebP copies (1.0 MB against 5.4 MB of PNGs across the 24 programmatically generated figures plus the EPUB cover) that the gallery serves through `<picture>`, falling back to PNG. The PDF keeps the PNGs. `styles/epub.css` overrides Pandoc's hardcoded dark-on-light colors so dark/sepia e-readers theme text cleanly.
 
 ## Continuous Integration
 

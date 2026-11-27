@@ -6,7 +6,7 @@ number-sections: true
 - **Bridging TD and Monte Carlo**: Multi-step ($n$-step) bootstrapping unifies one-step temporal-difference learning and full-episode Monte Carlo methods inside a single parameterized family.
 - **Continuous spectrum of horizons**: Setting $n = 1$ recovers TD(0), while letting $n \to \infty$ recovers Monte Carlo; empirically, intermediate lookahead values often outperform both endpoints by balancing bias and variance.
 - **Beyond single-step updates**: Bootstrapping after $n$ transitions decouples the update interval from the environment's base time step, letting the agent match backup depth to the task's reward delay.
-- **Pathway to eligibility traces**: Understanding finite $n$-step backups lays the conceptual foundation for **eligibility traces** (Chapter 12), which blend multiple lookahead horizons simultaneously with constant per-step memory.
+- **Pathway to eligibility traces**: Understanding finite $n$-step backups lays the conceptual foundation for **eligibility traces** ([Chapter 12](ch12-eligibility-traces.qmd#sec-ch12-12-1)), which blend multiple lookahead horizons simultaneously with constant per-step memory.
 
 ## $n$-step TD Prediction, $\text{TD}(\lambda)$ {#sec-ch07-7-1}
 
@@ -16,7 +16,7 @@ number-sections: true
   - **$n$-step TD**: Collects an intermediate span of $n$ consecutive rewards before bootstrapping from the estimated value $n$ steps ahead (see @fig-71).
 
 ::: {#fig-71}
-![](../figures/ch07-nstep-spectrum.png){width=90% fig-align="center" fig-alt="Diagram illustrating n-step returns spanning 1-step TD(0) through finite n-step bootstrapping to full-episode Monte Carlo."}
+![](../figures/ch07-nstep-spectrum.png){width=96% fig-align="center" fig-alt="Diagram illustrating n-step returns spanning 1-step TD(0) through finite n-step bootstrapping to full-episode Monte Carlo."}
 
 **Spectrum of $n$-step returns.** Increasing lookahead $n$ trades bootstrapping bias for sampling variance, bridging TD(0) at $n = 1$ and Monte Carlo at $n = \infty$.
 :::
@@ -63,7 +63,13 @@ $$\max_s \left|\mathbb{E}_\pi\left[G_t^{(n)} \mid S_t = s\right] - v_\pi(s)\righ
 ## $n$-step Sarsa, $\text{Sarsa}(\lambda)$ {#sec-ch07-7-2}
 
 - **Extending multi-step backups to control**: Replacing state values $V(s)$ with action values $Q(s, a)$ and pairing the updates with an $\varepsilon$-greedy policy yields **$n$-step Sarsa**.
-- **Action-anchored backup structure**: Whereas $n$-step TD chains begin and terminate at state nodes, $n$-step Sarsa backups begin at $(S_t, A_t)$ and bootstrap from the sampled state-action pair $(S_{t+n}, A_{t+n})$ after $n$ rewards (see Sutton & Barto, 2018, Ch. 7, for multi-step Sarsa backup diagrams).
+- **Action-anchored backup structure**: Whereas $n$-step TD chains begin and terminate at state nodes, $n$-step Sarsa backups begin at $(S_t, A_t)$ and bootstrap from the sampled state-action pair $(S_{t+n}, A_{t+n})$ after $n$ rewards (see @fig-72).
+
+::: {#fig-72}
+![](../figures/ch07-nstep-sarsa.png){width=98% fig-align="center" fig-alt="Action-anchored backup diagrams for 1-step, 2-step, 3-step, n-step, Monte Carlo, and n-step Expected Sarsa."}
+
+**Backup diagrams for $n$-step Sarsa methods.** Action-anchored lookahead chains span Sarsa(0), general $n$-step Sarsa, full-episode Monte Carlo, and $n$-step Expected Sarsa.
+:::
 - **Action-value return sequence**: Across lookahead horizons $n = 1, 2, \ldots, \infty$:
 
 $$
@@ -197,7 +203,7 @@ $$
 ## Off-policy Learning Without Importance Sampling: The $n$-step Tree Backup Algorithm {#sec-ch07-7-5}
 
 - **Ratio-free off-policy bootstrapping**: Q-learning and Expected Sarsa achieve one-step off-policy learning without importance sampling; the **$n$-step tree-backup algorithm** generalizes that exact principle to arbitrary lookahead depth $n$.
-- **Anatomy of a multi-step tree backup**: Along a sampled $n$-step segment (e.g., 3 sampled states/rewards and 2 intermediate sampled actions; see Sutton & Barto, 2018, Ch. 7, for the 3-step tree-backup diagram), each visited state branches out to all unchosen actions in addition to the action actually taken.
+- **Anatomy of a multi-step tree backup**: Along a sampled $n$-step segment (e.g., a 4-step trajectory with unchosen action branches at every visited state; see the Tree Backup column of @fig-73), each visited state branches out to all unchosen actions in addition to the action actually taken.
   - Because no environment transition was observed for the unchosen branches, the update bootstraps directly from their current action-value estimates $Q$.
 - **Leaf-only weighting**: Every **leaf node** contributes its estimated action value to the target, while **interior** action nodes (actions that were actually executed and followed further) serve only to propagate probability mass down the tree.
 - **Recursive target-policy weights**: Each action branch carries weight equal to its selection probability under the target policy $\pi$:
@@ -246,7 +252,13 @@ $$Q_{t+n}(s,a) = Q_{t+n-1}(s,a) \quad \forall s, a \quad \text{ s.t. } \quad s \
   - **$n$-step Sarsa**: Samples every state-to-action transition along the trajectory.
   - **$n$-step Tree Backup**: Replaces every state-to-action transition with a full expectation over actions.
   - **$n$-step Expected Sarsa**: Samples all intermediate actions and takes a full expectation only at the final step.
-- **Step-by-step unification**: Instead of locking into a single choice for the entire horizon, decide dynamically at each step $t$ whether to sample (Sarsa-style) or take an expectation (tree-backup style) (see Sutton & Barto, 2018, Ch. 7, for comparative 4-step $Q(\sigma)$ backup diagrams).
+- **Step-by-step unification**: Instead of locking into a single choice for the entire horizon, decide dynamically at each step $t$ whether to sample (Sarsa-style) or take an expectation (tree-backup style) (see @fig-73).
+
+::: {#fig-73}
+![](../figures/ch07-nstep-unified.png){width=98% fig-align="center" fig-alt="Five-column comparison of 4-step TD, 4-step Sarsa, 4-step Tree Backup with trajectory labels, 4-step Expected Sarsa, and 4-step Q(sigma)."}
+
+**Unified 4-step off-policy and $Q(\sigma)$ backup taxonomy.** Comparing 4-step TD, Sarsa, Tree Backup (no importance sampling), Expected Sarsa, and $Q(\sigma)$ alternating between sampled ($\sigma = 1$) and expected ($\sigma = 0$) steps.
+:::
 - **Continuous sampling parameter ($\sigma_t$)**: Introduce $\sigma_t \in [0, 1]$ to interpolate smoothly between the two extremes on every step:
   - $\sigma_t = 1$: Full action sampling (Sarsa with importance sampling).
   - $\sigma_t = 0$: Pure expectation across actions (tree backup).
@@ -272,7 +284,7 @@ $$\boxed{G_{t:h} \doteq R_{t+1} + \gamma\left(\sigma_{t+1}\rho_{t+1} + (1-\sigma
 ## Summary {#sec-ch07-7-7}
 
 - **Multi-step continuum**: **$n$-step bootstrapping** spans the full spectrum between one-step TD(0) and Monte Carlo, letting intermediate lookahead depths achieve stronger empirical performance than either extreme.
-- **Core multi-step algorithms**: All methods in this chapter extend backups over $n$ consecutive rewards, states, and actions, cleanly summarized by two canonical archetypes (Sutton & Barto, 2018, Ch. 7):
+- **Core multi-step algorithms**: All methods in this chapter extend backups over $n$ consecutive rewards, states, and actions, cleanly summarized by two canonical archetypes (compare the first and last columns of @fig-73; Sutton & Barto, 2020, Ch. 7):
   - **$n$-step TD with importance sampling** (state-value prediction, optionally stabilized by per-decision control variates).
   - **$n$-step $Q(\sigma)$** (a unified control update interpolating continuously between sampled transitions and full action-value tree branching).
 - **Practical trade-offs of $n$-step methods**:
@@ -282,4 +294,4 @@ $$\boxed{G_{t:h} \doteq R_{t+1} + \gamma\left(\sigma_{t+1}\rho_{t+1} + (1-\sigma
 - **Two off-policy philosophies**:
   - **Importance sampling**: Conceptually direct and applicable to state values, yet prone to high variance without control variates.
   - **Tree backups**: Avoids importance ratios altogether by branching over target-policy expectations, generalizing Q-learning to multi-step stochastic target policies.
-- **Looking ahead**: Chapter 12 introduces **eligibility traces**, which capture multi-step credit assignment online with minimal memory and per-step overhead.
+- **Looking ahead**: [Chapter 12](ch12-eligibility-traces.qmd#sec-ch12-12-1) introduces **eligibility traces**, which capture multi-step credit assignment online with minimal memory and per-step overhead.

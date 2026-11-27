@@ -158,10 +158,10 @@ With a properly decaying step size, this converges to the true winning probabili
 Tic-tac-toe is deliberately simple. RL is much more general:
 
 - **Continuous problems**: no discrete episodes, rewards can come at any time.
-- **Huge or infinite state spaces**: Tesauro's TD-Gammon combined this exact algorithm with a neural network to master backgammon (~$10^{20}$ states), eventually surpassing the world's best human players (Section 16.1). Generalization from experience through function approximation is what makes this possible.
+- **Huge or infinite state spaces**: Tesauro's TD-Gammon [@tesauro1995] combined this exact algorithm with a neural network to master backgammon (~$10^{20}$ states), eventually surpassing the world's best human players (Section 16.1). Generalization from experience through function approximation is what makes this possible.
 - **Partial observability**: RL works even when the agent can't see the full state.
 - **No model required**: the tic-tac-toe player has no model of its opponent whatsoever and still learns to beat it. Model-free methods are often simpler, more robust when accurate models are hard to build, and important building blocks for model-based methods.
-- **Prior knowledge**: RL doesn't require starting from scratch, prior information can be incorporated in many ways ([Sections 9.5](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-5), 13.1, 17.4).
+- **Prior knowledge**: RL doesn't require starting from scratch, prior information can be incorporated in many ways ([Sections 9.5](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-5), [13.1](ch13-policy-gradient-methods.qmd#sec-ch13-13-1), 17.4).
 - **Hierarchical learning**: RL can operate at multiple levels simultaneously, where each "action" at a higher level is itself a complex problem-solving procedure.
 
 ## Summary {#sec-ch01-1-6}

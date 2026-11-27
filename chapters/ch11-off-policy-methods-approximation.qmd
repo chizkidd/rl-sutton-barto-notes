@@ -3,7 +3,7 @@ title: "Off-Policy Methods with Approximation"
 number-sections: true
 ---
 
-- Extending off-policy algorithms from tabular lookup tables (Chapters 6 and 7) to parameterized function approximation turns out to be dramatically harder than the on-policy case.
+- Extending off-policy algorithms from tabular lookup tables ([Chapter 6](ch06-temporal-difference.qmd#sec-ch06-6-1) and [Chapter 7](ch07-nstep-bootstrapping.qmd#sec-ch07-7-1)) to parameterized function approximation turns out to be dramatically harder than the on-policy case.
 - Rather than converging reliably with small step sizes, standard bootstrapped off-policy updates can become unstable and send parameter weights off to infinity, even in linear settings.
 - Two distinct difficulties emerge when combining off-policy data with function approximation:
   1. **Target mismatch**: The update target must reflect the target policy $\pi$ even though transitions were collected under a different behavior policy $b$.
@@ -70,11 +70,17 @@ $$\text{where } \delta_t \text{ is the Expected Sarsa TD error defined earlier i
 ## Examples of Off-Policy Divergence {#sec-ch11-11-2}
 
 - Addressing target mismatch alone is insufficient because the second obstacle, distribution mismatch, can destabilize semi-gradient updates.
-- Three classic counterexamples illustrate exactly how linear semi-gradient bootstrapping blows up under off-policy sampling (see Sutton & Barto, 2018, §11.2, for the transition diagrams of these MDPs).
+- Three classic counterexamples (@fig-111, @fig-112, and @fig-113) illustrate exactly how linear semi-gradient bootstrapping blows up under off-policy sampling.
 
 ### Example 1 {#example-1}
 
-- Imagine an isolated two-state fragment embedded inside a larger MDP (Sutton & Barto, 2018, §11.2): a single deterministic transition with reward $R = 0$ moves from a state valued at $w$ to a second state valued at $2w$, sharing the same scalar parameter $w$.
+- Imagine an isolated two-state fragment embedded inside a larger MDP (@fig-111): a single deterministic transition with reward $R = 0$ moves from a state valued at $w$ to a second state valued at $2w$, sharing the same scalar parameter $w$.
+
+::: {#fig-111}
+![](../figures/ch11-counterexample-simple.png){width=68% fig-align="center" fig-alt="Two-state MDP fragment transitioning from state valued w to state valued 2w with zero reward."}
+
+**Simple two-state counterexample.** Repeatedly bootstrapping a shared weight $w$ from a transition into $2w$ with $R = 0$ drives $\lvert w \rvert \to \infty$ whenever $2\gamma > 1$.
+:::
 - Suppose off-policy updates repeatedly sample only this transition with $\rho_t = 1$. Whenever $w > 0$ and the discount factor is sufficiently large, the destination state looks strictly better than the origin, pushing $w$ upward without bound.
 - The resulting TD error along the transition is:
 
@@ -109,7 +115,13 @@ $$
 
 ### Example 2 (Baird's Counterexample) {#example-2-bairds-counterexample}
 
-- To show that divergence occurs in a self-contained MDP rather than an isolated fragment, **Baird's counterexample** constructs a complete 7-state, 2-action star-shaped MDP (diagrammed in Sutton & Barto, 2018, §11.2).
+- To show that divergence occurs in a self-contained MDP rather than an isolated fragment, **Baird's counterexample** constructs a complete 7-state, 2-action star-shaped MDP (@fig-112).
+
+::: {#fig-112}
+![](../figures/ch11-bairds-counterexample.png){width=96% fig-align="center" fig-alt="Baird's 7-state, 2-action star MDP with six upper states 2w_i + w_8 and one lower hub w_7 + 2w_8 connected by solid and dashed actions."}
+
+**Baird's counterexample.** A self-contained 7-state, 2-action star MDP where all rewards are $0$ and linear off-policy semi-gradient TD diverges despite exact representability of $v_\pi = 0$.
+:::
 - **Problem setup**:
   - **Behavior policy**: Picks the dashed action with probability $b(\text{dashed}\,\vert\,\cdot) = 6/7$ (transitioning uniformly among the six top nodes) and the solid action with $b(\text{solid}\,\vert\,\cdot) = 1/7$ (entering the single bottom node deterministically).
   - **Target policy**: Always picks the solid action, $\pi(\text{solid}\,\vert\,\cdot) = 1$, keeping the agent permanently in the lower state.
@@ -132,7 +144,13 @@ $$\mathbf{w}_{k+1} \doteq \mathbf{w}_k + \frac{\alpha}{\vert S \vert} \sum_s \le
 
 ### Example 3 (Tsitsiklis & Van Roy's Counterexample) {#example-3-tsitsiklis-van-roys-counterexample}
 
-- **Tsitsiklis and Van Roy's counterexample** shows that even exact least-squares projection at every DP iteration can fail (Sutton & Barto, 2018, §11.2). It modifies Example 1 by adding a terminal state reached from the $2w$ state with probability $\varepsilon$ (and self-looping with probability $1 - \varepsilon$), with all rewards equal to $0$.
+- **Tsitsiklis and Van Roy's counterexample** (@fig-113) shows that even exact least-squares projection at every DP iteration can fail. It modifies Example 1 by adding a terminal state reached from the $2w$ state with probability $\varepsilon$ (and self-looping with probability $1 - \varepsilon$), with all rewards equal to $0$.
+
+::: {#fig-113}
+![](../figures/ch11-tsitsiklis-van-roy.png){width=78% fig-align="center" fig-alt="Two-state transition w to 2w with self-loop probability 1 minus epsilon and terminal transition probability epsilon."}
+
+**Tsitsiklis and Van Roy's counterexample.** Adding a self-loop ($1 - \varepsilon$) and terminal branch ($\varepsilon$) to the $2w$ state causes exact least-squares DP projection to diverge when $(6 - 4\varepsilon)\gamma > 5$.
+:::
 - Choosing the next scalar weight $w_{k+1}$ to minimize squared value error $\overline{\text{VE}}$ against the current one-step Bellman targets gives:
 
 $$
@@ -173,7 +191,7 @@ $$
 - Different learning algorithms effectively choose different points inside the representable plane to stand in for $v_\pi$, depending on which error geometry they minimize (@fig-114).
 
 ::: {#fig-114}
-![](../figures/ch11-linear-projection.png){width=85% fig-align="center" fig-alt="Geometric diagram of linear value-function approximation showing v_pi projected onto the linear subspace alongside VE, PBE, BE, and TDE solutions."}
+![](../figures/ch11-linear-projection.png){width=98% fig-align="center" fig-alt="Geometric diagram of linear value-function approximation showing v_pi projected onto the linear subspace alongside VE, PBE, BE, and TDE solutions."}
 
 **Geometry of linear value-function approximation.** The true value vector $v_\pi$ lies outside the representable linear plane; orthogonal projection $\Pi v_\pi$ minimizes $\overline{\text{VE}}$, whereas the TD fixed point ($\overline{\text{PBE}} = 0$), minimum $\overline{\text{BE}}$, and minimum $\overline{\text{TDE}}$ generally differ.
 :::
@@ -298,11 +316,17 @@ $$
 
 - **Learnability**: An objective (or its optimal parameter vector) is learnable only if it is uniquely determined by the observable stream of feature vectors, actions, and rewards, without peering inside the underlying MDP states.
 - The strongest argument against pursuing $\overline{\text{BE}}$ in model-free RL is that neither $\overline{\text{BE}}$ nor its minimizer is learnable from experience alone.
-- Two pairs of indistinguishable Markov Reward Processes (MRPs) demonstrate this distinction cleanly (see Sutton & Barto, 2018, §11.6, for the full state-transition diagrams).
+- Two pairs of indistinguishable Markov Reward Processes (MRPs) demonstrate this distinction cleanly (@fig-115 and @fig-116).
 
 ### Example 1 {#example-1-1}
 
-- Consider two distinct MRPs that share identical feature representations (all states map to the same constant feature) and emit the exact same endless alternating stream of rewards $0, 2, 0, 2, \ldots$ (Sutton & Barto, 2018, §11.6): one has a single state with a $50/50$ random reward of $0$ or $2$, while the other deterministically cycles through two indistinguishable states yielding $0$ and $2$.
+- Consider two distinct MRPs that share identical feature representations (every state maps to the same scalar parameter $w$) and emit the exact same i.i.d. $50/50$ stream of rewards $0$ and $2$ (@fig-115): MRP 1 has a single state with two $50/50$ self-loops yielding $0$ or $2$, while MRP 2 splits into two indistinguishable states where the left state always emits $0$ (transitioning $50/50$ to itself or the right state) and the right state always emits $2$ (transitioning $50/50$ to itself or the left state).
+
+::: {#fig-115}
+![](../figures/ch11-ve-learnability-mrps.png){width=96% fig-align="center" fig-alt="Side-by-side comparison of a single-state MRP and an aliased two-state MRP that both emit an identical i.i.d. 50/50 stream of rewards 0 and 2."}
+
+**$\overline{\text{VE}}$ learnability counterexample.** Both MRPs produce indistinguishable observable reward streams under a shared feature $w$, yet have different true $\overline{\text{VE}}$ values.
+:::
 - From the agent's observations alone, no amount of infinite data can tell whether the environment has one stochastic state or two deterministic states.
 - Consequently, the **Mean Squared Value Error** ($\overline{\text{VE}}$) itself cannot be estimated from data, because $v_\pi(s)$ differs between the two MRPs:
 
@@ -322,10 +346,16 @@ $$
 
 ### Example 2 {#example-2}
 
-- A slightly richer pair of deterministic MRPs with aliased features (Sutton & Barto, 2018, §11.6) proves that $\overline{\text{BE}}$ fails even the weaker test of optimal-parameter learnability.
+- A slightly richer pair of MRPs with aliased features (@fig-116) proves that $\overline{\text{BE}}$ fails even the weaker test of optimal-parameter learnability.
+
+::: {#fig-116}
+![](../figures/ch11-be-learnability-mrps.png){width=98% fig-align="center" fig-alt="Side-by-side 2-state MRP (A, B) and 3-state MRP (A, B, B prime) where B and B prime share features, generating identical data distributions with different BE-minimizing parameters."}
+
+**$\overline{\text{BE}}$ learnability counterexample.** States $B$ and $B'$ share the same feature representation, yielding identical observable transition statistics from MRP A and MRP B while inducing different parameter vectors minimizing $\overline{\text{BE}}$.
+:::
 - Both MRPs generate identical observable distributions over feature sequences and rewards, yet they possess *different* $\overline{\text{BE}}$-minimizing weight vectors.
 - Because the optimal $\mathbf{w}$ is not a function of the data distribution, no model-free algorithm can possibly learn the $\overline{\text{BE}}$ solution from interaction data alone.
-- **Learnable bootstrapping alternatives**: Both $\overline{\text{PBE}}$ and $\overline{\text{TDE}}$ depend solely on the observable data distribution, making them genuinely learnable; their optimal parameter vectors generally differ from one another and from the unlearnable $\overline{\text{BE}}$ minimizer (see Sutton & Barto, 2018, §11.6, for the causal dependency diagram relating MDPs, data distributions, and error objectives).
+- **Learnable bootstrapping alternatives**: Both $\overline{\text{PBE}}$ and $\overline{\text{TDE}}$ depend solely on the observable data distribution, making them genuinely learnable; their optimal parameter vectors generally differ from one another and from the unlearnable $\overline{\text{BE}}$ minimizer (see Sutton & Barto, 2020, §11.6, for the causal dependency diagram relating MDPs, data distributions, and error objectives).
 - Since $\overline{\text{BE}}$ is restricted to model-based settings with access to environment dynamics, **$\overline{\text{PBE}}$** serves as the preferred bootstrapping objective for stable model-free off-policy learning.
 
 ## Gradient-TD Methods {#sec-ch11-11-7}
@@ -427,12 +457,12 @@ $$
 
 - **Cascade structure**: Both GTD2 and TDC pair two coupled learners: primary value weights $\mathbf{w}$ rely on secondary weights $\mathbf{v}$, whereas $\mathbf{v}$ tracks the TD error for the current $\mathbf{w}$ at its own step size $\beta$.
 - Gradient-TD algorithms remain among the best-analyzed $O(d)$ stable off-policy estimators, with broad extensions across RL:
-  1. **Action-value control**: GQ (Maei et al., 2010).
-  2. **Eligibility traces**: GTD($\lambda$) and GQ($\lambda$) (Maei, 2011; Maei & Sutton, 2010).
-  3. **Nonlinear approximation**: Smooth nonlinear value functions (Maei et al., 2009).
+  1. **Action-value control**: GQ [@maei2010].
+  2. **Eligibility traces**: GTD($\lambda$) and GQ($\lambda$) [@maei2011; @maei2010gq].
+  3. **Nonlinear approximation**: Smooth nonlinear value functions [@maei2009].
 - **Hybrid and saddle-point variants**:
-  1. Blending classical semi-gradient updates with gradient-corrected steps to recover standard TD speed on-policy (Hackman, 2012; White & White, 2016).
-  2. Reformulating the objective as a convex-concave saddle point solved with proximal steps and variance-reducing control variates (Mahadevan et al., 2014; Du et al., 2017).
+  1. Blending classical semi-gradient updates with gradient-corrected steps to recover standard TD speed on-policy [@hackman2012; @white2016].
+  2. Reformulating the objective as a convex-concave saddle point solved with proximal steps and variance-reducing control variates [@mahadevan2014; @du2017].
 
 ## Emphatic-TD Methods {#sec-ch11-11-8}
 
@@ -442,11 +472,13 @@ $$
 - **Emphatic-TD**: Re-weights each transition dynamically, amplifying underrepresented states and down-weighting overrepresented ones, until the effective update distribution mirrors the on-policy steady state and restores convergence guarantees.
 - **One-step Emphatic-TD** (episodic state values) scales the semi-gradient TD(0) update by a recursively accumulated scalar emphasis $M_t$:
 
-$$\delta_t = R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t)$$
-
-$$\mathbf{w}_{t+1} = \mathbf{w}_t + \alpha M_t \rho_t\, \delta_t \nabla \hat{v}(S_t, \mathbf{w}_t)$$
-
-$$M_t = \gamma \rho_{t-1} M_{t-1} + \mathcal{I}_t$$
+$$
+\begin{aligned}
+\delta_t &= R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t) \\[4pt]
+\mathbf{w}_{t+1} &= \mathbf{w}_t + \alpha M_t \rho_t\, \delta_t \nabla \hat{v}(S_t, \mathbf{w}_t) \\[4pt]
+M_t &= \gamma \rho_{t-1} M_{t-1} + \mathcal{I}_t
+\end{aligned}
+$$
 
 $$
 \begin{aligned}
