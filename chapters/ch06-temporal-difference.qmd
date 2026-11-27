@@ -230,6 +230,7 @@ $$
 
 ::: {#fig-61}
 ![](../figures/ch06-td-backups.png){width=98% fig-align="center" fig-alt="Side-by-side one-step backup schematics for TD(0), Sarsa, Q-learning, and Expected Sarsa."}
+<!-- Alternate 2x2 layout (kept in figures/): ![](../figures/ch06-td-backups-2x2.png){width=84% fig-align="center" fig-alt="2x2 one-step backup schematics for TD(0), Sarsa, Q-learning, and Expected Sarsa."} -->
 
 **One-step TD backup schematics.** Comparing the single-step update targets of TD(0), Q-learning, Sarsa, and Expected Sarsa.
 :::

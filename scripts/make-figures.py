@@ -308,27 +308,34 @@ def _draw_ch06_panel(ax, kind: str) -> None:
 
 
 def fig_ch06_td_backups(out: Path, preview_dir: Path | None = None) -> None:
-    """Figure 6.1: Upscaled 1x4 one-step TD backups (+ optional 2x2 comparison preview)."""
-    # 1x4 compact, tall & legible
+    """Figure 6.1: Active 1x4 one-step TD backups plus alternate 2x2 layout."""
+    # Active 1x4 layout (compact, tall & legible)
     fig, axes = plt.subplots(1, 4, figsize=(9.4, 3.6))
     for ax, kind in zip(axes, ("td0", "sarsa", "qlearn", "exp_sarsa")):
         _draw_ch06_panel(ax, kind)
     fig.tight_layout(w_pad=0.7)
     save(fig, out, "ch06-td-backups.png")
 
+    # Alternate 2x2 layout (preserved alongside active 1x4)
+    fig2, axes2 = plt.subplots(2, 2, figsize=(7.0, 6.2))
+    for ax, kind in zip(axes2.flat, ("td0", "sarsa", "qlearn", "exp_sarsa")):
+        _draw_ch06_panel(ax, kind)
+    fig2.tight_layout(h_pad=1.6, w_pad=1.4)
+    save(fig2, out, "ch06-td-backups-2x2.png")
+
     if preview_dir is not None:
         # Also save copies of both 1x4 and 2x2 to preview_dir for visual comparison
-        fig1, axes1 = plt.subplots(1, 4, figsize=(9.4, 3.6))
-        for ax, kind in zip(axes1, ("td0", "sarsa", "qlearn", "exp_sarsa")):
+        fig1p, axes1p = plt.subplots(1, 4, figsize=(9.4, 3.6))
+        for ax, kind in zip(axes1p, ("td0", "sarsa", "qlearn", "exp_sarsa")):
             _draw_ch06_panel(ax, kind)
-        fig1.tight_layout(w_pad=0.7)
-        save(fig1, preview_dir, "fig61_1x4_preview.png")
+        fig1p.tight_layout(w_pad=0.7)
+        save(fig1p, preview_dir, "fig61_1x4_preview.png")
 
-        fig2, axes2 = plt.subplots(2, 2, figsize=(7.0, 6.2))
-        for ax, kind in zip(axes2.flat, ("td0", "sarsa", "qlearn", "exp_sarsa")):
+        fig2p, axes2p = plt.subplots(2, 2, figsize=(7.0, 6.2))
+        for ax, kind in zip(axes2p.flat, ("td0", "sarsa", "qlearn", "exp_sarsa")):
             _draw_ch06_panel(ax, kind)
-        fig2.tight_layout(h_pad=1.6, w_pad=1.4)
-        save(fig2, preview_dir, "fig61_2x2_preview.png")
+        fig2p.tight_layout(h_pad=1.6, w_pad=1.4)
+        save(fig2p, preview_dir, "fig61_2x2_preview.png")
 
 
 # ---------------------------------------------------------------------------

@@ -65,6 +65,12 @@ $$
 At stationarity, the probability mass residing in state $s$ equals the total incoming probability flow from every predecessor state $s'$ transitioning into $s$ under policy $\pi$.
 :::
 
+<!-- Original (main) version:
+::: {.callout-note title="Balance Equation"}
+The probability of being in state $s$ equals the sum over all ways of arriving in $s$ from any previous state $s'$ under policy $\pi$.
+:::
+-->
+
 2. **Episodic tasks**: visitation counts depend on the start-state distribution $h(s)$ as well as transition dynamics:
 
 $$\eta(s) = h(s) + \sum_{\bar{s}} \eta(\bar{s}) \sum_a \pi(a \vert \bar{s})\, p(s \vert \bar{s}, a), \quad \forall s \in S$$
@@ -81,6 +87,12 @@ $$
 ::: {.callout-note title="Visitation Equation"}
 The expected visit count for state $s$ in an episode equals the chance of starting in $s$ plus the summed incoming flow from all predecessor states $\bar{s}$ transitioning to $s$ under $\pi$.
 :::
+
+<!-- Original (main) version:
+::: {.callout-note title="Visitation Equation"}
+The expected number of visits to state $s$ equals the probability of starting in state $s$ plus the expected number of visits to all preceding states $s'$ that transition into $s$ under policy $\pi$.
+:::
+-->
 
 - Solving this linear system yields the expected per-episode visit counts $\eta(s)$.
 - Normalizing $\eta(s)$ across all states produces the episodic on-policy distribution:
