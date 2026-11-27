@@ -21,7 +21,7 @@ $$\begin{aligned}
 \alpha &\equiv \text{constant step-size parameter}
 \end{aligned}$$
 
-- The simplest TD method, **TD(0)**, makes the update:
+- The simplest TD method, **TD(0)** [@sutton1988], makes the update:
 
 $$\boxed{V(S_t) \leftarrow V(S_t) + \alpha\underbrace{\left[R_{t+1} + \gamma V(S_{t+1}) - V(S_t)\right]}_{\text{TD Error}}}$$
 
@@ -126,7 +126,7 @@ An episode.
 
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \gamma Q(S_{t+1}, A_{t+1})}_{\text{TD target}} - Q(S_t, A_t)\Big]}$$
 
-- This update rule uses a quintuple of events $(S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1})$. Hence, the name **SARSA**. The backup diagram is shown below:
+- This update rule uses a quintuple of events $(S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1})$. Hence, the name **SARSA** [@rummery1994]. The backup diagram is shown below:
 
 ::: {#fig-63}
 ![](../figures/ch06-6-4-sarsa.png){width=62% fig-align="center" fig-alt="Sarsa backup diagram. from state-action pair (S, A) through reward R to next state S' and next action A'."} 
@@ -178,9 +178,9 @@ $$
 $$\boxed{Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha\Big[\underbrace{R_{t+1} + \gamma \max_{a'} Q(S_{t+1}, a')}_{\text{Q-learning target}} - Q(S_t, A_t)\Big]}$$
 
 - Here, the learned action-value function $Q$ directly approximates $q_*$, the optimal value function, independent of the policy being followed (off-policy). $v_*$ can be learned with a **1-step lookahead.**
-- Q-learning is off-policy so it updates the value function **greedily** directly while updating/exploring the other actions with the **$\varepsilon$-greedy** policy.
+- Q-learning [@watkins1989; @watkins1992] is off-policy so it updates the value function **greedily** directly while updating/exploring the other actions with the **$\varepsilon$-greedy** policy.
   - This simplifies the analysis of the algorithm & enables early convergence proofs.
-  - Under the **GLIE** assumption (all state-action pairs continue to be updated) and following a **stochastic approximation theory** variant on the sequence of $\alpha$, $Q$ has been shown to converge with probability 1 to $q_*$:
+  - Under the **GLIE** assumption (all state-action pairs continue to be updated) and following a **[stochastic approximation theory](ch02-multi-armed-bandits.qmd#step-size-parameter)** variant on the sequence of $\alpha$, $Q$ has been shown to converge with probability 1 to $q_*$:
 
 $$Q(s,a) \longrightarrow q_*(s,a)$$
 

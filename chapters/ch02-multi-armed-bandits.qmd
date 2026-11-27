@@ -351,5 +351,5 @@ and $R^a(r)$ is an unknown probability distribution over rewards.
   - **UCB** adds an uncertainty bonus that deterministically prioritizes rarely sampled actions.
   - **Gradient bandits** bypass value estimation altogether, maintaining action preferences converted to probabilities through a softmax policy.
 - Comparing algorithms cleanly across hyperparameter choices requires **parameter studies** (plotting average reward over a wide log-spaced parameter sweep), which typically reveal an inverted-U sweet spot for every method.
-- Bayesian methods such as **Gittins indices** and **Thompson (posterior) sampling** formulate optimal exploration over belief states, connecting single-state bandit problems directly to full sequential RL (see Sutton & Barto, 2018, §2.10).
+- Bayesian methods such as **Gittins indices** and **Thompson (posterior) sampling** formulate optimal exploration over belief states, connecting single-state bandit problems directly to full sequential RL (see Sutton & Barto, 2020, §2.10).
 

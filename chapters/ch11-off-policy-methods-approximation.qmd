@@ -496,12 +496,12 @@ $$
 - Asymmetrical dependence ($\mathbf{w}$ depends on $\mathbf{v}$ but $\mathbf{v}$ does not depend on $\mathbf{w}$) is referred to as a **cascade**.
 - Gradient-TD methods are the most well-understood and widely used stable off-policy methods.
 - Extensions of GTD methods include to:
-  1. Action values and control: **GQ [Maei et al., 2010]**
-  2. Eligibility traces: **GTD($\lambda$), GQ($\lambda$) [Maei, 2011; Maei & Sutton, 2010]**
-  3. Nonlinear function approximation **[Maei et al., 2009]**
+  1. Action values and control: **GQ** [@maei2010]
+  2. Eligibility traces: **GTD($\lambda$), GQ($\lambda$)** [@maei2011; @maei2010gq]
+  3. Nonlinear function approximation [@maei2009]
 - Hybrid algorithms include:
-  1. Midway between semi-gradient TD and gradient TD **[Hackman, 2012; White & White, 2016]**
-  2. GTD + proximal methods & control variates **[Mahadevan et al., 2014; Du et al., 2017]**
+  1. Midway between semi-gradient TD and gradient TD [@hackman2012; @white2016]
+  2. GTD + proximal methods & control variates [@mahadevan2014; @du2017]
 
 ## Emphatic-TD Methods {#sec-ch11-11-8}
 
@@ -514,11 +514,13 @@ $$
 
 - The **one-step Emphatic-TD algorithm** for learning episodic state values is defined by:
 
-$$\delta_t = R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t)$$
-
-$$\mathbf{w}_{t+1} = \mathbf{w}_t + \alpha M_t \rho_t\, \delta_t \nabla \hat{v}(S_t, \mathbf{w}_t)$$
-
-$$M_t = \gamma \rho_{t-1} M_{t-1} + \mathcal{I}_t$$
+$$
+\begin{aligned}
+\delta_t &= R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}_t) - \hat{v}(S_t, \mathbf{w}_t) \\
+\mathbf{w}_{t+1} &= \mathbf{w}_t + \alpha M_t \rho_t\, \delta_t \nabla \hat{v}(S_t, \mathbf{w}_t) \\
+M_t &= \gamma \rho_{t-1} M_{t-1} + \mathcal{I}_t
+\end{aligned}
+$$
 
 $$
 \begin{aligned}
@@ -552,7 +554,7 @@ $$
   - Polyak-Ruppert averaging
   - Methods for adaptively setting separate step sizes for different components of the parameter vector
   - "Importance weight aware" updates of **Karampatziakis & Langford (2015)**
-  - Weighted importance sampling, which is well-behaved with lower variance updates than ordinary importance sampling, but adapting it to function approximation is challenging **[Mahmood & Sutton, 2015]**
+  - Weighted importance sampling, which is well-behaved with lower variance updates than ordinary importance sampling, but adapting it to function approximation is challenging [@mahmood2015]
   - Tree backup algorithm (off-policy, without importance sampling)
   - Allow the target policy $\pi$ to be determined partly by the behavior policy $b$ to limit creating large importance sampling ratios
 

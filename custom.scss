@@ -33,7 +33,20 @@ h3 {
 /* -- Math --------------------------------------------------- */
 .math.display {
   overflow-x: auto;
-  padding: 0.5em 0;
+  padding: 0.25em 0;
+}
+
+p:has(> .math.display) {
+  margin-top: 0.55em;
+  margin-bottom: 0.55em;
+}
+
+p:has(> .math.display) + p:has(> .math.display) {
+  margin-top: -0.25em;
+}
+
+.katex-display {
+  margin: 0.55em 0 !important;
 }
 
 /* -- Code blocks ------------------------------------------- */

@@ -1,0 +1,52 @@
+/* EPUB 3.3 adaptive reader stylesheet
+ *
+ * Overrides Pandoc's hardcoded dark-on-light colors so Apple Books, Kobo,
+ * Kindle, and Calibre can theme text cleanly in Light, Sepia, and Dark modes,
+ * and tightens vertical spacing between stacked display equations.
+ */
+
+html, body {
+  color: inherit;
+  background-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+pre, code {
+  background-color: rgba(127, 127, 127, 0.12);
+  color: inherit;
+}
+
+blockquote {
+  color: inherit;
+  border-left: 3px solid rgba(127, 127, 127, 0.45);
+}
+
+/* Keep consecutive display equations and their "where ..." legends visually tight */
+p:has(> math[display="block"]) + p:has(> math[display="block"]),
+.math.display + .math.display {
+  margin-top: -0.35em;
+}
+
+math[display="block"] {
+  margin: 0.45em auto;
+}
+
+figure {
+  text-align: center;
+  margin: 1.0em auto;
+}
+
+figure img {
+  max-width: 100%;
+  height: auto;
+}
+
+figcaption {
+  font-size: 0.9em;
+  opacity: 0.85;
+  margin-top: 0.4em;
+}

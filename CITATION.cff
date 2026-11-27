@@ -3,7 +3,7 @@ message: "If you use these study notes, please cite them using the metadata belo
 title: "Study Notes on Reinforcement Learning: An Introduction (2nd Ed.)"
 abstract: >-
   Independent personal study notes accompanying Richard S. Sutton and Andrew G.
-  Barto's Reinforcement Learning: An Introduction (2nd ed., MIT Press, 2018).
+  Barto's Reinforcement Learning: An Introduction (2nd ed., MIT Press, 2018; 2020 corrected reprint).
   Covers all 13 chapters across tabular and approximate solution methods, built
   as a Quarto book (HTML, PDF, EPUB) with an accompanying Anki cloze flashcard
   deck. Intended solely as a study companion and not as a substitute for the
@@ -29,7 +29,7 @@ references:
   - type: book
     title: "Reinforcement Learning: An Introduction"
     edition: "2nd"
-    year: 2018
+    year: 2020
     publisher:
       name: "MIT Press"
       city: "Cambridge, MA"

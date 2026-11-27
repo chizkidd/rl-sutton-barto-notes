@@ -147,7 +147,7 @@ $$\nabla f(\mathbf{w}) \doteq \left(\frac{\partial f(\mathbf{w})}{\partial w_1},
 
 - SGD methods are ***"gradient descent"*** methods because the overall step in $\mathbf{w}_t$ is proportional to the negative gradient of the example's squared error ($\mathbf{w}_{t+1}$). This is the direction in which the error falls most rapidly.
 - Gradient descent methods are called ***"stochastic"*** because the update is done on only a single example, which might have been selected stochastically.
-- If $\alpha$ decreases as expected in satisfaction of the standard stochastic approximation conditions, then SGD is guaranteed to converge to a local optimum.
+- If $\alpha$ decreases as expected in satisfaction of the [standard stochastic approximation conditions](ch02-multi-armed-bandits.qmd#step-size-parameter), then SGD is guaranteed to converge to a local optimum.
 
 ### True Value Estimates {#true-value-estimates}
 
@@ -156,7 +156,7 @@ $$\nabla f(\mathbf{w}) \doteq \left(\frac{\partial f(\mathbf{w})}{\partial w_1},
 
 $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[U_t - \hat{v}(S_t, \mathbf{w}_t)\right] \nabla \hat{v}(S_t, \mathbf{w}_t)}$$
 
-- If $U_t$ is an ***unbiased*** estimate, that is, if $\mathbb{E}[U_t \vert S_t = s] = v_\pi(s)$ for each $t$, then $\mathbf{w}_t$ is guaranteed to converge to a local optimum under the usual stochastic approximation conditions for decreasing $\alpha$.
+- If $U_t$ is an ***unbiased*** estimate, that is, if $\mathbb{E}[U_t \vert S_t = s] = v_\pi(s)$ for each $t$, then $\mathbf{w}_t$ is guaranteed to converge to a local optimum under the [usual stochastic approximation conditions](ch02-multi-armed-bandits.qmd#step-size-parameter) for decreasing $\alpha$.
 - An example of an unbiased estimator is the **Monte Carlo** estimate for state $S_t$:
 
 $$U_t = G_t$$
@@ -190,7 +190,7 @@ $$\nabla \hat{v}(S_t, \mathbf{w}_t) = \left\{ \begin{array}{ll} 1 & \text{for } 
 $$\hat{v}(s, \mathbf{w}) \doteq \mathbf{w}^T \mathbf{x}(s) \doteq \sum_{i=1}^{d} w_i x_i(s)$$
 
 $$
-\begin{aligned} \\
+\begin{aligned}
 \text{where } \quad \mathbf{x}(s) &= \textbf{feature vector } \text{representing state } s \\
 \mathbf{x}(s) &\doteq \bigl(x_1(s),\ x_2(s),\ x_3(s),\ \ldots,\ x_d(s)\bigr)^T \\
 x_i(s) &= \text{value of function } x_i : S \to \mathbb{R}
@@ -208,46 +208,47 @@ $$\boxed{\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left[U_t - \hat{v}(S_t,
 
 - The semi-gradient TD(0) algorithm converges under linear function approximation:
 
-$$\mathbf{w}_{t+1} \doteq \mathbf{w}_t + \alpha\!\left(R_{t+1} + \gamma \mathbf{w}_t^T \mathbf{x}_{t+1} - \mathbf{w}_t^T \mathbf{x}_t\right) \mathbf{x}_t$$
-
-$$= \mathbf{w}_t + \alpha\!\left(R_{t+1} \mathbf{x}_t - \mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T \mathbf{w}_t\right)$$
-
 $$
-\begin{aligned} \\
-\text{where} \quad \mathbf{x}_t = \mathbf{x}(S_t)
+\begin{aligned}
+\mathbf{w}_{t+1} &\doteq \mathbf{w}_t + \alpha\!\left(R_{t+1} + \gamma \mathbf{w}_t^T \mathbf{x}_{t+1} - \mathbf{w}_t^T \mathbf{x}_t\right) \mathbf{x}_t \\
+&= \mathbf{w}_t + \alpha\!\left(R_{t+1} \mathbf{x}_t - \mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T \mathbf{w}_t\right)
 \end{aligned}
 $$
+
+$$\text{where} \quad \mathbf{x}_t = \mathbf{x}(S_t)$$
 
 - Once the system has reached steady state, for any given $\mathbf{w}_t$ the expected next weight vector can be represented as:
 
 $$\mathbb{E}\!\left[\mathbf{w}_{t+1} \vert \mathbf{w}_t\right] = \mathbf{w}_t + \alpha\!\left(\mathbf{b} - \mathbf{A}\mathbf{w}_t\right)$$
 
 $$
-\begin{aligned} \\
+\begin{aligned}
 \text{where} \quad
-b &\doteq \mathbb{E}\!\left[R_{t+1}\, \mathbf{x}_t\right] \in \mathbb{R}^d \\
-A &\doteq \mathbb{E}\!\left[\mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T\right] \in \mathbb{R}^{d \times d}
+\mathbf{b} &\doteq \mathbb{E}\!\left[R_{t+1}\, \mathbf{x}_t\right] \in \mathbb{R}^d \\
+\mathbf{A} &\doteq \mathbb{E}\!\left[\mathbf{x}_t\!\left(\mathbf{x}_t - \gamma \mathbf{x}_{t+1}\right)^T\right] \in \mathbb{R}^{d \times d}
 \end{aligned}
 $$
 
 - It is clear that, if the system converges, it must converge to the weight vector $\mathbf{w}_\text{TD}$ at which:
 
-$$\mathbf{b} - \mathbf{A}\mathbf{w}_\text{TD} = \mathbf{0}$$
-
-$$\mathbf{b} = \mathbf{A}\mathbf{w}_\text{TD}$$
-
-$$\mathbf{w}_\text{TD} \doteq \mathbf{A}^{-1}\mathbf{b}$$
+$$
+\begin{aligned}
+\mathbf{b} - \mathbf{A}\mathbf{w}_\text{TD} &= \mathbf{0} \\
+\mathbf{b} &= \mathbf{A}\mathbf{w}_\text{TD} \\
+\mathbf{w}_\text{TD} &\doteq \mathbf{A}^{-1}\mathbf{b}
+\end{aligned}
+$$
 
 - $\mathbf{w}_\text{TD}$ is called the **TD fixed point**. It is the point that linear semi-gradient TD(0) converges to.
 - $\mathbf{A}$ needs to be ***positive definite*** to ensure that $\mathbf{A}^{-1}$ exists:
 
 $$y^T \mathbf{A} y > 0, \text{ for any } y \neq 0$$
 
-- The semi-gradient $n$-step TD algorithm is the natural extension of the tabular $n$-step TD algorithm in Ch. 7 to semi-gradient function approximation:
+- The semi-gradient $n$-step TD algorithm is the natural extension of the tabular $n$-step TD algorithm in [Chapter 7](ch07-nstep-bootstrapping.qmd#sec-ch07-7-1) to semi-gradient function approximation:
 
 $$\boxed{
 \begin{aligned}
-\mathbf{w}_{t+n} &\doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{v}(S_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{v}(S_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T \\ \\
+\mathbf{w}_{t+n} &\doteq \mathbf{w}_{t+n-1} + \alpha\!\left[G_{t:t+n} - \hat{v}(S_t, \mathbf{w}_{t+n-1})\right] \nabla \hat{v}(S_t, \mathbf{w}_{t+n-1}), \quad 0 \leq t < T \\[4pt]
 G_{t:t+n} &\doteq R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots + \gamma^{n-1} R_{t+n} + \gamma^n \hat{v}(S_{t+n}, \mathbf{w}_{t+n-1}), \quad 0 \leq t \leq T-n
 \end{aligned}
 }$$
@@ -262,7 +263,7 @@ $$\boxed{\overline{\text{VE}}(\mathbf{w}_\text{TD}) \leq \frac{1}{1-\gamma} \min
 - $\gamma$ is often near 1, so the expansion factor can be quite large; therefore there is substantial potential loss in asymptotic performance with the TD method.
 - A bound analogous to TD's fixed point & bound above on $\overline{\text{VE}}(\mathbf{w}_\text{TD})$ applies to other on-policy bootstrapping methods as well.
 - One-step **action-value** methods such as ***semi-gradient Sarsa(0)*** converge to an analogous fixed point and an analogous bound.
-- For **episodic** tasks, there exists a bound [Bertsekas & Tsitsiklis, 1996].
+- For **episodic** tasks, there exists a bound [@bertsekas1996].
 
 ## Feature Construction for Linear Methods {#sec-ch09-9-5}
 
@@ -386,7 +387,7 @@ $$\boxed{x_i(s) \doteq \exp\!\left(-\frac{\lVert s - c_i \rVert^2}{2\sigma_i^2}\
 
 - What is the best way to select $\alpha$ for function approximation?
 - So far:
-  - The theory of stochastic approximation gives us conditions on a slowly decreasing step-size sequence that are sufficient to guarantee convergence, but these tend to result in learning that is **too slow.**
+  - The [theory of stochastic approximation](ch02-multi-armed-bandits.qmd#step-size-parameter) gives us conditions on a slowly decreasing step-size sequence that are sufficient to guarantee convergence, but these tend to result in learning that is **too slow.**
   - The sample-average classical method $\alpha_t = \frac{1}{t}$ is **not appropriate** for TD methods, for nonstationary problems, or for any function approximation method.
   - For linear methods, there are recursive least-square methods that set an optimal matrix step size which can be extended to LSTD methods (seen in [Section 9.8](#sec-ch09-9-8)), but these require $O(d^2)$ step-size parameters, or $d$ times more parameters than we are learning. Therefore, it is inappropriate for function approximation.
 
@@ -420,18 +421,18 @@ $$
 
 $$
 \begin{aligned}
-\text{Sigmoid:} \quad & f(x) = \frac{1}{1 + e^{-x}} \\ \\
-\text{ReLU:} \quad & f(x) = \max(0, x) \\ \\
+\text{Sigmoid:} \quad & f(x) = \frac{1}{1 + e^{-x}} \\[4pt]
+\text{ReLU:} \quad & f(x) = \max(0, x) \\[4pt]
 \text{Binary step:} \quad & f(x) = \left\{ \begin{array}{ll} 1 & \text{if } x \geq 0 \\ 0 & \text{if } x < 0 \end{array} \right\}
 \end{aligned}
 $$
 
-- ANNs can use TD errors to learn value functions, or they can aim to maximize expected reward as in a gradient bandit ([Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8)) or a policy gradient algorithm (Chapter 13).
-- Overfitting in ANNs is a problem for function approximation that can be reduced through the **dropout** method [Srivastava, Hinton, Krizhevsky, Sutskever & Salakhutdinov, 2014].
-- **Deep belief networks** presented a major step towards solving the training problem of deep layers of a deep ANN [Hinton, Osindero & Teh, 2006].
-- **Batch normalization** makes it easier to train deep ANNs by normalizing the output of deep layers before they feed into the following layer. This improves the learning rate of deep ANNs [Ioffe & Szegedy, 2015].
-- **Deep residual learning** is another technique useful for training deep ANNs [He, Zhang, Ren & Sun, 2016].
-- **Deep Convolutional Networks** have proven to be very successful in impressive RL algorithms [LeCun, Bottou, Bengio & Haffner, 1998].
+- ANNs can use TD errors to learn value functions, or they can aim to maximize expected reward as in a gradient bandit ([Section 2.8](ch02-multi-armed-bandits.qmd#sec-ch02-2-8)) or a policy gradient algorithm ([Chapter 13](ch13-policy-gradient-methods.qmd#sec-ch13-13-1)).
+- Overfitting in ANNs is a problem for function approximation that can be reduced through the **dropout** method [@srivastava2014].
+- **Deep belief networks** presented a major step towards solving the training problem of deep layers of a deep ANN [@hinton2006].
+- **Batch normalization** makes it easier to train deep ANNs by normalizing the output of deep layers before they feed into the following layer. This improves the learning rate of deep ANNs [@ioffe2015].
+- **Deep residual learning** is another technique useful for training deep ANNs [@he2016].
+- **Deep Convolutional Networks** have proven to be very successful in impressive RL algorithms [@lecun1998].
 - In summary, advances in the design and training of ANNs, of which we have only mentioned a few, all contribute to RL.
 - Although current RL theory is mostly limited to methods using tabular or linear function approximation methods, the impressive performances of notable RL applications owe much of their success to nonlinear function approximation by multi-layer ANNs.
 

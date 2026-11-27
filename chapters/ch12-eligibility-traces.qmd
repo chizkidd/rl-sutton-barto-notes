@@ -183,7 +183,7 @@ $$
   - Can be performed **incrementally and online**.
   - Learns **immediately** and alters behavior during an episode if something good or bad happens, for control methods.
 
-- Linear TD($\lambda$) converges in the on-policy case if the step-size parameter $\alpha$ is reduced over time according to stochastic approximation theory conditions.
+- Linear TD($\lambda$) converges in the on-policy case if the step-size parameter $\alpha$ is reduced over time according to [stochastic approximation theory conditions](ch02-multi-armed-bandits.qmd#step-size-parameter).
 - The convergence of linear TD($\lambda$) is not to the minimum-error weight vector but to a nearby weight vector that depends on $\lambda$.
 - The bound on solution quality generalized for any $\lambda$, for the continuing, discounted case is:
 
@@ -520,7 +520,7 @@ $$\boxed{G_t^{\lambda a} \doteq R_{t+1} + \gamma_{t+1}\!\left[(1 - \lambda_{t+1}
 
 - or the **Expected Sarsa form**:
 
-$$\boxed{G_t^{\lambda a} \doteq R_{t+1} + \gamma_{t+1}\!\left[(1 - \lambda_{t+1})\, \bar{V}_t(S_{t+1}) + \lambda_{t+1}\, G_{t+1}^{\bar{\lambda}a}\right]}$$
+$$\boxed{G_t^{\lambda a} \doteq R_{t+1} + \gamma_{t+1}\!\left[(1 - \lambda_{t+1})\, \bar{V}_t(S_{t+1}) + \lambda_{t+1}\, G_{t+1}^{\lambda a}\right]}$$
 
 $$
 \begin{aligned}
@@ -529,14 +529,7 @@ $$
 \end{aligned}
 $$
 
-### Superscripts notation for $i$ in $G_t^{\lambda i}$
-
-$$
-\begin{aligned}
-\text{"s"} &: \text{bootstraps from state values} \\
-\text{"a"} &: \text{bootstraps from action values}
-\end{aligned}
-$$
+- **Superscript notation for $i$ in $G_t^{\lambda i}$**: `"s"` bootstraps from state values; `"a"` bootstraps from action values.
 
 ## Off-Policy Traces with Control Variates {#sec-ch12-12-9}
 
@@ -650,7 +643,7 @@ $$
 
 - At $\lambda = 1$, these algorithms become closely related to corresponding Monte Carlo algorithms.
 - No episode-by-episode equivalence of updates exist, only of their expectations, even under the most favorable conditions.
-  - Methods have been proposed recently **[Sutton, Mahmood, Precup & van Hasselt, 2014]** that do achieve an exact equivalence.
+  - Methods have been proposed recently [@sutton2014] that do achieve an exact equivalence.
   - These methods require an additional vector of **"provisional weights"** that keep track of executed updates but may need to be retracted/emphasized depending on future actions taken.
   - The state and state-action versions of these methods are called **PTD($\lambda$) and PQ($\lambda$)** respectively, where the 'P' stands for Provisional.
 - If $\lambda < 1$, then all these off-policy algorithms involve bootstrapping and **the deadly triad** applies, meaning that they can be guaranteed stable only for the tabular case, state aggregation and other limited forms of function approximation.
@@ -816,7 +809,7 @@ $$
 
 - In the on-policy case ($\rho_t = 1$ for all $t$), Emphatic TD($\lambda$) is similar to conventional TD($\lambda$), but still significantly different:
   - Emphatic TD($\lambda$) is guaranteed to converge for all state-dependent $\lambda$ functions; TD($\lambda$) is not (TD($\lambda$) is guaranteed only for constant $\lambda$).
-  - See Yu's counterexample **[Ghassian, Rafiee & Sutton, 2016].**
+  - See Yu's counterexample [@ghiassian2016].
 
 ## Implementation Issues {#sec-ch12-12-12}
 

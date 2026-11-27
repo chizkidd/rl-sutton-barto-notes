@@ -183,5 +183,5 @@ Generalized Policy Iteration.
 - Standard DP runs full state-space sweeps using **expected updates**, weighting every possible next state by its transition probability until the corresponding **Bellman equations** ($v_\pi, v_*, q_\pi, q_*$) hold to convergence.
 - **Generalized Policy Iteration (GPI)** unifies DP and nearly all later RL algorithms as a continuous push-and-pull between improving value estimates and making policies greedier with respect to them.
 - **Asynchronous DP** drops full sweeps altogether, updating states in place in arbitrary or priority-driven order while still converging as long as all states continue to be visited.
-- Every DP algorithm relies on **bootstrapping** (revising estimates using other estimates). Chapter 5 removes both the model requirement and bootstrapping via Monte Carlo sampling.
+- Every DP algorithm relies on **bootstrapping** (revising estimates using other estimates). [Chapter 5](ch05-monte-carlo.qmd#sec-ch05-5-1) removes both the model requirement and bootstrapping via Monte Carlo sampling.
 

@@ -158,7 +158,7 @@ With a properly decaying step size, this converges to the true winning probabili
 Tic-tac-toe is deliberately simple. RL is much more general:
 
 - **Continuous problems**: no discrete episodes, rewards can come at any time.
-- **Huge or infinite state spaces**: Tesauro's TD-Gammon combined this exact algorithm with a neural network to master backgammon (~$10^{20}$ states), eventually surpassing the world's best human players (Section 16.1). Generalization from experience through function approximation is what makes this possible.
+- **Huge or infinite state spaces**: Tesauro's TD-Gammon [@tesauro1995] combined this exact algorithm with a neural network to master backgammon (~$10^{20}$ states), eventually surpassing the world's best human players (Section 16.1). Generalization from experience through function approximation is what makes this possible.
 - **Partial observability**: RL works even when the agent can't see the full state.
 - **No model required**: the tic-tac-toe player has no model of its opponent whatsoever and still learns to beat it. Model-free methods are often simpler, more robust when accurate models are hard to build, and important building blocks for model-based methods.
 - **Prior knowledge**: RL doesn't require starting from scratch, prior information can be incorporated in many ways ([Sections 9.5](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-5), 13.1, 17.4).
@@ -207,7 +207,7 @@ In the mid-1950s, **Richard Bellman** formalized the problem of designing a cont
 
 **Ronald Howard** (1960) added policy iteration. Together, these became the theoretical backbone of modern RL.
 
-DP is still considered the only general method for stochastic optimal control, but it suffers from Bellman's own **"curse of dimensionality"** where computational cost grows exponentially with the number of state variables. For a long time, DP was seen as an offline, model-dependent computation with little connection to learning. That perception changed slowly, with Werbos (1987) being an early advocate for integrating DP with learning, and **Chris Watkins (1989)** finally completing the integration through Q-learning.
+DP is still considered the only general method for stochastic optimal control, but it suffers from Bellman's own **"curse of dimensionality"** where computational cost grows exponentially with the number of state variables. For a long time, DP was seen as an offline, model-dependent computation with little connection to learning. That perception changed slowly, with Werbos (1987) being an early advocate for integrating DP with learning, and **Chris Watkins** [@watkins1989] finally completing the integration through Q-learning.
 
 ### Thread 3: Temporal-Difference Learning {#thread-3-temporal-difference-learning}
 
@@ -220,7 +220,7 @@ Temporal-difference (TD) methods are driven by the difference between successive
 
 ### Convergence {#convergence}
 
-By 1981, Barto, Sutton, and Anderson had combined TD learning with trial-and-error learning in the **actor-critic architecture**, applied to Michie and Chambers's pole-balancing task. Sutton (1988) generalized TD learning as a standalone prediction method and introduced the **TD($\lambda$)** algorithm. Watkins's **Q-learning** (1989) brought all three threads fully together.
+By 1981, Barto, Sutton, and Anderson had combined TD learning with trial-and-error learning in the **actor-critic architecture**, applied to Michie and Chambers's pole-balancing task. @sutton1988 generalized TD learning as a standalone prediction method and introduced the **TD($\lambda$)** algorithm. Watkins's **Q-learning** (1989) brought all three threads fully together.
 
 The field then accelerated rapidly:
 

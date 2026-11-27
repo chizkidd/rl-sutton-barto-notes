@@ -1,6 +1,6 @@
 # Preface {.unnumbered}
 
-These are independent personal study notes accompanying *Reinforcement Learning: An Introduction* by Richard S. Sutton and Andrew G. Barto (2nd Edition, MIT Press, 2018; [book homepage](http://incompleteideas.net/book/the-book-2nd.html)). The textbook is distributed by its authors under the [Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Generic (CC BY-NC-ND 2.0)](https://creativecommons.org/licenses/by-nc-nd/2.0/) license.
+These are independent personal study notes accompanying *Reinforcement Learning: An Introduction* by Richard S. Sutton and Andrew G. Barto (2nd Edition, MIT Press, 2018; 2020 corrected reprint [@sutton2020]; [book homepage](http://incompleteideas.net/book/the-book-2nd.html)). The textbook is distributed by its authors under the [Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Generic (CC BY-NC-ND 2.0)](https://creativecommons.org/licenses/by-nc-nd/2.0/) license.
 
 These notes are an independent companion for study and review, not a substitute for the textbook. Mathematical notation follows standard reinforcement learning conventions from the book, and backup diagrams are included as figures.
 
@@ -154,5 +154,5 @@ These notes are meant to accompany the textbook, not replace it. They are most u
 
 ## Reference {.unnumbered}
 
-Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.  
+Sutton, R. S., & Barto, A. G. (2020). *Reinforcement Learning: An Introduction* (2nd ed., 2018; 2020 corrected reprint). MIT Press.  
 Available at: [http://incompleteideas.net/book/the-book-2nd.html](http://incompleteideas.net/book/the-book-2nd.html)

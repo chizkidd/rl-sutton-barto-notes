@@ -137,7 +137,7 @@ Chapter 7 also keeps five SVG attempts next to its PNGs. They are commented out 
 
 ## Reference
 
-Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.
+Sutton, R. S., & Barto, A. G. (2020). *Reinforcement Learning: An Introduction* (2nd ed., 2018; 2020 corrected reprint). MIT Press.
 
 ## Citation
 

@@ -211,7 +211,7 @@ G_{t:h} &\doteq R_{t+1} + \gamma\left[\rho_{t+1} G_{t+1:h} + \bar{V}_{h-1}(S_{t+
     1. Control Variates
     2. Adapt the step size to the observed variance (Autostep Method)
     3. Invariant updates of Karampatziakis & Langford [2010]
-    4. The usage technique by Mahmood [2017; Mahmood & Sutton, 2015]
+    4. The usage technique by Mahmood [@mahmood2017; @mahmood2015]
 
 ## Off-policy Learning Without Importance Sampling: The $n$-step Tree Backup Algorithm {#sec-ch07-7-5}
 
@@ -336,7 +336,7 @@ Backup diagram for 4-step TD & 4-step Q update.
   - **More computation** per time step than previously covered methods.
   - Require **more memory** to record the states, actions, rewards, and sometimes other variables over the last $n$ time steps than the one-step methods.
 
-- In Chapter 12, we'll learn how multi-step TD methods can be implemented with minimal memory and computational complexity using **eligibility traces.**
+- In [Chapter 12](ch12-eligibility-traces.qmd#sec-ch12-12-1), we'll learn how multi-step TD methods can be implemented with minimal memory and computational complexity using **eligibility traces.**
 - $n$-step methods, while being quite complex, are conceptually clear. Hence the development of two $n$-step off-policy learning approaches based on:
   - **Importance-sampling**: conceptually simple but has high variance.
   - **Tree-based backup updates**: natural extension of Q-learning to the multi-step case with stochastic target policies.

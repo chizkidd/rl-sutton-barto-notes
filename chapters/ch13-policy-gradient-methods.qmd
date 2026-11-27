@@ -130,7 +130,7 @@ $$\boxed{\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \nabla\pi(a 
 
 ## REINFORCE: Monte Carlo Policy Gradient {#sec-ch13-13-3}
 
-- REINFORCE is our first policy gradient algorithm.
+- REINFORCE [@williams1992] is our first policy gradient algorithm.
 - The goal/strategy is to find a way to get samples such that the expectation of the sample gradient is proportional to the actual performance gradient as a function of the parameters.
 - The sample gradients need to only be proportional to the performance gradient because any proportionality constant can be absorbed into the step size $\alpha$.
 - The policy gradient theorem gives **an exact expression proportional to the gradient**; so all that is needed is a way of sampling whose expectation equals or approximates this expression.

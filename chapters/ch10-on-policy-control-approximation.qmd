@@ -10,7 +10,7 @@ number-sections: true
 
 ## Episodic Semi-gradient Control {#sec-ch10-10-1}
 
-- The extension of the semi-gradient prediction methods of Chapter 9 to action values is straightforward.
+- The extension of the semi-gradient prediction methods of [Chapter 9](ch09-on-policy-prediction-approximation.qmd#sec-ch09-9-1) to action values is straightforward.
 - It is the approximate action-value function, $\hat{q} \approx q_\pi$, that is represented as a parametrized functional form with weight vector $\mathbf{w}$.
 - Before, the training examples had the form $S_t \mapsto U_t$; now the examples have the form $S_t, A_t \mapsto U_t$.
 - The update target $U_t$ can be any approximation of $q_\pi(S_t, A_t)$, including the usual backed-up values such as the full Monte Carlo (MC) return $G_t$ or any $n$-step Sarsa return $G_{t:t+n}$.

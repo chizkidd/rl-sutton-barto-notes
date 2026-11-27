@@ -129,7 +129,7 @@ def fix_opf(opf: str, docs: dict[str, str], lang: str) -> str:
     if "<dc:description>" not in opf:
         desc = (
             "    <dc:description>Independent personal study notes accompanying "
-            "Sutton &amp; Barto, Reinforcement Learning: An Introduction (2nd ed., MIT Press, 2018)."
+            "Sutton &amp; Barto, Reinforcement Learning: An Introduction (2nd ed., MIT Press, 2018; 2020 corrected reprint)."
             "</dc:description>\n"
         )
         opf = opf.replace("</metadata>", f"{desc}  </metadata>", 1)
@@ -137,7 +137,7 @@ def fix_opf(opf: str, docs: dict[str, str], lang: str) -> str:
     if "<dc:rights>" not in opf:
         rights = (
             "    <dc:rights>Independent study notes by Chizoba Obasi. "
-            "Textbook referenced: Sutton &amp; Barto (2018), CC BY-NC-ND 2.0."
+            "Textbook referenced: Sutton &amp; Barto (2020), CC BY-NC-ND 2.0."
             "</dc:rights>\n"
         )
         opf = opf.replace("</metadata>", f"{rights}  </metadata>", 1)

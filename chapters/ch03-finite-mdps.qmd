@@ -65,7 +65,7 @@ $$r(s,a,s') \doteq \mathbb{E}\left[R_t \mid S_{t-1} = s,\, A_{t-1} = a,\, S_t = 
 - The agent's goal is to maximize the cumulative reward it receives in the long run not the immediate reward.
 - This idea was formalized by the **reward hypothesis**.
 
-::: {.callout-note title="Reward Hypothesis (Sutton & Barto, 2018, §3.2)"}
+::: {.callout-note title="Reward Hypothesis (Sutton & Barto, 2020, §3.2)"}
 > "That all of what we mean by goals and purposes can be well thought of as the maximization of the expected value of the cumulative sum of a received scalar signal (called reward)."
 :::
 
