@@ -38,8 +38,10 @@ $$
 from collections import defaultdict
 
 
-def td0_prediction(env, policy, episodes, alpha=0.1, gamma=0.99):
-    """Estimate state values V for a fixed policy using one-step TD(0)."""
+def td0_prediction(
+    env, policy, episodes, alpha=0.1, gamma=0.99
+):
+    """Estimate V for a fixed policy via one-step TD(0)."""
     V = defaultdict(float)
 
     for _ in range(episodes):
@@ -140,8 +142,10 @@ def eps_greedy(Q, state, num_actions, eps):
     return random.choice(tied)
 
 
-def sarsa(env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1):
-    """On-policy one-step TD control estimating action values Q."""
+def sarsa(
+    env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1
+):
+    """On-policy one-step TD control for action values Q."""
     Q = defaultdict(float)
 
     for _ in range(episodes):
@@ -149,9 +153,14 @@ def sarsa(env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1):
         action = eps_greedy(Q, state, num_actions, eps)
         while not done:
             next_state, reward, done = env.step(action)
-            next_action = None if done else eps_greedy(Q, next_state, num_actions, eps)
-            target = reward + (0.0 if done else gamma * Q[next_state, next_action])
-            Q[state, action] += alpha * (target - Q[state, action])
+            next_action = (
+                None if done
+                else eps_greedy(Q, next_state, num_actions, eps)
+            )
+            boot = 0.0 if done else Q[next_state, next_action]
+            target = reward + gamma * boot
+            td_err = target - Q[state, action]
+            Q[state, action] += alpha * td_err
             state, action = next_state, next_action
 
     return dict(Q)
@@ -195,8 +204,10 @@ $$R_{t+1} + \gamma Q(S_{t+1}, A') = R_{t+1} + \gamma Q\!\left(S_{t+1}, \arg\max_
 from collections import defaultdict
 
 
-def q_learning(env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1):
-    """Off-policy one-step TD control directly estimating q_*."""
+def q_learning(
+    env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1
+):
+    """Off-policy 1-step TD control directly estimating q_*."""
     Q = defaultdict(float)
 
     for _ in range(episodes):
@@ -204,9 +215,15 @@ def q_learning(env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1):
         while not done:
             action = eps_greedy(Q, state, num_actions, eps)
             next_state, reward, done = env.step(action)
-            best_next = 0.0 if done else max(Q[next_state, a] for a in range(num_actions))
+            if done:
+                best_next = 0.0
+            else:
+                best_next = max(
+                    Q[next_state, a] for a in range(num_actions)
+                )
             target = reward + gamma * best_next
-            Q[state, action] += alpha * (target - Q[state, action])
+            td_err = target - Q[state, action]
+            Q[state, action] += alpha * td_err
             state = next_state
 
     return dict(Q)
@@ -262,8 +279,11 @@ import random
 from collections import defaultdict
 
 
-def double_q_learning(env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1):
-    """Double Q-learning using two decoupled Q tables to curb maximization bias."""
+def double_q_learning(
+    env, num_actions, episodes,
+    alpha=0.1, gamma=0.99, eps=0.1,
+):
+    """Double Q-learning with two decoupled Q tables."""
     Q1, Q2 = defaultdict(float), defaultdict(float)
 
     for _ in range(episodes):
@@ -272,19 +292,35 @@ def double_q_learning(env, num_actions, episodes, alpha=0.1, gamma=0.99, eps=0.1
             if random.random() < eps:
                 action = random.randrange(num_actions)
             else:
-                totals = [Q1[state, a] + Q2[state, a] for a in range(num_actions)]
+                totals = [
+                    Q1[state, a] + Q2[state, a]
+                    for a in range(num_actions)
+                ]
                 best = max(totals)
-                action = random.choice([a for a, v in enumerate(totals) if v == best])
+                tied = [
+                    a for a, v in enumerate(totals) if v == best
+                ]
+                action = random.choice(tied)
 
             next_state, reward, done = env.step(action)
             if random.random() < 0.5:
-                a_star = max(range(num_actions), key=lambda a: Q1[next_state, a])
-                target = reward + (0.0 if done else gamma * Q2[next_state, a_star])
-                Q1[state, action] += alpha * (target - Q1[state, action])
+                a_star = max(
+                    range(num_actions),
+                    key=lambda a: Q1[next_state, a],
+                )
+                boot = 0.0 if done else Q2[next_state, a_star]
+                target = reward + gamma * boot
+                td_err = target - Q1[state, action]
+                Q1[state, action] += alpha * td_err
             else:
-                a_star = max(range(num_actions), key=lambda a: Q2[next_state, a])
-                target = reward + (0.0 if done else gamma * Q1[next_state, a_star])
-                Q2[state, action] += alpha * (target - Q2[state, action])
+                a_star = max(
+                    range(num_actions),
+                    key=lambda a: Q2[next_state, a],
+                )
+                boot = 0.0 if done else Q1[next_state, a_star]
+                target = reward + gamma * boot
+                td_err = target - Q2[state, action]
+                Q2[state, action] += alpha * td_err
             state = next_state
 
     return dict(Q1), dict(Q2)

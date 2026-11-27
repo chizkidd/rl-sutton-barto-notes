@@ -2,6 +2,7 @@
  *
  * Overrides Pandoc's hardcoded dark-on-light colors so Apple Books, Kobo,
  * Kindle, and Calibre can theme text cleanly in Light, Sepia, and Dark modes,
+ * wraps code blocks cleanly without right-edge clipping in paginated readers,
  * and tightens vertical spacing between stacked display equations.
  */
 
@@ -15,9 +16,56 @@ a {
   text-decoration: underline;
 }
 
-pre, code {
+/* Code blocks: prevent horizontal clipping in paginated e-readers (Apple Books, Kobo, Kindle) */
+div.sourceCode {
+  overflow: visible !important;
+  background-color: rgba(127, 127, 127, 0.10) !important;
+  color: inherit !important;
+  border-radius: 4px;
+  padding: 0.55em 0.7em;
+  margin: 0.75em 0;
+}
+
+pre,
+pre.sourceCode {
+  white-space: pre-wrap !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  font-size: 0.78em;
+  line-height: 1.38;
+  margin: 0;
+  color: inherit;
+}
+
+pre:not(.sourceCode) {
+  background-color: rgba(127, 127, 127, 0.10);
+  border-radius: 4px;
+  padding: 0.55em 0.7em;
+  margin: 0.75em 0;
+}
+
+pre > code,
+pre > code.sourceCode {
+  white-space: pre-wrap !important;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  font-size: 1em;
+  background-color: transparent !important;
+  color: inherit;
+}
+
+pre > code.sourceCode > span {
+  display: inline;
+  line-height: 1.38;
+}
+
+/* Inline code only (avoids double-shading inside pre blocks) */
+:not(pre) > code {
   background-color: rgba(127, 127, 127, 0.12);
   color: inherit;
+  padding: 0.08em 0.25em;
+  border-radius: 3px;
+  font-size: 0.9em;
 }
 
 blockquote {

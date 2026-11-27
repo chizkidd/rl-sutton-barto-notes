@@ -48,9 +48,10 @@ $$\text{model} \to \text{simulated experience} \xrightarrow{\text{backups}} \tex
 import random
 
 def random_sample_q_planning(
-    states, actions_fn, sample_model, alpha=0.1, gamma=0.95, steps=10_000
+    states, actions_fn, sample_model,
+    alpha=0.1, gamma=0.95, steps=10_000,
 ):
-    """Run random-sample one-step tabular Q-planning against a sample model."""
+    """Random-sample one-step tabular Q-planning."""
     Q = {(s, a): 0.0 for s in states for a in actions_fn(s)}
 
     for _ in range(steps):
@@ -59,7 +60,10 @@ def random_sample_q_planning(
         r, s_next = sample_model(s, a)
 
         next_actions = actions_fn(s_next)
-        best_next = max((Q[(s_next, a_next)] for a_next in next_actions), default=0.0)
+        best_next = max(
+            (Q[(s_next, a_next)] for a_next in next_actions),
+            default=0.0,
+        )
         td_target = r + gamma * best_next
         Q[(s, a)] += alpha * (td_target - Q[(s, a)])
 
@@ -109,15 +113,17 @@ def random_sample_q_planning(
 import random
 
 def tabular_dyna_q(
-    env, n_planning=5, alpha=0.1, gamma=0.95, eps=0.1, total_steps=5_000
+    env, n_planning=5, alpha=0.1,
+    gamma=0.95, eps=0.1, total_steps=5_000,
 ):
-    """Tabular Dyna-Q combining direct Q-learning, model learning, and planning."""
+    """Tabular Dyna-Q: direct RL, model learning, planning."""
     Q, model, seen = {}, {}, {}
 
     def best_q(st, done):
         if done:
             return 0.0
-        return max((Q.get((st, a), 0.0) for a in env.actions(st)), default=0.0)
+        vals = (Q.get((st, a), 0.0) for a in env.actions(st))
+        return max(vals, default=0.0)
 
     s = env.reset()
     for _ in range(total_steps):
@@ -125,11 +131,14 @@ def tabular_dyna_q(
         if random.random() < eps:
             a = random.choice(actions)
         else:
-            a = max(actions, key=lambda act: Q.get((s, act), 0.0))
+            a = max(
+                actions, key=lambda act: Q.get((s, act), 0.0)
+            )
         r, s_next, done = env.step(a)
 
         q_sa = Q.get((s, a), 0.0)
-        Q[(s, a)] = q_sa + alpha * (r + gamma * best_q(s_next, done) - q_sa)
+        td = r + gamma * best_q(s_next, done) - q_sa
+        Q[(s, a)] = q_sa + alpha * td
         model[(s, a)] = (r, s_next, done)
         seen.setdefault(s, set()).add(a)
 
@@ -139,7 +148,8 @@ def tabular_dyna_q(
             pa = random.choice(tuple(seen[ps]))
             pr, ps_next, pdone = model[(ps, pa)]
             q_p = Q.get((ps, pa), 0.0)
-            Q[(ps, pa)] = q_p + alpha * (pr + gamma * best_q(ps_next, pdone) - q_p)
+            td_p = pr + gamma * best_q(ps_next, pdone) - q_p
+            Q[(ps, pa)] = q_p + alpha * td_p
 
         s = env.reset() if done else s_next
     return Q

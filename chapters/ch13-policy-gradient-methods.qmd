@@ -159,7 +159,9 @@ $$\boxed{\boldsymbol{\theta}_{t+1} \doteq \boldsymbol{\theta}_t + \alpha G_t \fr
 import numpy as np
 
 
-def reinforce(env, policy, theta_init, num_episodes, alpha, gamma=1.0):
+def reinforce(
+    env, policy, theta_init, num_episodes, alpha, gamma=1.0
+):
     """Episodic Monte Carlo policy gradient ascent."""
     theta = np.array(theta_init, dtype=float, copy=True)
 
@@ -177,8 +179,10 @@ def reinforce(env, policy, theta_init, num_episodes, alpha, gamma=1.0):
             returns.append(g_t)
 
         discount = 1.0
-        for (state, action, _), g_val in zip(trajectory, reversed(returns)):
-            theta += alpha * discount * g_val * policy.grad_log_prob(state, action, theta)
+        steps = zip(trajectory, reversed(returns))
+        for (state, action, _), g_val in steps:
+            grad = policy.grad_log_prob(state, action, theta)
+            theta += alpha * discount * g_val * grad
             discount *= gamma
 
     return theta
@@ -208,9 +212,10 @@ import numpy as np
 
 
 def reinforce_with_baseline(
-    env, policy, value_fn, theta_init, w_init, num_episodes, alpha_theta, alpha_w, gamma=1.0
+    env, policy, value_fn, theta_init, w_init,
+    num_episodes, alpha_theta, alpha_w, gamma=1.0,
 ):
-    """Episodic REINFORCE using a learned state-value baseline."""
+    """Episodic REINFORCE with a learned baseline."""
     theta = np.array(theta_init, dtype=float, copy=True)
     w = np.array(w_init, dtype=float, copy=True)
 
@@ -228,10 +233,12 @@ def reinforce_with_baseline(
             returns.append(g_t)
 
         discount = 1.0
-        for (state, action, _), g_val in zip(trajectory, reversed(returns)):
+        steps = zip(trajectory, reversed(returns))
+        for (state, action, _), g_val in steps:
             delta = g_val - value_fn.predict(state, w)
             w += alpha_w * delta * value_fn.grad(state, w)
-            theta += alpha_theta * discount * delta * policy.grad_log_prob(state, action, theta)
+            grad = policy.grad_log_prob(state, action, theta)
+            theta += alpha_theta * discount * delta * grad
             discount *= gamma
 
     return theta, w
@@ -272,9 +279,10 @@ import numpy as np
 
 
 def one_step_actor_critic(
-    env, policy, value_fn, theta_init, w_init, num_episodes, alpha_theta, alpha_w, gamma=1.0
+    env, policy, value_fn, theta_init, w_init,
+    num_episodes, alpha_theta, alpha_w, gamma=1.0,
 ):
-    """Online episodic one-step actor-critic using TD(0) for the critic."""
+    """Online episodic 1-step actor-critic with TD(0)."""
     theta = np.array(theta_init, dtype=float, copy=True)
     w = np.array(w_init, dtype=float, copy=True)
 
@@ -286,11 +294,16 @@ def one_step_actor_critic(
         while not done:
             action = policy.sample(state, theta)
             next_state, reward, done = env.step(action)
-            v_next = 0.0 if done else value_fn.predict(next_state, w)
-            delta = reward + gamma * v_next - value_fn.predict(state, w)
+            v_next = (
+                value_fn.predict(next_state, w)
+                if not done else 0.0
+            )
+            v_curr = value_fn.predict(state, w)
+            delta = reward + gamma * v_next - v_curr
 
             w += alpha_w * delta * value_fn.grad(state, w)
-            theta += alpha_theta * discount * delta * policy.grad_log_prob(state, action, theta)
+            grad = policy.grad_log_prob(state, action, theta)
+            theta += alpha_theta * discount * delta * grad
             discount *= gamma
             state = next_state
 
@@ -312,7 +325,7 @@ def actor_critic_traces_episodic(
     env, policy, value_fn, theta_init, w_init, num_episodes,
     alpha_theta, alpha_w, lam_theta, lam_w, gamma=1.0,
 ):
-    """Episodic actor-critic with separate actor and critic eligibility traces."""
+    """Episodic actor-critic with eligibility traces."""
     theta = np.array(theta_init, dtype=float, copy=True)
     w = np.array(w_init, dtype=float, copy=True)
 
@@ -323,12 +336,18 @@ def actor_critic_traces_episodic(
         while not done:
             action = policy.sample(state, theta)
             next_state, reward, done = env.step(action)
-            v_next = 0.0 if done else value_fn.predict(next_state, w)
-            delta = reward + gamma * v_next - value_fn.predict(state, w)
+            v_next = (
+                value_fn.predict(next_state, w)
+                if not done else 0.0
+            )
+            v_curr = value_fn.predict(state, w)
+            delta = reward + gamma * v_next - v_curr
 
             z_w = gamma * lam_w * z_w + value_fn.grad(state, w)
-            grad_log = policy.grad_log_prob(state, action, theta)
-            z_theta = gamma * lam_theta * z_theta + discount * grad_log
+            grad = policy.grad_log_prob(state, action, theta)
+            z_theta = (
+                gamma * lam_theta * z_theta + discount * grad
+            )
             w += alpha_w * delta * z_w
             theta += alpha_theta * delta * z_theta
             discount *= gamma
@@ -410,7 +429,7 @@ def actor_critic_traces_continuing(
     env, policy, value_fn, theta_init, w_init, num_steps,
     alpha_theta, alpha_w, alpha_r, lam_theta, lam_w,
 ):
-    """Continuing-task average-reward actor-critic with eligibility traces."""
+    """Continuing average-reward actor-critic with traces."""
     theta = np.array(theta_init, dtype=float, copy=True)
     w = np.array(w_init, dtype=float, copy=True)
     z_theta, z_w = np.zeros_like(theta), np.zeros_like(w)
@@ -420,11 +439,13 @@ def actor_critic_traces_continuing(
         action = policy.sample(state, theta)
         next_state, reward = env.step(action)[:2]
         v_s = value_fn.predict(state, w)
-        delta = reward - avg_reward + value_fn.predict(next_state, w) - v_s
+        v_next = value_fn.predict(next_state, w)
+        delta = reward - avg_reward + v_next - v_s
         avg_reward += alpha_r * delta
 
         z_w = lam_w * z_w + value_fn.grad(state, w)
-        z_theta = lam_theta * z_theta + policy.grad_log_prob(state, action, theta)
+        grad = policy.grad_log_prob(state, action, theta)
+        z_theta = lam_theta * z_theta + grad
         w += alpha_w * delta * z_w
         theta += alpha_theta * delta * z_theta
         state = next_state
